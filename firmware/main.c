@@ -3,8 +3,8 @@
 #include "hardware_io.h"
 
 #include "lib/ws2812.h"
+#include "lib/usb_handler.h"
 #include "src/timer_daq.h"
-#include "src/communication_usb.h"
 
 
 void gpio_callback(uint gpio, uint32_t events) {
@@ -54,6 +54,7 @@ int main(){
     };
 
     //Main Loop for communication
-    while (true)
-        process_usb_data(&usb_buffer);
+    while (true){
+        process_usb_data(&usb_buffer, CLK_TEST_PIN);
+    }
 }

@@ -40,7 +40,8 @@
     "files.associations": {
         "stdlib.h": "c",
         "stdio.h": "c",
-        "hardware_io.h": "c"
+        "hardware_io.h": "c",
+        "filter_iir_template.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

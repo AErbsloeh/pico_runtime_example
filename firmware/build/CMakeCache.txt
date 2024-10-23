@@ -21,7 +21,15 @@ CMAKE_ADDR2LINE:FILEPATH=C:/Users/erbsloeh/.pico-sdk/toolchain/13_2_Rel1/bin/arm
 CMAKE_AR:FILEPATH=C:/Users/erbsloeh/.pico-sdk/toolchain/13_2_Rel1/bin/arm-none-eabi-ar.exe
 
 //ASM compiler
-CMAKE_ASM_COMPILER:FILEPATH=C:/Users/erbsloeh/.pico-sdk/toolchain/13_2_Rel1/bin/arm-none-eabi-gcc.exe
+CMAKE_ASM_COMPILER:STRING=C:/Users/erbsloeh/.pico-sdk/toolchain/13_2_Rel1/bin/arm-none-eabi-gcc.exe
+
+//A wrapper around 'ar' adding the appropriate '--plugin' option
+// for the GCC compiler
+CMAKE_ASM_COMPILER_AR:FILEPATH=C:/Users/erbsloeh/.pico-sdk/toolchain/13_2_Rel1/bin/arm-none-eabi-gcc-ar.exe
+
+//A wrapper around 'ranlib' adding the appropriate '--plugin' option
+// for the GCC compiler
+CMAKE_ASM_COMPILER_RANLIB:FILEPATH=C:/Users/erbsloeh/.pico-sdk/toolchain/13_2_Rel1/bin/arm-none-eabi-gcc-ranlib.exe
 
 //Flags used by the ASM compiler during all build types.
 CMAKE_ASM_FLAGS:STRING=-mcpu=cortex-m0plus -mthumb
@@ -340,6 +348,13 @@ pico_sdk_SOURCE_DIR:STATIC=C:/Users/erbsloeh/.pico-sdk/sdk/2.0.0
 CMAKE_ADDR2LINE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_AR
 CMAKE_AR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_ASM_COMPILER
+CMAKE_ASM_COMPILER-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_ASM_COMPILER_AR
+CMAKE_ASM_COMPILER_AR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_ASM_COMPILER_RANLIB
+CMAKE_ASM_COMPILER_RANLIB-ADVANCED:INTERNAL=1
+CMAKE_ASM_COMPILER_WORKS:INTERNAL=1
 //ADVANCED property for variable: CMAKE_ASM_FLAGS
 CMAKE_ASM_FLAGS-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_ASM_FLAGS_DEBUG

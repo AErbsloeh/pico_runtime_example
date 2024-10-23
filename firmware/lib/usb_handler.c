@@ -1,4 +1,4 @@
-#include "src/communication_usb.h"
+#include "lib/usb_handler.h"
 
 #include "hardware_io.h"
 #include "src/timer_daq.h"
@@ -20,7 +20,7 @@ void handling_usb_fifo_buffer(usb_fifo_buffer* fifo_buffer){
 };
 
 
-void process_usb_data(usb_fifo_buffer* fifo_buffer){
+void process_usb_data(usb_fifo_buffer* fifo_buffer, uint8_t gpio_led){
     //Getting data
     handling_usb_fifo_buffer(fifo_buffer);
     // Datahandler            
@@ -46,15 +46,10 @@ void process_usb_data(usb_fifo_buffer* fifo_buffer){
             // Turn On ISR Timer
             init_timer_isr(false);
         }
-        else if(val_chck == 'Y'){
-            // Processing data
-            uint16_t data_read = ((uint16_t)buffer[1] << 8) + (uint16_t)buffer[0];
-            send_uint16_data_to_hex('D', data_read);
-        }
         else{
             printf("Invalid Input!\n");
         }
-        gpio_put(CLK_TEST_PIN, state_led);
+        gpio_put(gpio_led, state_led);
     }
 };
 
@@ -62,14 +57,20 @@ void process_usb_data(usb_fifo_buffer* fifo_buffer){
 uint16_t send_uint16_data_to_hexstring(char separator, uint16_t data){
     printf("%c%04x", separator, data & 0xFFFF);
 }
+
+
 uint16_t send_uint16_data_to_hex(char separator, uint16_t data){
     char val_hgh = ((data >> 8) & 0x0000FF) + 0x00;
     char val_low = ((data >> 0) & 0x0000FF) + 0x00;  
     printf("%c%c%c", separator, val_hgh, val_low);
 }
+
+
 int16_t send_int16_data_to_hexstring(char separator, int16_t data){
     printf("%c%04x", separator, data & 0xFFFF);
 }
+
+
 int16_t send_int16_data_to_hex(char separator, int16_t data){
     char val_hgh = ((data >> 8) & 0x0000FF) + 0x00;
     char val_low = ((data >> 0) & 0x0000FF) + 0x00;  

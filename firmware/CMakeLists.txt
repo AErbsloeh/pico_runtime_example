@@ -37,11 +37,14 @@ pico_sdk_init()
 include_directories(lib)
 add_executable(main main.c 
     lib/ws2812.c
-    lib/waveform_lut1.c
-    lib/filter_iir0.c       
-    lib/filter_iir1.c
-    src/communication_usb.c
+    lib/usb_handler.c
+    lib/i2c_handler.c
+    lib/spi_handler.c
     src/timer_daq.c
+    src/waveform_lut1.c
+    src/filter_iir0.c       
+    src/filter_iir1.c
+    
 )
 
 pico_set_program_name(main "main")
@@ -58,6 +61,8 @@ target_link_libraries(main
     pico_bootsel_via_double_reset
     hardware_clocks
     hardware_pio
+    hardware_spi
+    hardware_i2c
 )
 
 # Add the standard include files to the build

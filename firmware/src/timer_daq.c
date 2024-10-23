@@ -1,9 +1,7 @@
 #include "hardware_io.h"
 
-#include "lib/waveform_lut1.h"
-
 #include "lib/ws2812.h"
-
+#include "src/waveform_lut1.h"
 #include "src/timer_daq.h"
 
 
