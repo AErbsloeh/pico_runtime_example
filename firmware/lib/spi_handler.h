@@ -51,4 +51,19 @@ static spi_device_handler_t DEVICE_SPI_DEFAULT = {
 */
 bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave);
 
+
+/*! \brief Function for configuring a software-defined SPI interface for RP2040
+* \param handler        Pointer to struct for setting-up the SPI interface module
+* \return   Bool if configuration of SPI module was successful
+*/
+bool configure_spi_module_soft(spi_device_handler_t *handler);
+
+
+/*! \brief Function for sending data via software-defined SPI interface
+* \param handler        Pointer to struct for setting-up the SPI interface module
+* \return   Bool if configuration of SPI module was successful
+*/
+uint16_t send_data_spi_module_soft(spi_device_handler_t *handler, uint16_t data);
+
+
 #endif
