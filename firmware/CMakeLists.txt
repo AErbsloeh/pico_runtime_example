@@ -44,6 +44,8 @@ add_executable(main main.c
     src/waveform_lut1.c
     src/filter_iir0.c       
     src/filter_iir1.c
+    sens/SHT21.c
+    sens/VEML7700.c
     
 )
 
