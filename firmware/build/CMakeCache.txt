@@ -319,7 +319,7 @@ PICO_STDIO_UART:BOOL=ON
 PICO_STDIO_USB:BOOL=OFF
 
 //No help, variable specified on the command line.
-Python3_EXECUTABLE:UNINITIALIZED=C:/Users/erbsloeh/.pico-sdk/python/3.12.1/python.exe
+Python3_EXECUTABLE:UNINITIALIZED=c:/Program Files/Python311/python.exe
 
 //Value Computed by CMake
 main_BINARY_DIR:STATIC=C:/GitHub/pico_firmware_template/firmware/build
@@ -508,7 +508,7 @@ DOXYGEN_DOT_EXECUTABLE-ADVANCED:INTERNAL=1
 DOXYGEN_EXECUTABLE-ADVANCED:INTERNAL=1
 FAMILY_MCUS:INTERNAL=RP2040
 //Details about finding Python3
-FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[C:/Users/erbsloeh/.pico-sdk/python/3.12.1/python.exe][cfound components: Interpreter ][v3.12.1()]
+FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[c:/Program Files/Python311/python.exe][cfound components: Interpreter ][v3.11.9()]
 PICO_ARM:INTERNAL=1
 PICO_BOOT_STAGE2_DIR:INTERNAL=C:/Users/erbsloeh/.pico-sdk/sdk/2.0.0/src/rp2040/boot_stage2
 PICO_CMAKE_PRELOAD_PLATFORM_DIR:INTERNAL=C:/Users/erbsloeh/.pico-sdk/sdk/2.0.0/cmake/preload/platforms
@@ -536,10 +536,10 @@ PICO_TOOLS_DIR:INTERNAL=C:/Users/erbsloeh/.pico-sdk/sdk/2.0.0/tools
 _Python3_Compiler_REASON_FAILURE:INTERNAL=
 //Development reason failure
 _Python3_Development_REASON_FAILURE:INTERNAL=
-_Python3_EXECUTABLE:INTERNAL=C:/Users/erbsloeh/.pico-sdk/python/3.12.1/python.exe
+_Python3_EXECUTABLE:INTERNAL=c:/Program Files/Python311/python.exe
 //Python3 Properties
-_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;12;1;32;64;;;abi3;C:\Users\erbsloeh\.pico-sdk\python\3.12.1\Lib;C:\Users\erbsloeh\.pico-sdk\python\3.12.1\Lib;C:\Users\erbsloeh\.pico-sdk\python\3.12.1\Lib\site-packages;C:\Users\erbsloeh\.pico-sdk\python\3.12.1\Lib\site-packages
-_Python3_INTERPRETER_SIGNATURE:INTERNAL=da48fe064520a969b6b7fc1bb9031bd8
+_Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;11;9;32;64;;;abi3;c:\Program Files\Python311\Lib;c:\Program Files\Python311\Lib;c:\Program Files\Python311\Lib\site-packages;c:\Program Files\Python311\Lib\site-packages
+_Python3_INTERPRETER_SIGNATURE:INTERNAL=6274cae587f2aa86094343c9e0c69ce4
 //NumPy reason failure
 _Python3_NumPy_REASON_FAILURE:INTERNAL=
 
