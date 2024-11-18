@@ -21,7 +21,6 @@ void init_system(uint8_t light_intensity){
     gpio_set_slew_rate(BUTTON_BOARD, GPIO_SLEW_RATE_SLOW);
     gpio_set_irq_enabled_with_callback(BUTTON_BOARD, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 
-
     gpio_init(CLK_TEST_PIN);
     gpio_set_dir(CLK_TEST_PIN, GPIO_OUT);
     gpio_put(CLK_TEST_PIN, false);

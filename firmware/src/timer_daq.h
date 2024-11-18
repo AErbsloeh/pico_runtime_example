@@ -1,10 +1,27 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
+/*!
+    \param rt
+*/
+bool process_timer0_irq(repeating_timer_t *rt);
 
-static repeating_timer_t timer0;
-static volatile bool alarm_done;
 
-bool process_timer_irq(repeating_timer_t *rt);
-static void init_timer_irq_alarm(void);
-void init_timer_isr(bool enable_timer);
+/*!
+    \param rt
+*/
+bool process_timer1_irq(repeating_timer_t *rt);
+
+
+/*!
+    \param enable_timer
+    \param period_callback
+*/
+void init_timer0_isr(bool enable_timer, int32_t period_callback);
+
+
+/*!
+    \param enable_timer
+    \param period_callback
+*/
+void init_timer1_isr(bool enable_timer, int32_t period_callback);
