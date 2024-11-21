@@ -36,14 +36,12 @@ pico_sdk_init()
 # Add executable. Default name is the project name, version 0.1
 include_directories(lib)
 add_executable(main main.c 
-    lib/ws2812.c
     lib/usb_handler.c
     lib/i2c_handler.c
     lib/spi_handler.c
-    src/timer_daq.c
-    src/waveform_lut1.c
-    src/filter_iir0.c       
-    src/filter_iir1.c
+    lib/timer_daq.c
+    src/waveform_lut1.c   
+    lib/ws2812.c
     sens/SHT21.c
     sens/VEML7700.c
     

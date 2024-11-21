@@ -1,7 +1,7 @@
 #include "lib/usb_handler.h"
 
 #include "hardware_io.h"
-#include "src/timer_daq.h"
+#include "lib/timer_daq.h"
 
 
 // --- Code for USB FIFO BUFFER
@@ -37,14 +37,6 @@ void process_usb_data(usb_fifo_buffer* fifo_buffer, uint8_t gpio_led){
             // Turn Off LED
             state_led = false;
             printf("LED=off\n");
-        }
-        else if(val_chck == 'A'){
-            // Turn On ISR Timer
-            init_timer_isr(true);
-        }
-        else if(val_chck == 'Q'){
-            // Turn On ISR Timer
-            init_timer_isr(false);
         }
         else{
             printf("Invalid Input!\n");
