@@ -1,7 +1,7 @@
 #ifndef _VEML7700_H_
 #define _VEML7700_H_
 
-#include "lib/i2c_handler.h"
+#include "sens/i2c_handler.h"
 
 
 // Handler for configuring and controlling the device

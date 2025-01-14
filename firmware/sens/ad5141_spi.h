@@ -9,7 +9,7 @@
 
 
 // ========================================================== DEFINITIONS ==========================================================
-/*! \brief Struct handler for configuring the Digital Potentiometer AD5141 from Analog Devices with I2C interface
+/*! \brief Struct handler for configuring the Digital Potentiometer AD5141 from Analog Devices with SPI interface
 * \param spi_handler    Predefined SPI handler for RP2040
 * \param device_csn     GPIO Pin I2C device adresse (will be defined in init function)
 * \param init_done      Boolean if device configuration is done        

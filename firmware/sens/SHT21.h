@@ -1,6 +1,10 @@
 #ifndef _SHT21_H_
 #define _SHT21_H_
 
+#include <stdio.h>
+#include "pico/stdlib.h"
+#include "hardware/gpio.h"
+#include "hardware/i2c.h"
 #include "lib/i2c_handler.h"
 
 // Handler for configuring and controlling the device
