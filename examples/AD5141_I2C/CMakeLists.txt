@@ -37,7 +37,7 @@ pico_sdk_init()
 include_directories(lib)
 add_executable(main main_ad5141_i2c.c 
     lib/i2c_handler.c
-    lib/ad5141_i2c.c
+    sens/ad5141_i2c.c
 )
 
 pico_set_program_name(main "main")

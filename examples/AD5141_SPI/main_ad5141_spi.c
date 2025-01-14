@@ -4,7 +4,7 @@
 #include "hardware/gpio.h"
 
 #include "lib/spi_handler.h"
-#include "lib/ad5141_spi.h"
+#include "sens/ad5141_spi.h"
 
 
 int main(){ 

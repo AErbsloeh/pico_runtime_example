@@ -7,6 +7,7 @@
 #include "hardware/i2c.h"
 #include "lib/i2c_handler.h"
 
+
 // Handler for configuring and controlling the device
 typedef struct {
     i2c_device_handler_t *i2c_mod;
@@ -67,20 +68,6 @@ bool SHT21_init(sht21_handler_t *handler);
  * \param handler   SHT21 Handler for init. and processing data
  */
 void SHT21_do_soft_reset(sht21_handler_t *handler);
-
-
-/** \brief Performing a soft reset of the SHT21
- *
- * \param handler   SHT21 Handler for init. and processing data
- */
-uint8_t SHT21_read_user_register(sht21_handler_t *handler);
-
-
-/** \brief Read data from SHT21 with no master hold
- *
-* \param handler   SHT21 Handler for init. and processing data
- */
-uint16_t SHT21_read_data(sht21_handler_t *handler, uint8_t command);
 
 
 /** \brief Read data and calculate humidity from SHT21 sensor

@@ -4,7 +4,7 @@
 #include "hardware/gpio.h"
 
 #include "lib/i2c_handler.h"
-#include "lib/ad5141_i2c.h"
+#include "sens/ad5141_i2c.h"
 
 
 int main(){ 

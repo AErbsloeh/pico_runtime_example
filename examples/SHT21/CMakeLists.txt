@@ -35,9 +35,9 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 include_directories(lib)
-add_executable(main main_ad5142.c 
+add_executable(main main_sht21.c 
     lib/i2c_handler.c
-    sens/ad5142a.c
+    sens/SHT21.c
 )
 
 pico_set_program_name(main "main")

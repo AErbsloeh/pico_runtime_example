@@ -37,7 +37,7 @@ pico_sdk_init()
 include_directories(lib)
 add_executable(main main_ad5141_spi.c 
     lib/spi_handler.c
-    lib/ad51421_spi.c
+    sens/ad51421_spi.c
 )
 
 pico_set_program_name(main "main")
