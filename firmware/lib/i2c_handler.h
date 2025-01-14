@@ -9,7 +9,7 @@
 /*! \brief Struct handler for configuring the I2C interface of RP2040
 * \param pin_sda    GPIO num of used SDA
 * \param pin_scl    GPIO num of used SCL
-* \param spi_mod    I2C handler of RP2040 (i2c0 or i2c1)
+* \param i2c_mod    I2C handler of RP2040 (i2c0 or i2c1)
 * \param fi2c_khz   Used I2C clock [in kHz]
 * \param init_done  Boolean if configuration is done        
 */
@@ -31,16 +31,10 @@ static i2c_device_handler_t DEVICE_I2C_DEFAULT = {
 
 
 /*! \brief Function for configuring the I2C interface of RP2040
-* \param handler        Pointer to struct for setting-up the I2C interface module
+* \param handler    Pointer to struct for setting-up the I2C interface module
 * \return   Bool if configuration of I2C module was successful
 */
 bool configure_i2c_module(i2c_device_handler_t *handler);
-
-
-/*! \brief Function for checking if used addr on I2C bus is reserved (Fix 0x78 is ignored)
-* \param addr   7bit address of device
-*/
-bool reserved_addr(uint8_t addr);
 
 
 /*! \brief Function for scanning the I2C bus if devices are available

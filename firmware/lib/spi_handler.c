@@ -1,16 +1,16 @@
 #include "lib/spi_handler.h"
 
 
-bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave){
+bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave, uint8_t gpio_num_csn){
     // --- Init of GPIOs
     // GPIO: CS
-    gpio_init(handler->pin_cs);
-    gpio_set_dir(handler->pin_cs, GPIO_OUT);
-    gpio_set_drive_strength(handler->pin_cs, GPIO_DRIVE_STRENGTH_2MA);
-    gpio_put(handler->pin_cs, true);
+    gpio_init(gpio_num_csn);
+    gpio_set_dir(gpio_num_csn, GPIO_OUT);
+    gpio_set_drive_strength(gpio_num_csn, GPIO_DRIVE_STRENGTH_2MA);
+    gpio_put(gpio_num_csn, true);
 
     // GPIO: MOSI, SCLK, MISO
-    gpio_set_function(handler->pin_cs, GPIO_FUNC_SPI);
+    gpio_set_function(gpio_num_csn, GPIO_FUNC_SPI);
     gpio_set_function(handler->pin_sclk, GPIO_FUNC_SPI);
     gpio_set_function(handler->pin_mosi, GPIO_FUNC_SPI);
     gpio_set_function(handler->pin_miso, GPIO_FUNC_SPI);
@@ -31,12 +31,12 @@ bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave){
 }
 
 
-bool configure_spi_module_soft(spi_device_handler_t *handler){
+bool configure_spi_module_soft(spi_device_handler_t *handler, uint8_t gpio_num_csn){
     // GPIO: CS
-    gpio_init(handler->pin_cs);
-    gpio_set_dir(handler->pin_cs, GPIO_OUT);
-    gpio_set_drive_strength(handler->pin_cs, GPIO_DRIVE_STRENGTH_2MA);
-    gpio_put(handler->pin_cs, true);
+    gpio_init(gpio_num_csn);
+    gpio_set_dir(gpio_num_csn, GPIO_OUT);
+    gpio_set_drive_strength(gpio_num_csn, GPIO_DRIVE_STRENGTH_2MA);
+    gpio_put(gpio_num_csn, true);
 
     // GPIO: SCLK
     gpio_init(handler->pin_sclk);
@@ -61,13 +61,13 @@ bool configure_spi_module_soft(spi_device_handler_t *handler){
 }
 
 
-uint16_t send_data_spi_module_soft(spi_device_handler_t *handler, uint16_t data){
+uint16_t send_data_spi_module_soft(spi_device_handler_t *handler, uint16_t data, uint8_t gpio_num_csn){
     uint16_t data_returned = 0;
     uint8_t position_send = (handler->msb_first) ? (uint8_t)handler->bits_per_transfer-1 : 0;
     bool cpol = (handler->mode == 2) || (handler->mode == 3);
     bool cpha = (handler->mode % 2 == 1);
     
-    gpio_put(handler->pin_cs, false);
+    gpio_put(gpio_num_csn, false);
     for(uint8_t cnt=0; cnt < handler->bits_per_transfer; cnt++){
         // Starting condition
         if(cpha && cnt == 0) {
@@ -95,7 +95,7 @@ uint16_t send_data_spi_module_soft(spi_device_handler_t *handler, uint16_t data)
         sleep_us(1);
         position_send = (handler->msb_first) ? position_send - 1 : position_send + 1;
     };
-    gpio_put(handler->pin_cs, true);
+    gpio_put(gpio_num_csn, true);
     gpio_put(handler->pin_sclk, cpol);
 
     return data_returned;
