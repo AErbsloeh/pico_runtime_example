@@ -1,10 +1,6 @@
 #include "lib/usb_handler.h"
 
-#include "hardware_io.h"
-#include "lib/timer_daq.h"
 
-
-// --- Code for USB FIFO BUFFER
 void handling_usb_fifo_buffer(usb_fifo_buffer* fifo_buffer){
     char* buffer = *fifo_buffer->data;
     buffer[fifo_buffer->position] = getchar();

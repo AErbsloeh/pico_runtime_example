@@ -1,4 +1,4 @@
-#include "sens/SHT21.h"
+#include "sens/sht21.h"
 
 
 bool SHT21_init(sht21_handler_t *handler){

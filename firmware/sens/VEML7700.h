@@ -22,8 +22,8 @@ typedef struct {
 
 #define VEML7700_GAIN_X1        0x00
 #define VEML7700_GAIN_X2        0x01
-#define VEML7700_GAIN_XEIGHT    0x02
-#define VEML7700_GAIN_XQUAD     0x03
+#define VEML7700_GAIN_X8	    0x02
+#define VEML7700_GAIN_X4		0x03
 
 #define VEML7700_INT_100MS      0x00
 #define VEML7700_INT_200MS      0x01
@@ -37,8 +37,7 @@ typedef struct {
  * VEML7700 HANDLER FUNCTIONS
  * **********************************************************************************************************************************************************/
 
-/** \brief Reading device ID of VEML7700 light intensity sensor
- *
+/*! \brief Reading device ID of VEML7700 light intensity sensor
  * \param handler   VEML7700 Handler for init. and processing data
  * \return True, if right device ID of sensor is available
  */
@@ -46,8 +45,7 @@ bool VEML7700_read_id(veml7700_handler_t *handler);
 
 
 
-/** \brief Initialise VEML7700 light intensity sensor
- *
+/*! \brief Initialise VEML7700 light intensity sensor
  * \param handler   VEML7700 Handler for init. and processing data
  * \param enable    Enabling or disabling the sensor
  * \return True, if initialisation of sensor was successful
@@ -55,20 +53,21 @@ bool VEML7700_read_id(veml7700_handler_t *handler);
 bool VEML7700_init(veml7700_handler_t *handler, bool enable);
 
 
-/**
- * 
+/*! \brief Function for controlling the Power Saving MOde of VEML7700
+ * 	\param handler 	VEML7700 Handler for init. and processing data
+ *	\param mode 	Enabling or disabling the power saving mode
  */
 void VEML7700_set_power_saving_mode(veml7700_handler_t *handler, uint8_t mode);
 
 
-/**
- * 
+/*!	\brief Function for getting the value for Ambient Light Sensitivity (ALS) from VEML7700
+ *	\param handler 	VEML7700 Handler for init. and processing data 
  */
 uint16_t VEML7700_get_als_value(veml7700_handler_t *handler);
 
 
-/**
- * 
+/*!	\brief Function for getting the value for White Light Density from VEML7700
+ *	\param handler 	VEML7700 Handler for init. and processing data 
  */
 uint16_t VEML7700_get_white(veml7700_handler_t *handler);
 

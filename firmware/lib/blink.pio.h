@@ -11,10 +11,10 @@
 // ----- //
 // blink //
 // ----- //
-
 #define blink_wrap_target 2
 #define blink_wrap 7
 #define blink_pio_version 0
+
 
 static const uint16_t blink_program_instructions[] = {
     0x80a0, //  0: pull   block                      
@@ -29,6 +29,7 @@ static const uint16_t blink_program_instructions[] = {
             //     .wrap
 };
 
+
 #if !PICO_NO_HARDWARE
 static const struct pio_program blink_program = {
     .instructions = blink_program_instructions,
@@ -40,19 +41,41 @@ static const struct pio_program blink_program = {
 #endif
 };
 
+
 static inline pio_sm_config blink_program_get_default_config(uint offset) {
     pio_sm_config c = pio_get_default_sm_config();
     sm_config_set_wrap(&c, offset + blink_wrap_target, offset + blink_wrap);
     return c;
 }
 
-// this is a raw helper function for use by the user which sets up the GPIO output, and configures the SM to output on a particular pin
-void blink_program_init(PIO pio, uint sm, uint offset, uint pin) {
-   pio_gpio_init(pio, pin);
-   pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
-   pio_sm_config c = blink_program_get_default_config(offset);
-   sm_config_set_set_pins(&c, pin, 1);
-   pio_sm_init(pio, sm, offset, &c);
+
+/*! \brief Funciton for initialising and starting a PIO function for generaing a CLK signal on defined PIN
+    \param pio  PIO functionality
+    \param pin  GPIO number for CLK generation
+    \param freq Frequency value of generated CLK signal
+*/
+void clk_generation_pio_init(PIO pio, uint pin, uint freq) {
+    uint sm = 0
+    uint offset = pio_add_program(pio, &blink_program);
+
+    // --- Init Phase
+    gpio_init(CLK_PIO_PIN);
+    gpio_set_dir(CLK_PIO_PIN);
+    gpio_pull_down(CLK_PIO_PIN);
+    gpio_put(CLK_PIO_PIN, false);
+
+    // --- Defining PIO module
+    pio_gpio_init(pio, pin);
+    pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
+    pio_sm_config c = blink_program_get_default_config(offset);
+    sm_config_set_set_pins(&c, pin, 1);
+    pio_sm_init(pio, sm, offset, &c);
+
+     // --- CLK value definition
+    pio_sm_set_enabled(pio, sm, true);
+    // PIO counter program takes 3 more cycles in total than we pass as
+    // input (wait for n + 1; mov; jmp)
+    pio->txf[sm] = (MCU_CLK / (2 * freq)) - 3;
 }
 
 #endif

@@ -1,4 +1,4 @@
-#include "sens/VEML7700.h"
+#include "sens/veml7700.h"
 
 
 bool VEML7700_read_id(veml7700_handler_t *handler){
