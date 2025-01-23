@@ -4,7 +4,7 @@
 #include "hardware/gpio.h"
 
 #include "lib/i2c_handler.h"
-#include "sens/SHT21.h"
+#include "sens/sht21.h"
 
 
 int main(){ 
@@ -26,7 +26,7 @@ int main(){
 
     // Init of device
     scan_i2c_bus_for_device(&DEVICE_I2C_DEFAULT);
-    SHT21_init(&sht21_device, 0);
+    SHT21_init(&sht21_device);
 
     //Main Loop for communication
     float hum = 0.0;
@@ -35,7 +35,7 @@ int main(){
     while (true){
         hum = SHT21_get_humidity_float(&sht21_device);
         temp = SHT21_get_temperature_float(&sht21_device);
-        printf("... RH = %f \%, T = %f °C", hum, temp);
+        printf("... RH = %f %%, T = %f K", hum, temp);
         sleep_ms(1000);
     };
 }

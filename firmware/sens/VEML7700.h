@@ -1,7 +1,7 @@
 #ifndef _VEML7700_H_
 #define _VEML7700_H_
 
-#include "sens/i2c_handler.h"
+#include "lib/i2c_handler.h"
 
 
 // Handler for configuring and controlling the device
@@ -47,10 +47,9 @@ bool VEML7700_read_id(veml7700_handler_t *handler);
 
 /*! \brief Initialise VEML7700 light intensity sensor
  * \param handler   VEML7700 Handler for init. and processing data
- * \param enable    Enabling or disabling the sensor
  * \return True, if initialisation of sensor was successful
  */
-bool VEML7700_init(veml7700_handler_t *handler, bool enable);
+bool VEML7700_init(veml7700_handler_t *handler);
 
 
 /*! \brief Function for controlling the Power Saving MOde of VEML7700

@@ -2,12 +2,12 @@
 
 
 bool VEML7700_read_id(veml7700_handler_t *handler){
-    uint8_t  buffer[2] = {0x07};
+    uint8_t  buffer[2] = {0x00};
+    buffer[0] = 0x07;
+    buffer[1] = 0x00;
 
-    printf("%d, %d\n", buffer[0], buffer[1]);
     i2c_write_blocking(handler->i2c_mod->i2c_mod, VEML7700_ADR, buffer, 1, false);
     while (i2c_read_blocking(handler->i2c_mod->i2c_mod, VEML7700_ADR, buffer, 2, false) == PICO_ERROR_GENERIC);
-    printf("%d, %d\n", buffer[0], buffer[1]);
     uint16_t id = ((buffer[0] << 8) + buffer[1]); 
     printf("%d\n", id);
 
@@ -15,7 +15,7 @@ bool VEML7700_read_id(veml7700_handler_t *handler){
 }
 
 
-bool VEML7700_init(veml7700_handler_t *handler, bool enable){
+bool VEML7700_init(veml7700_handler_t *handler){
     if(!handler->i2c_mod->init_done){
         configure_i2c_module(handler->i2c_mod);
     }
@@ -27,11 +27,12 @@ bool VEML7700_init(veml7700_handler_t *handler, bool enable){
     register_data[2] = ((handler->gain & 0x07) << 3) | ((handler->int_time & 0x0C) >> 2);
     
     // Set user register data to be written
-    if (enable) {
+    if (handler->en_pwr_saving) {
         register_data[1] &= ~0x01;
     } else {
         register_data[1] |= 0x01; 
     }
+
     if (handler->use_isr_thres) {
         register_data[1] |= 0x02;
     } else {
@@ -69,7 +70,6 @@ uint16_t VEML7700_get_als_value(veml7700_handler_t *handler){
     i2c_write_blocking(handler->i2c_mod->i2c_mod, VEML7700_ADR, buffer, 1, false);
     while (i2c_read_blocking(handler->i2c_mod->i2c_mod, VEML7700_ADR, buffer, 2, false) == PICO_ERROR_GENERIC);
     uint16_t raw_als = ((buffer[0] << 8) + buffer[1]); 
-    printf("%x\n", raw_als);
     return raw_als;
 }
 
@@ -80,6 +80,5 @@ uint16_t VEML7700_get_white(veml7700_handler_t *handler){
     i2c_write_blocking(handler->i2c_mod->i2c_mod, VEML7700_ADR, buffer, 1, false);
     while (i2c_read_blocking(handler->i2c_mod->i2c_mod, VEML7700_ADR, buffer, 2, false) == PICO_ERROR_GENERIC);
     uint16_t raw_white = ((buffer[0] << 8) + buffer[1]); 
-    printf("%x\n", raw_white);
     return raw_white;
 }
