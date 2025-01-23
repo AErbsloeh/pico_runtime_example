@@ -17,6 +17,14 @@ int main(){
 		.use_isr_thres = false
     }
 
+    // --- Init of Serial COM-Port
+    stdio_init_all();
+	
+	// Wait until USB is connected
+    while(!stdio_usb_connected()){
+        sleep_ms(10);
+    }  
+
     // Init of device
     scan_i2c_bus_for_device(&setting_device);
     VEML7700_init(&setting_device, true);
