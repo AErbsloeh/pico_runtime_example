@@ -10,7 +10,7 @@ typedef struct {
     uint8_t gain;
     uint8_t int_time;
     bool    init_done;
-    bool    en_pwr_saving;
+    bool    en_device;
     bool    use_isr_thres;
 } veml7700_handler_t;
 
@@ -39,10 +39,10 @@ typedef struct {
 
 /*! \brief Reading device ID of VEML7700 light intensity sensor
  * \param handler   VEML7700 Handler for init. and processing data
+ * \param print_id  Printing the ID of device into Terminal
  * \return True, if right device ID of sensor is available
  */
-bool VEML7700_read_id(veml7700_handler_t *handler);
-
+bool VEML7700_read_id(veml7700_handler_t *handler, bool print_id);
 
 
 /*! \brief Initialise VEML7700 light intensity sensor
@@ -50,13 +50,6 @@ bool VEML7700_read_id(veml7700_handler_t *handler);
  * \return True, if initialisation of sensor was successful
  */
 bool VEML7700_init(veml7700_handler_t *handler);
-
-
-/*! \brief Function for controlling the Power Saving MOde of VEML7700
- * 	\param handler 	VEML7700 Handler for init. and processing data
- *	\param mode 	Enabling or disabling the power saving mode
- */
-void VEML7700_set_power_saving_mode(veml7700_handler_t *handler, uint8_t mode);
 
 
 /*!	\brief Function for getting the value for Ambient Light Sensitivity (ALS) from VEML7700
