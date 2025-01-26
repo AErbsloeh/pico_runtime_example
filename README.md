@@ -5,7 +5,7 @@ This repo contains a simple firmware template (folder structure, basic functiona
 ## Functions
 - Timer interrupt
 - GPIO interrupt via Button
-- LED control of WS2812b
+
 - Filter structures (IIR-Lowpass, IIR-Allpass)
 - Reading a Lookup-Table (LUT)
 - Basic functions for using a USB FIFO buffer and sending data hex to/from device from/to host
@@ -13,5 +13,7 @@ This repo contains a simple firmware template (folder structure, basic functiona
 - Scan and identify sensors on I2C bus (print via USB/UART)
 
 ## Sensor Libraries
-- SHT21
-- Bosch BMI280 (not implemented)
+- LED control of WS2812b (using PIO)
+- Environmeont Sensor: SHT21
+- Accelerator and Gyroscope: BMI280
+- Light: VEML7700
