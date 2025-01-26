@@ -17,6 +17,13 @@ typedef struct {
     bool    init_done;
 } sht21_handler_t;
 
+static sht21_handler_t SHT21_CONFIG_DEFAULT = {
+	.i2c_handler = &DEVICE_I2C_DEFAULT,
+	.heater_enable = SHT21_HEATER_OFF,
+	.otp_enable = SHT21_DISABLE_OTP,
+	.resolution = SHT21_RESOLUTION_12_14,
+	.init_done = false
+};
 
  /* **********************************************************************************************************************************************************
  * SHT21 COMMAND SET

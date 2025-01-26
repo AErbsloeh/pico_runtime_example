@@ -9,10 +9,20 @@ typedef struct {
     i2c_device_handler_t *i2c_mod;
     uint8_t gain;
     uint8_t int_time;
-    bool    init_done;
     bool    en_device;
     bool    use_isr_thres;
+	bool    init_done;
 } veml7700_handler_t;
+
+
+static veml7700_handler_t VEML7700_DEFAULT_CONFIG = {
+	.i2c_mod = &DEVICE_I2C_DEFAULT,
+	.gain = VEML7700_GAIN_X1,
+	.int_time = VEML7700_INT_100MS,
+	.en_device = true,
+	.use_isr_thres = false,
+	.init_done = false
+};
 
 
 /***********************************************************************************************************************************************************

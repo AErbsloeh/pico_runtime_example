@@ -50,6 +50,7 @@ uint16_t VEML7700_read_data(veml7700_handler_t *handler, uint8_t command){
         return raw_data;
     } else {
         VEML7700_init(handler);
+		return 0;
     }
 }
 
