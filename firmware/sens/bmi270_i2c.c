@@ -2,6 +2,7 @@
 #include "sens/bmi270_config.h"
 
 
+// ======================================== INTERNAL READ/WRITE FUNCTIONS ===============================================
 bool BMI270_i2c_write_byte(bmi270_handler_t *handler, uint8_t command, uint8_t data){
     uint8_t buffer_tx[2] = {command};
     buffer_tx[1] = data;
@@ -35,6 +36,7 @@ uint64_t BMI270_i2c_read_data(bmi270_handler_t *handler, uint8_t command, uint8_
 }
 
 
+// ======================================== FUNCTIONS ===============================================
 bool BMI270_i2c_read_id(bmi270_handler_t *handler, bool print_id){
     uint8_t data[1] = {0x00};
     uint8_t id = BMI270_i2c_read_data(handler, 0x00, data, 1);
@@ -54,55 +56,59 @@ bool BMI270_i2c_soft_reset(bmi270_handler_t *handler){
 
 
 bool BMI270_i2c_init(bmi270_handler_t *handler){
-    uint8_t status = BMI270_i2c_get_status_internal_register(handler, false);    
-    if(status == 0x01){
-        printf("BMI270 is initialized\n");
-    } else {
-        // --- Step #1: Soft reset
-        BMI270_i2c_soft_reset(handler);
-        sleep_ms(2);
+    if(!BMI270_i2c_read_id(handler, false)){
+		printf("BMI270 not found on bus");
+		return false;
+	} else {		
+		if(BMI270_i2c_get_status_internal_register(handler, false) == 0x01){
+			printf("BMI270 is initialized\n");
+		} else {
+			// --- Step #1: Soft reset
+			BMI270_i2c_soft_reset(handler);
+			sleep_ms(2);
 
-        // --- Step #2: Writing to PWR_CONF Register (FIFO disabled, fast power up enabled)
-        BMI270_i2c_write_byte(handler, 0x7C, 0x00);
-        sleep_us(500);
+			// --- Step #2: Writing to PWR_CONF Register (FIFO disabled, fast power up enabled)
+			BMI270_i2c_write_byte(handler, 0x7C, 0x00);
+			sleep_us(500);
 
-        // --- Step #3: Start Initialization
-        BMI270_i2c_write_byte(handler, 0x59, 0x00);
+			// --- Step #3: Start Initialization
+			BMI270_i2c_write_byte(handler, 0x59, 0x00);
 
-        // --- Step #4: Laod config file into device
-        for (uint16_t idx = 0; idx < 256; idx++) {
-            BMI270_i2c_write_byte(handler, 0x5B, 0x00);
-            BMI270_i2c_write_byte(handler, 0x5C, idx);
+			// --- Step #4: Laod config file into device
+			for (uint16_t idx = 0; idx < 256; idx++) {
+				BMI270_i2c_write_byte(handler, 0x5B, 0x00);
+				BMI270_i2c_write_byte(handler, 0x5C, idx);
 
-            uint8_t buffer[33] = {0x5E};    
-            for(uint8_t pos = 0; pos < 32; pos++){
-                buffer[pos + 1] = bmi270_config_file[32*idx + pos];
-            }     
-            BMI270_i2c_write_block(handler, buffer, 33);
-            sleep_us(20);
-        };
-        sleep_ms(1);
+				uint8_t buffer[33] = {0x5E};    
+				for(uint8_t pos = 0; pos < 32; pos++){
+					buffer[pos + 1] = bmi270_config_file[32*idx + pos];
+				}     
+				BMI270_i2c_write_block(handler, buffer, 33);
+				sleep_us(20);
+			};
+			sleep_ms(1);
 
-        // --- Step #5: Initialization done
-        BMI270_i2c_write_byte(handler, 0x59, 0x01);
-        sleep_ms(1);
+			// --- Step #5: Initialization done
+			BMI270_i2c_write_byte(handler, 0x59, 0x01);
+			sleep_ms(1);
 
-        // --- Step #6: Writing to PWR_CTRL Register
-        uint8_t data = 0x00 | (handler->en_temp_sensor << 3) | (handler->en_acc_sensor << 2) | (handler->en_gyro_sensor << 1);
-        BMI270_i2c_write_byte(handler, 0x7D, data);
-        sleep_ms(1);
+			// --- Step #6: Writing to PWR_CTRL Register
+			uint8_t data = 0x00 | (handler->en_temp_sensor << 3) | (handler->en_acc_sensor << 2) | (handler->en_gyro_sensor << 1);
+			BMI270_i2c_write_byte(handler, 0x7D, data);
+			sleep_ms(1);
 
-        // --- Step #7: Writing to PWR_CONF Register (FIFO disabled, fast power up enabled)
-        data = 0x00 | (handler->en_adv_pwr_mode << 0);
-        BMI270_i2c_write_byte(handler, 0x7C, data);
-        sleep_ms(10);
+			// --- Step #7: Writing to PWR_CONF Register (FIFO disabled, fast power up enabled)
+			data = 0x00 | (handler->en_adv_pwr_mode << 0);
+			BMI270_i2c_write_byte(handler, 0x7C, data);
+			sleep_ms(10);
 
-        // --- Step #8: Settings
-        BMI270_i2c_set_accelerator_settings(handler);
-        BMI270_i2c_set_gyroscope_settings(handler);
-    }
-    handler->init_done = (BMI270_i2c_get_status_internal_register(handler, false) & 0x01) && BMI270_i2c_read_id(handler, false);
-    return handler->init_done;
+			// --- Step #8: Settings
+			BMI270_i2c_set_accelerator_settings(handler);
+			BMI270_i2c_set_gyroscope_settings(handler);
+		};
+		handler->init_done = true; 
+		return true;
+	};
 }
 
 

@@ -4,6 +4,24 @@
 #include "lib/i2c_handler.h"
 
 
+/***********************************************************************************************************************************************************
+ * VEML7700 COMMANDS (More infos at: https://www.vishay.com/docs/84286/veml7700.pdf)
+ * **********************************************************************************************************************************************************/
+#define VEML7700_ADR            0x10
+
+#define VEML7700_GAIN_X1        0x00
+#define VEML7700_GAIN_X2        0x01
+#define VEML7700_GAIN_X8	    0x02
+#define VEML7700_GAIN_X4		0x03
+
+#define VEML7700_INT_100MS      0x00
+#define VEML7700_INT_200MS      0x01
+#define VEML7700_INT_400MS      0x02
+#define VEML7700_INT_800MS      0x03
+#define VEML7700_INT_50MS       0x08
+#define VEML7700_INT_25MS       0x0C
+
+
 // Handler for configuring and controlling the device
 typedef struct {
     i2c_device_handler_t *i2c_mod;
@@ -25,34 +43,9 @@ static veml7700_handler_t VEML7700_DEFAULT_CONFIG = {
 };
 
 
-/***********************************************************************************************************************************************************
- * VEML7700 COMMANDS (More infos at: https://www.vishay.com/docs/84286/veml7700.pdf)
- * **********************************************************************************************************************************************************/
-#define VEML7700_ADR            0x10
-
-#define VEML7700_GAIN_X1        0x00
-#define VEML7700_GAIN_X2        0x01
-#define VEML7700_GAIN_X8	    0x02
-#define VEML7700_GAIN_X4		0x03
-
-#define VEML7700_INT_100MS      0x00
-#define VEML7700_INT_200MS      0x01
-#define VEML7700_INT_400MS      0x02
-#define VEML7700_INT_800MS      0x03
-#define VEML7700_INT_50MS       0x08
-#define VEML7700_INT_25MS       0x0C
-
-
  /***********************************************************************************************************************************************************
  * VEML7700 HANDLER FUNCTIONS
  * **********************************************************************************************************************************************************/
-
-/*! \brief Reading device ID of VEML7700 light intensity sensor
- * \param handler   VEML7700 Handler for init. and processing data
- * \param print_id  Printing the ID of device into Terminal
- * \return True, if right device ID of sensor is available
- */
-bool VEML7700_read_id(veml7700_handler_t *handler, bool print_id);
 
 
 /*! \brief Initialise VEML7700 light intensity sensor
@@ -60,6 +53,14 @@ bool VEML7700_read_id(veml7700_handler_t *handler, bool print_id);
  * \return True, if initialisation of sensor was successful
  */
 bool VEML7700_init(veml7700_handler_t *handler);
+
+
+/*! \brief Function for reading VEML7700 device ID
+ * \param handler   VEML7700 Handler for init. and processing data
+ * \param print_id	Do print the ID into terminal
+ * \return True, if right device is available
+ */
+bool VEML7700_read_id(veml7700_handler_t *handler, bool print_id);
 
 
 /*!	\brief Function for getting the value for Ambient Light Sensitivity (ALS) from VEML7700

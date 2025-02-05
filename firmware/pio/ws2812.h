@@ -1,5 +1,5 @@
-#ifndef WS2812_H
-#define WS2812_H
+#ifndef WS2812_H_
+#define WS2812_H_
 
 #include "hardware/pio.h"
 

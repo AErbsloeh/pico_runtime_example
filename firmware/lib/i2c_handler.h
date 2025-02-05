@@ -42,4 +42,32 @@ bool configure_i2c_module(i2c_device_handler_t *handler);
 */
 void scan_i2c_bus_for_device(i2c_device_handler_t *handler);
 
+
+/*! \brief Function with RPi Pico constructor for writing on I2C bus 
+* \param i2c_handler    Pointer to struct of I2C module
+* \param adr            Adress of selected I2C device
+* \param buffer_tx      uint8 arrray with data to send on I2C bus
+* \return               Boolean if transmission is completed
+*/
+bool construct_i2c_write_data(i2c_device_handler_t *i2c_handler, uint8_t adr, uint8_t buffer_tx[], size_t len_tx);
+
+
+/*! \brief Function with RPi Pico constructor for reading on I2C bus 
+* \param i2c_handler    Pointer to struct of I2C module
+* \param adr            Adress of selected I2C device
+* \param buffer_tx      uint8 arrray with data to send on I2C bus
+* \param buffer_tx      uint8 arrray with data to receive from I2C bus
+* \return               Boolean if transmission is completed and data is valid (call with processing buffer_rx directly)
+*/
+bool construct_i2c_read_data(i2c_device_handler_t *i2c_handler, uint8_t adr, uint8_t buffer_tx[], size_t len_tx, uint8_t buffer_rx[], size_t len_rx);
+
+
+/*! \brief Function with RPi Pico constructor for processing data from buffer 
+* \param buffer_tx      uint8 arrray with data to receive from I2C bus
+* \param size           Length of array
+* \return               Value
+*/
+uint64_t translate_array_into_uint(uint8_t buffer_rx[], size_t len_rx);
+
+
 #endif

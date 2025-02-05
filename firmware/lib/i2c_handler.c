@@ -40,12 +40,38 @@ void scan_i2c_bus_for_device(i2c_device_handler_t *handler){
         // Skip over any reserved addresses.
         int ret;
         uint8_t rxdata;
-        if (reserved_addr(addr))
+        /*if (reserved_addr(addr))
             ret = PICO_ERROR_GENERIC;
-        else
-            ret = i2c_read_blocking(handler->i2c_mod, addr, &rxdata, 1, false);
+        else*/
+        ret = i2c_read_blocking(handler->i2c_mod, addr, &rxdata, 1, false);
         printf(ret < 0 ? "." : "@");
         printf(addr % 16 == 15 ? "\n" : "  ");
     }
     printf("Done.\n");
+}
+
+
+bool construct_i2c_write_data(i2c_device_handler_t *i2c_handler, uint8_t adr, uint8_t buffer_tx[], size_t len_tx){
+    i2c_write_blocking(i2c_handler->i2c_mod, adr, buffer_tx, len_tx, false);
+    sleep_us(10);
+    return true;
+}
+
+
+bool construct_i2c_read_data(i2c_device_handler_t *i2c_handler, uint8_t adr, uint8_t buffer_tx[], size_t len_tx, uint8_t buffer_rx[], size_t len_rx){
+    i2c_write_blocking(i2c_handler->i2c_mod, adr, buffer_tx, len_tx, true);
+    sleep_us(10);
+    while (i2c_read_blocking(i2c_handler->i2c_mod, adr, buffer_rx, len_rx, false) == PICO_ERROR_GENERIC){
+        sleep_us(2000);
+    }; 
+    return true;
+}
+
+
+uint64_t translate_array_into_uint(uint8_t buffer_rx[], size_t len_rx){
+    uint64_t raw_data = 0;
+    for(uint8_t idx = 0; idx < len_rx; idx++){
+        raw_data |= buffer_rx[idx] << 8*idx;
+    }
+    return raw_data;
 }

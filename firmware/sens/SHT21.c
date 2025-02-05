@@ -1,6 +1,6 @@
 #include "sens/sht21.h"
 
-
+// ======================================== FUNCTIONS ===============================================
 bool SHT21_init(sht21_handler_t *handler){
     if(!handler->i2c_mod->init_done){
         configure_i2c_module(handler->i2c_mod);

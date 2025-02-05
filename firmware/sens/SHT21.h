@@ -8,24 +8,7 @@
 #include "lib/i2c_handler.h"
 
 
-// Handler for configuring and controlling the device
-typedef struct {
-    i2c_device_handler_t *i2c_mod;
-    bool    heater_enable;
-    bool    otp_enable;
-    uint8_t resolution;
-    bool    init_done;
-} sht21_handler_t;
-
-static sht21_handler_t SHT21_CONFIG_DEFAULT = {
-	.i2c_handler = &DEVICE_I2C_DEFAULT,
-	.heater_enable = SHT21_HEATER_OFF,
-	.otp_enable = SHT21_DISABLE_OTP,
-	.resolution = SHT21_RESOLUTION_12_14,
-	.init_done = false
-};
-
- /* **********************************************************************************************************************************************************
+/* **********************************************************************************************************************************************************
  * SHT21 COMMAND SET
  *
  * T = Temperature
@@ -58,6 +41,29 @@ static sht21_handler_t SHT21_CONFIG_DEFAULT = {
 #define SHT21_RESOLUTION_08_12 0x01 // RH  8 bit (0), T 12 bit (1)
 #define SHT21_RESOLUTION_10_13 0x80 // RH 10 bit (1), T 13 bit (0)
 #define SHT21_RESOLUTION_11_11 0x81 // RH 11 bit (1), T 11 bit (1)
+
+
+/**
+ * **********************************************************************************************************************************************************
+ * SHT21 HANDLER 
+ * **********************************************************************************************************************************************************
+ */
+typedef struct {
+    i2c_device_handler_t *i2c_mod;
+    bool    heater_enable;
+    bool    otp_enable;
+    uint8_t resolution;
+    bool    init_done;
+} sht21_handler_t;
+
+static sht21_handler_t SHT21_CONFIG_DEFAULT = {
+	.i2c_mod = &DEVICE_I2C_DEFAULT,
+	.heater_enable = SHT21_HEATER_OFF,
+	.otp_enable = SHT21_DISABLE_OTP,
+	.resolution = SHT21_RESOLUTION_12_14,
+	.init_done = false
+};
+
 
  /***********************************************************************************************************************************************************
  * SHT21 HANDLER FUNCTIONS

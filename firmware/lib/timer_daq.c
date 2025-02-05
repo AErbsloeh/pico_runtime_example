@@ -3,10 +3,11 @@
 
 
 /* --------------- CODE FOR TIMER INTERRUPT SERVICE ROUTINE --------------- */
+bool state_led_tmr = false;
 bool process_timer0_irq(repeating_timer_t *rt) {
     /* CODE HAS TO BE INCLUDED */  
-    gpio_put(BOARD_LED_PIN, state_led);
-    state_led = !state_led;  
+    gpio_put(PICO_DEFAULT_LED_PIN, state_led_tmr);
+    state_led_tmr = !state_led_tmr;  
     return true;    
 };
 
