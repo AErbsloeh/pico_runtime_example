@@ -1,7 +1,7 @@
 #include "lib/spi_handler.h"
 
 
-bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave, uint8_t gpio_num_csn){
+bool configure_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_csn, bool use_spi_slave){
     // --- Init of GPIOs
     // GPIO: CS
     gpio_init(gpio_num_csn);
@@ -10,7 +10,6 @@ bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave, uin
     gpio_put(gpio_num_csn, true);
 
     // GPIO: MOSI, SCLK, MISO
-    gpio_set_function(gpio_num_csn, GPIO_FUNC_SPI);
     gpio_set_function(handler->pin_sclk, GPIO_FUNC_SPI);
     gpio_set_function(handler->pin_mosi, GPIO_FUNC_SPI);
     gpio_set_function(handler->pin_miso, GPIO_FUNC_SPI);
@@ -28,6 +27,22 @@ bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave, uin
 
     handler->init_done = true;
     return handler->init_done;
+}
+
+
+int8_t send_data_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], size_t length){
+    gpio_put(gpio_num_csn, false);
+    int8_t status = spi_write_blocking(handler->spi_mod, data_tx, length);
+    gpio_put(gpio_num_csn, true);
+    return status;
+}
+
+
+int8_t receive_data_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], uint8_t data_rx[], size_t length){
+    gpio_put(gpio_num_csn, false);
+    int8_t status = spi_write_read_blocking(handler->spi_mod, data_tx, data_rx, length);
+    gpio_put(gpio_num_csn, true);
+    return status;
 }
 
 
@@ -61,7 +76,7 @@ bool configure_spi_module_soft(spi_device_handler_t *handler, uint8_t gpio_num_c
 }
 
 
-uint16_t send_data_spi_module_soft(spi_device_handler_t *handler, uint16_t data, uint8_t gpio_num_csn){
+uint16_t send_data_spi_module_soft(spi_device_handler_t *handler, uint8_t gpio_num_csn, uint16_t data){
     uint16_t data_returned = 0;
     uint8_t position_send = (handler->msb_first) ? (uint8_t)handler->bits_per_transfer-1 : 0;
     bool cpol = (handler->mode == 2) || (handler->mode == 3);
@@ -99,4 +114,13 @@ uint16_t send_data_spi_module_soft(spi_device_handler_t *handler, uint16_t data,
     gpio_put(handler->pin_sclk, cpol);
 
     return data_returned;
+}
+
+
+uint32_t translate_array_into_uint32(uint8_t buffer_rx[], size_t len_rx){
+    uint32_t raw_data = 0;
+    for(uint8_t idx = 0; idx < len_rx; idx++){
+        raw_data |= buffer_rx[idx] << 8*idx;
+    }
+    return raw_data;
 }

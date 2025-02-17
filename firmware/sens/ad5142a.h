@@ -8,6 +8,7 @@
 #include "hardware/gpio.h"
 
 
+// More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/ad5122a_5142a.pdf
 // ========================================================== DEFINITIONS ==========================================================
 /*! \brief Struct handler for configuring the Digital Potentiometer AD5142A from Analog Devices with I2C interface
 * \param i2c_handler    Predefined I2C handler for RP2040

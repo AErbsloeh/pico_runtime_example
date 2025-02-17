@@ -7,17 +7,19 @@
 
 
 /*! \brief Struct handler for configuring the I2C interface of RP2040
-* \param pin_sda    GPIO num of used SDA
-* \param pin_scl    GPIO num of used SCL
-* \param i2c_mod    I2C handler of RP2040 (i2c0 or i2c1)
-* \param fi2c_khz   Used I2C clock [in kHz]
-* \param init_done  Boolean if configuration is done        
+* \param pin_sda        GPIO num of used SDA
+* \param pin_scl        GPIO num of used SCL
+* \param i2c_mod        I2C handler of RP2040 (i2c0 or i2c1)
+* \param fi2c_khz       Used I2C clock [in kHz]
+* \param avai_devices   Boolean if devices are available (get from checking)
+* \param init_done      Boolean if configuration is done        
 */
 typedef struct{
     uint8_t pin_sda;
     uint8_t pin_scl;
     i2c_inst_t *i2c_mod;
     uint16_t fi2c_khz;
+    bool avai_devices;
     bool init_done;
 } i2c_device_handler_t;
 
@@ -41,6 +43,13 @@ bool configure_i2c_module(i2c_device_handler_t *handler);
 * \param handler        Pointer to struct of I2C module
 */
 void scan_i2c_bus_for_device(i2c_device_handler_t *handler);
+
+
+/*! \brief Function for scanning the I2C bus if devices are available. Perform a 1-byte dummy read from the probe address. If a slave
+    acknowledges this address, the function returns the number of bytes transferred. If the address byte is ignored, the function returns -1 (=".").
+* \param handler        Pointer to struct of I2C module
+*/
+bool check_i2c_bus_for_device(i2c_device_handler_t *handler);
 
 
 /*! \brief Function with RPi Pico constructor for writing on I2C bus 
@@ -67,7 +76,7 @@ bool construct_i2c_read_data(i2c_device_handler_t *i2c_handler, uint8_t adr, uin
 * \param size           Length of array
 * \return               Value
 */
-uint64_t translate_array_into_uint(uint8_t buffer_rx[], size_t len_rx);
+uint64_t translate_array_into_uint64(uint8_t buffer_rx[], size_t len_rx);
 
 
 #endif
