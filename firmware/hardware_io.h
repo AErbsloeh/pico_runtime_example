@@ -24,3 +24,7 @@ static uint8_t led_intensity = 16;
 
 // Here: List of construct for using devices/sensors (IMPORTANT: Load as extern device and write the code in *.c)
 // Example: extern spi_device_handler_t spi_hndl0;
+// ----- INIT OF USB DEVICES
+#define USB_FIFO_SIZE   3
+extern char data[USB_FIFO_SIZE];
+extern usb_fifo_buffer usb_buffer;
