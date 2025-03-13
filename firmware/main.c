@@ -3,7 +3,9 @@
 
 int main(){   
     // Init Phase 
+	init_gpio_pico();
     init_system(128);
+	run_testbench(TB_MODE_NONE);
 
     static char data[USB_FIFO_SIZE] = {0};
     static usb_fifo_buffer usb_buffer = {

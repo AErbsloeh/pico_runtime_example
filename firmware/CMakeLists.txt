@@ -40,6 +40,8 @@ add_executable(main main.c
     lib/i2c_handler.c
     lib/spi_handler.c
     lib/timer_daq.c    
+	src/testbench.c
+	src/init_system.c
 )
 
 pico_set_program_name(main "main")

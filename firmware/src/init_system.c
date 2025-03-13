@@ -1,6 +1,19 @@
 #include "src/init_system.h"
 
 
+// --- Definition of Callback Functions of ISR
+void isr_gpio_button(uint gpio, uint32_t events) {
+    // Put the GPIO event(s) that just happened into event_str
+    printf("GPIO IRQ done");
+}
+
+
+void gpio_callback(uint gpio, uint32_t events){
+	switch(gpio){
+			case BUTTON_BOARD: isr_gpio_button(gpio, events);	break;		
+	};	
+}
+
 
 bool init_gpio_pico(void){
     //Init GPIO + IRQ (Low Level)
