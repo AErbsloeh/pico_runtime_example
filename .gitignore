@@ -51,6 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+**/__pycache__
 **/build
 **/venv
 **/.venv
