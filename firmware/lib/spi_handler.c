@@ -1,4 +1,4 @@
-#include "lib/spi_handler.h"
+#include "wrapper/spi_handler.h"
 
 
 bool configure_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_csn, bool use_spi_slave){

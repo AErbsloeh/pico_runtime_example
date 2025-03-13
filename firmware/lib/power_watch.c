@@ -1,4 +1,4 @@
-#include "lib/power_watch.h"
+#include "wrapper/power_watch.h"
 
 
 void gpio_isr_pwr_monitoring(uint gpio, uint32_t events){

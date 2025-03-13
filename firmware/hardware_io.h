@@ -27,3 +27,6 @@ void gpio_callback(uint gpio, uint32_t events) {
     // Put the GPIO event(s) that just happened into event_str
     printf("GPIO IRQ done");
 }
+
+// Here: List of construct for using devices/sensors (IMPORTANT: Load as extern device and write the code in *.c)
+// Example: extern spi_device_handler_t spi_hndl0;

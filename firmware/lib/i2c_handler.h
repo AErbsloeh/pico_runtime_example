@@ -11,7 +11,7 @@
 * \param pin_scl        GPIO num of used SCL
 * \param i2c_mod        I2C handler of RP2040 (i2c0 or i2c1)
 * \param fi2c_khz       Used I2C clock [in kHz]
-* \param avai_devices   Boolean if devices are available (get from checking)
+* \param avai_devices   Number of available devices on bus
 * \param init_done      Boolean if configuration is done        
 */
 typedef struct{
@@ -19,7 +19,7 @@ typedef struct{
     uint8_t pin_scl;
     i2c_inst_t *i2c_mod;
     uint16_t fi2c_khz;
-    bool avai_devices;
+    uint8_t avai_devices;
     bool init_done;
 } i2c_device_handler_t;
 
@@ -28,8 +28,17 @@ static i2c_device_handler_t DEVICE_I2C_DEFAULT = {
     .pin_scl = PICO_DEFAULT_I2C_SCL_PIN,
     .i2c_mod = PICO_DEFAULT_I2C,
     .fi2c_khz = 100,
+    .avai_devices = 0,
     .init_done = false
 };
+
+
+
+/*! \brief Function for initialising the I2C interface of RP2040
+* \param handler    Pointer to struct for setting-up the I2C interface module
+* \return   Bool if initialization of I2C module was successful
+*/
+bool init_i2c_module(i2c_device_handler_t *handler);
 
 
 /*! \brief Function for configuring the I2C interface of RP2040
@@ -47,9 +56,17 @@ void scan_i2c_bus_for_device(i2c_device_handler_t *handler);
 
 /*! \brief Function for scanning the I2C bus if devices are available. Perform a 1-byte dummy read from the probe address. If a slave
     acknowledges this address, the function returns the number of bytes transferred. If the address byte is ignored, the function returns -1 (=".").
+* \param handler            Pointer to struct of I2C module
+* \param addr               I2C address to search for device
+*/
+bool check_i2c_bus_for_device_specific(i2c_device_handler_t *handler, uint8_t addr);
+
+
+/*! \brief Function for scanning the I2C bus if devices are available. Perform a 1-byte dummy read from the probe address. If a slave
+    acknowledges this address, the function returns the number of bytes transferred. If the address byte is ignored, the function returns -1 (=".").
 * \param handler        Pointer to struct of I2C module
 */
-bool check_i2c_bus_for_device(i2c_device_handler_t *handler);
+bool check_i2c_bus_for_device_total(i2c_device_handler_t *handler);
 
 
 /*! \brief Function with RPi Pico constructor for writing on I2C bus 
