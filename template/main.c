@@ -4,11 +4,11 @@
 int main(){   
     // Init Phase 
 	init_gpio_pico();
-    init_system(128);
+    init_system();
 	run_testbench(TB_MODE_NONE);
 
     //Main Loop for communication
     while (true){
-        process_usb_data(&usb_buffer, CLK_TEST_PIN);
+        process_usb_data(&usb_buffer, LED_TEST);
     }
 }

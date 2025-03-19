@@ -5,9 +5,6 @@
 #include "pico/stdlib.h"
 
 
-#define USB_FIFO_SIZE   3
-
-
 /*! \brief Struct handler for configuring USB FIFO Buffer
 * \param ready      Boolean if FIFO buffer has new data is ready for processing
 * \param length     Length of the used FIFO buffer

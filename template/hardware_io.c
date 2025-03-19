@@ -2,12 +2,14 @@
 
 
 // ==================== DEVICE DEFINITION =====================
+bool state_led = false;
+
 
 // --- USB PROTOCOL
-static char data[USB_FIFO_SIZE] = {0};
-static usb_fifo_buffer usb_buffer = {
+char data_usb[USB_FIFO_SIZE] = {0};
+usb_fifo_buffer usb_buffer = {
 	.ready = false,
 	.length = USB_FIFO_SIZE,
 	.position = USB_FIFO_SIZE-1,
-	.data = data
+	.data = data_usb
 };  

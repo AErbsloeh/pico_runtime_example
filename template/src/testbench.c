@@ -9,7 +9,7 @@ void mode_tb_switch(void){
 
 
 // ============================ MAIN FUNCTION ============================
-bool run_testbench(uint8_t mode, uint8_t chnnl){
+bool run_testbench(uint8_t mode){
     switch(mode){
         case TB_MODE_NONE:      sleep_us(1);                            break;
         case TB_MODE_MUX:       mode_tb_switch();             			break;
