@@ -4,14 +4,16 @@
 #include "hardware/gpio.h"
 
 #include "wrapper/i2c_handler.h"
-#include "sens/ad5141_i2c.h"
+#include "sens/adxl345_i2c.h"
 
 
 int main(){ 
-    ad5141_i2c_t setting_device = {
-        .i2c_handler = &DEVICE_I2C_DEFAULT,
-        .adr = 0x00,
-        .init_done
+    adxl345_i2c_handler_t setting_device = {
+        .i2c_mod = &DEVICE_I2C_DEFAULT,
+        .offset_x = 0.0,
+		.offset_y = 0.0,
+		.offset_z = 0.0,
+        .init_done = false
     }
 
     // --- Init of Serial COM-Port
@@ -24,13 +26,14 @@ int main(){
 
     // Init of device
     scan_i2c_bus_for_device(&setting_device);
-    ad5141_i2c_init(&setting_device, 0);
+    if(ADXL345_init(&setting_device))
+		prinft("Init of ADXL345 done!");
 
     //Main Loop for communication
-    uint8_t pos = 0;
+    float acc_x = 0.0, acc_y = 0.0, acc_z = 0.0;
     while (true){
-        ad5141_i2c_define_level(&setting_device, 0, pos);
-        pos++;
+        ADXL345_get_acceleration(&setting_device, &acc_x, &acc_y, &acc_z);
+		printf("x=%x, x=%x, x=%x\n", acc_x, acc_y, acc_z);
         sleep_ms(250);
     };
 }
