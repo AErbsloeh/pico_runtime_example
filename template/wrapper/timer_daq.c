@@ -17,10 +17,8 @@ static void init_timer_irq_alarm(void) {
 
 
 /* --------------- CODE FOR INIT TIMER --------------- */
-bool init_timer_isr(tmr_isr_handler_t* handler){
-    // Register control
+bool enable_timer_irq(tmr_isr_handler_t* handler){
     if(handler->enable_state && !irq_is_enabled(handler->irq_number)){
-        // --- Enabling the timer
         hw_set_bits(&timer_hw->inte, 1u);
         irq_set_exclusive_handler(handler->irq_number, init_timer_irq_alarm);
         irq_set_enabled(handler->irq_number, true);
@@ -39,9 +37,17 @@ bool init_timer_isr(tmr_isr_handler_t* handler){
         } else {
             handler->init_done = true;
             handler->alarm_done = true;
-        }   
-        
-    } else if(!handler->enable_state && irq_is_enabled(handler->irq_number)){
+        }
+    } else {
+        // --- Timer is already enabled
+        sleep_ms(1);
+    }    
+    return handler->init_done;
+};    
+
+
+bool disable_timer_irq(tmr_isr_handler_t* handler){
+    if(irq_is_enabled(handler->irq_number)){
         // --- Disabling the timer
         irq_set_enabled(handler->irq_number, false);
         alarm_done = true;
@@ -52,7 +58,7 @@ bool init_timer_isr(tmr_isr_handler_t* handler){
         irq_clear(handler->irq_number);
         handler->init_done = false;
     } else {
-        // --- Timer is already enabled
+        // --- Timer is disabled
         sleep_ms(1);
     }     
     return handler->init_done;

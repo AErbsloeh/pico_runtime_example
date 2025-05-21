@@ -45,19 +45,18 @@ static tmr_isr_handler_t tmr0_example = {
 };
 
 
-
 // ======================================== FUNCTIONS ===============================================
-/*! \brief for initialisating an repeating timer using an interrupt service routine (ISR) on Pico
+/*! \brief Enabling an repeating timer using an interrupt service routine (ISR) on Pico
     \param handler      Struct handler for the repeating timer
     \return             Boolean for done initialisation of timer ISR
 */
-bool init_timer_isr(tmr_isr_handler_t* handler);
+bool enable_timer_irq(tmr_isr_handler_t* handler);
 
 
-/*! \brief Function for processing the timer0 interrupt service routine (ISR)
-    \param rt   Struct handler for the repeating timer
-    \return     Boolean if processing of ISR routine is done
+/*! \brief Disabling an repeating timer using an interrupt service routine (ISR) on Pico
+    \param handler      Struct handler for the repeating timer
+    \return             Boolean for done initialisation of timer ISR
 */
-bool process_timer_irq(repeating_timer_t *rt);
+bool disable_timer_irq(tmr_isr_handler_t* handler);
 
 #endif

@@ -1,5 +1,6 @@
 #include "sens/m24m01e.h"
 
+
 // ======================================== FUNCTIONS ===============================================
 bool M24M01E_init(m24m01e_handler_t *handler){
     gpio_init(handler->gpio_rnw);
