@@ -27,12 +27,12 @@ void process_usb_data(usb_fifo_buffer* fifo_buffer){
         if(val_chck == '1'){
             // Turn On LED
             set_default_led(true);
-            printf("LED=on\n");
+            printf("LED on\n");
         }
         else if(val_chck == '0'){
             // Turn Off LED
             set_default_led(false);
-            printf("LED=off\n");
+            printf("LED off\n");
         }
         else{
             printf("Invalid Input!\n");

@@ -11,6 +11,6 @@ int main(){
     // Main Loop
     while (true) {
         sleep_ms(500);   
-        //process_usb_data(&usb_buffer, LED_TEST);
+        process_usb_data(&usb_buffer);
     }
 }
