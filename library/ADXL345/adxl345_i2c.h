@@ -67,17 +67,22 @@ static adxl345_i2c_handler_t ADXL345_I2C_DEFAULT_CONFIG = {
 */
 bool ADXL345_init(adxl345_i2c_handler_t *handler);
 
+
 /*! \brief Function for reading the Chip ID of the acceleration sensor ADXL345
 *   \param  handler     Handler for setting the sensor
 *   \return             Boolean if sensor is available
 */
 bool ADXL345_i2c_read_id(adxl345_i2c_handler_t *handler);
 
+
 /*! \brief Function for getting the acceleration data from ADXL345
 *   \param  handler     Handler for setting the sensor
+*   \param  x           Pointer to store the X-Axis data
+*   \param  y           Pointer to store the Y-Axis data
+*   \param  z           Pointer to store the Z-Axis data
 *   \return             Boolean if sensor is available
 */
-int ADXL345_get_acceleration(adxl345_i2c_handler_t *handler, float *x, float *y, float *z);
+int ADXL345_get_acceleration(adxl345_i2c_handler_t *handler, float *x, float *y, float *z); 
 
 
 /*! \brief Function for resetting the offset values in struct for ADXL345 from Analog Devices

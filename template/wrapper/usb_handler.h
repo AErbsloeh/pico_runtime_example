@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "wrapper/led_control.h"
 
 
 /*! \brief Struct handler for configuring USB FIFO Buffer
@@ -27,9 +28,8 @@ void handling_usb_fifo_buffer(usb_fifo_buffer* fifo_buffer);
 
 /*! \brief Function for processing the output of FIFO buffer
 * \param fifo_buffer    Struct handler for handling FIFO buffer   
-* \param gpio_led       Defined GPIO for controlling a LED
 */
-void process_usb_data(usb_fifo_buffer* fifo_buffer, uint8_t gpio_led);
+void process_usb_data(usb_fifo_buffer* fifo_buffer);
 
 
 /*! \brief Function for converting uint16 data with used separator into hex string and sending out

@@ -36,10 +36,11 @@ pico_sdk_init()
 # Add executable. Default name is the project name, version 0.1
 add_executable(main main.c 
     hardware_io.c
+    wrapper/led_control.c
     wrapper/usb_handler.c
     wrapper/i2c_handler.c
     wrapper/spi_handler.c
-    wrapper/timer_daq.c    
+    wrapper/tmr_handler.c    
     src/testbench.c
     src/init_system.c
 )

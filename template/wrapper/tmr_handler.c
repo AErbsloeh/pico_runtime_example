@@ -1,4 +1,4 @@
-#include "wrapper/timer_daq.h"
+#include "wrapper/tmr_handler.h"
 
 
 /* --------------- EXAMPLE FOR USING A TIMER --------------- */

@@ -9,8 +9,9 @@
 
 #include "hardware/gpio.h"
 #include "hardware/clocks.h"
+#include "wrapper/led_control.h"
 #include "wrapper/usb_handler.h"
-#include "wrapper/timer_daq.h"
+#include "wrapper/tmr_handler.h"
 
 #include "src/init_system.h"
 #include "src/testbench.h"
@@ -30,14 +31,6 @@
 #define USB_FIFO_SIZE   3
 extern char data[USB_FIFO_SIZE];
 extern usb_fifo_buffer usb_buffer;
-
-
-// ============================== FUNCTIONS =========================================
-void init_default_led(void);
-
-bool set_default_led(bool state);
-
-bool get_default_led(void);
 
 
 #endif

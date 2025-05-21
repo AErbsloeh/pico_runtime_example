@@ -9,20 +9,19 @@ bool ADXL345_i2c_write_byte(adxl345_i2c_handler_t *handler, uint8_t command, uin
     i2c_write_blocking(handler->i2c_mod->i2c_mod, ADXL345_I2C_ADR, buffer_tx, sizeof(buffer_tx), false);
     sleep_us(50);
     return true;
-}
+};
 
 
 bool ADXL345_i2c_write_block(adxl345_i2c_handler_t *handler, uint8_t data[], uint8_t size){
     i2c_write_blocking(handler->i2c_mod->i2c_mod, ADXL345_I2C_ADR, data, size, false);
     return true;
-}
+};
 
 
 uint64_t ADXL345_i2c_read_data(adxl345_i2c_handler_t *handler, uint8_t command, uint8_t buffer_rx[], uint8_t size) { 
     uint8_t buffer_tx[1] = {command}; 
 
     // I2C-Read mit Wiederholung bei Fehlern 
-
     int ret = i2c_write_blocking(handler->i2c_mod->i2c_mod, ADXL345_I2C_ADR, buffer_tx, 1, true); 
 
     if (ret != 1) { 
@@ -43,34 +42,38 @@ uint64_t ADXL345_i2c_read_data(adxl345_i2c_handler_t *handler, uint8_t command, 
         raw_data |= (uint64_t)buffer_rx[idx] << (8 * idx);  // Little-Endian
     }
     return raw_data;
-
-} 
+}; 
 
 
 // ========================== CALLABLE FUNCTIONS ==========================
 bool ADXL345_init(adxl345_i2c_handler_t *handler) { 
-    if(!ADXL345_i2c_read_id(handler) == ADXL345_DEVID) { 
-        printf("Failed to find sensor!\n"); 
-        return false; 
-    } 
+    if(!handler->i2c_mod->init_done){
+        configure_i2c_module(handler->i2c_mod); 
+    }
 
-    // set data format to full resolution, right-justified, range = +/-2g
-    ADXL345_i2c_write_byte(handler, ADXL345_DATA_FORMAT, 0x00); 
-    // start monitoring sensor data
-    ADXL345_i2c_write_byte(handler, ADXL345_POWER_CTL, 0x08); 
-    // set data format to little endian + Tiefpassfilter 
-    ADXL345_i2c_write_byte(handler, ADXL345_DATA_FORMAT, 0x0B);
-    // BW_RATE auf 100 Hz + Tiefpassfilter (Bit D4=1) + disable Low Power Mode 
-    ADXL345_i2c_write_byte(handler, ADXL345_BW_RATE, 0x0D); // 0x0D = 100 Hz + Filter
-    return true; 
-}
+    if(check_i2c_bus_for_device_specific(handler->i2c_mod, ADXL345_I2C_ADR)) { 
+        // set data format to full resolution, right-justified, range = +/-2g
+        ADXL345_i2c_write_byte(handler, ADXL345_DATA_FORMAT, 0x00); 
+        // start monitoring sensor data
+        ADXL345_i2c_write_byte(handler, ADXL345_POWER_CTL, 0x08); 
+        // set data format to little endian + Tiefpassfilter 
+        ADXL345_i2c_write_byte(handler, ADXL345_DATA_FORMAT, 0x0B);
+        // BW_RATE auf 100 Hz + Tiefpassfilter (Bit D4=1) + disable Low Power Mode 
+        ADXL345_i2c_write_byte(handler, ADXL345_BW_RATE, 0x0D); // 0x0D = 100 Hz + Filter
+
+        handler->init_done = ADXL345_i2c_read_id(handler) == ADXL345_DEVID;
+    } else {
+        handler->init_done = false;
+    }
+    return handler->init_done; 
+};
 
 
 bool ADXL345_i2c_read_id(adxl345_i2c_handler_t *handler){
     uint8_t buffer[1] = {0};
     ADXL345_i2c_read_data(handler, 0x00, buffer, 1);
     return (buffer[0] == 0xE5);
-}
+};
 
 
 int ADXL345_get_acceleration(adxl345_i2c_handler_t *handler, float *x, float *y, float *z) { 
@@ -92,7 +95,7 @@ int ADXL345_get_acceleration(adxl345_i2c_handler_t *handler, float *x, float *y,
     *y = raw_y / ADXL345_SCALE_FACTOR; 
     *z = raw_z / ADXL345_SCALE_FACTOR; 
     return 0;
-}
+};
 
 
 void ADXL345_reset_offset(adxl345_i2c_handler_t *handler){
@@ -100,7 +103,7 @@ void ADXL345_reset_offset(adxl345_i2c_handler_t *handler){
     ADXL345_i2c_write_byte(handler, ADXL345_OFSX, 0x00);
     ADXL345_i2c_write_byte(handler, ADXL345_OFSY, 0x00);
     ADXL345_i2c_write_byte(handler, ADXL345_OFSZ, 0x00);
-}
+};
 
 
 bool ADXL345_do_calibration(adxl345_i2c_handler_t *handler){
@@ -134,5 +137,5 @@ bool ADXL345_do_calibration(adxl345_i2c_handler_t *handler){
     ADXL345_i2c_write_byte(handler, ADXL345_OFSY, ofs_y);
     ADXL345_i2c_write_byte(handler, ADXL345_OFSZ, ofs_z);
 	return true;
-}
+};
 

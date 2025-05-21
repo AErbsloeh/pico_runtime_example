@@ -16,8 +16,7 @@ void handling_usb_fifo_buffer(usb_fifo_buffer* fifo_buffer){
 };
 
 
-bool state_led_usb = false;
-void process_usb_data(usb_fifo_buffer* fifo_buffer, uint8_t gpio_led){
+void process_usb_data(usb_fifo_buffer* fifo_buffer){
     //Getting data
     handling_usb_fifo_buffer(fifo_buffer);
     // Datahandler            
@@ -27,18 +26,17 @@ void process_usb_data(usb_fifo_buffer* fifo_buffer, uint8_t gpio_led){
         
         if(val_chck == '1'){
             // Turn On LED
-            state_led_usb = true;
+            set_default_led(true);
             printf("LED=on\n");
         }
         else if(val_chck == '0'){
             // Turn Off LED
-            state_led_usb = false;
+            set_default_led(false);
             printf("LED=off\n");
         }
         else{
             printf("Invalid Input!\n");
-        }
-        gpio_put(gpio_led, state_led_usb);
+        }        
     }
 };
 

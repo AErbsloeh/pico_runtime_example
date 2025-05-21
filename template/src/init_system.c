@@ -47,8 +47,12 @@ bool init_gpio_pico(bool wait_until_usb_connected){
 
 
 bool init_system(void){
-    if(enable_timer_irq(&tmr0_example))
-        printf("Timer ISR done\n");
+    uint8_t num_init_done = 0;
 
-    return true;
+    if(enable_timer_irq(&tmr0_example)){
+        printf("Timer ISR done\n");
+        num_init_done++;
+    };
+
+    return num_init_done == 1;
 }
