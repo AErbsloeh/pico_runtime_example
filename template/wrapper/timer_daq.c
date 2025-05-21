@@ -1,6 +1,7 @@
 #include "wrapper/timer_daq.h"
 
 
+/* --------------- EXAMPLE FOR USING A TIMER --------------- */
 bool tmr_irq_routine_example(repeating_timer_t *rt){
     set_default_led(!get_default_led());  
     return true;    
