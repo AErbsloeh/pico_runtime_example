@@ -8,13 +8,12 @@
 #include "hardware/gpio.h"
 
 
-#define LED_TEST_DEFAULT    17
 // ============================== INTERNAL FUNCTIONS =========================================
 /*! Function for initializing the default LED.
- * @param None
+ * @param led_pin: The GPIO pin number for the LED (if not cyw43 LED is used).
  * @return None
  */
-void init_default_led(void);
+void init_default_led(uint8_t led_pin);
 
 
 /*! Function for setting the state of the default LED.

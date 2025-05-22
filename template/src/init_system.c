@@ -24,7 +24,7 @@ bool init_gpio_pico(bool wait_until_usb_connected){
     }   
 
     // --- Init of GPIOs
-    init_default_led();
+    init_default_led(LED_TEST_DEFAULT);
 
     // --- Init GPIO + IRQ (Low Level)
     gpio_init(BUTTON_BOARD);
