@@ -2,5 +2,7 @@
 **/venv
 **/.venv
 
+**/sens/*.c
+**/sens/*.h
 **/build
 **/.vscode
