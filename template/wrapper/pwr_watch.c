@@ -1,23 +1,32 @@
-#include "wrapper/power_watch.h"
+#include "wrapper/pwr_watch.h"
+#include "src/gpio_callbacks.h"
 
 
-void gpio_isr_pwr_monitoring(uint gpio, uint32_t events){
-    /* ADD CODE HERE WITH RIGHT STRUCT HANDLER */
-    
-    /*Example of FUNC
-    system_power_stable = false;
-    
+// ============================== ISR ROUTINES ==============================
+void gpio_isr_pwr_monitor_single(uint gpio, uint32_t events, power_single_t *config) {
+    /* ADD CODE HERE WITH RIGHT STRUCT HANDLER */  
+    disable_system_power_single(config);
+    gpio_put(config->pin_led, true);   
     while(true){
-        sleep_ms(250);
-        gpio_put(LED_ERR_PIN, false);
-        sleep_ms(250);
-        gpio_put(LED_ERR_PIN, true);        
-        printf("Please restart the System!\n");
-    };*/
+        sleep_ms(1000);   
+        printf("Power down! Please check!\n");
+    };
 }
 
 
-bool monitor_system_power_pgd_start(uint8_t pin_pgd){
+void gpio_isr_pwr_monitor_double(uint gpio, uint32_t events, power_dual_t *config) {
+    /* ADD CODE HERE WITH RIGHT STRUCT HANDLER */  
+    disable_system_power_dual(config);
+    gpio_put(config->pin_led, true);   
+    while(true){
+        sleep_ms(1000);      
+        printf("Power down! Please check!\n");
+    };
+}
+
+
+// ============================== HELP FUNCTIONS ==============================
+bool monitor_system_power_pgd_start(uint8_t pin_pgd, bool enable_callback){
     bool power_not_ready = true;
 
     for(uint16_t idx=0; idx < 10000; idx++){
@@ -27,22 +36,27 @@ bool monitor_system_power_pgd_start(uint8_t pin_pgd){
 
     if(!power_not_ready){
         sleep_ms(1000);
-        gpio_set_irq_enabled(pin_pgd, GPIO_IRQ_EDGE_RISE, true);
-        //gpio_set_irq_enabled_with_callback(pin_pgd, GPIO_IRQ_EDGE_RISE, true, &gpio_isr_pwr_monitoring);
+        if(!enable_callback){
+            gpio_set_irq_enabled(pin_pgd, GPIO_IRQ_EDGE_FALL, true);
+        } else {
+            gpio_set_irq_enabled_with_callback(pin_pgd, GPIO_IRQ_EDGE_FALL, true, &gpio_callback_handler);
+        }
     }
     return !power_not_ready;
 }
 
 
+// ============================== ROUTINES FOR SINGLE POWER SUPPLY ==============================
 bool init_system_power_single(power_single_t *config){
     gpio_init(config->pin_en);
-    gpio_set_dir(config->pin_en, true);    
+    gpio_set_dir(config->pin_en, GPIO_OUT);    
     gpio_put(config->pin_en, false);
 
     if(config->use_pgd){
         gpio_init(config->pin_pgd);
-        gpio_set_dir(config->pin_pgd, false);
+        gpio_set_dir(config->pin_pgd, GPIO_IN);
         gpio_pull_up(config->pin_pgd);
+        gpio_set_irq_enabled(config->pin_pgd, GPIO_IRQ_EDGE_FALL, true);
     }
 
     config->init_done = true;
@@ -60,7 +74,7 @@ bool enable_system_power_single(power_single_t *config){
 
     bool state = true;
     if(config->use_pgd){
-        state = monitor_system_power_pgd_start(config->pin_pgd);
+        state = monitor_system_power_pgd_start(config->pin_pgd, false);
     }
     if(!state) {
         bool state_led = false;
@@ -86,19 +100,21 @@ bool disable_system_power_single(power_single_t *config){
 }
 
 
+// ============================== ROUTINES FOR DUAL POWER SUPPLY ==============================
 bool init_system_power_dual(power_dual_t *config){
     gpio_init(config->pin_en_reg);
-    gpio_set_dir(config->pin_en_reg, true);    
+    gpio_set_dir(config->pin_en_reg, GPIO_OUT);    
     gpio_put(config->pin_en_reg, false);
 
     gpio_init(config->pin_en_ldo);
-    gpio_set_dir(config->pin_en_ldo, true);    
+    gpio_set_dir(config->pin_en_ldo, GPIO_OUT);    
     gpio_put(config->pin_en_ldo, false);
 
     if(config->use_pgd){
         gpio_init(config->pin_pgd);
-        gpio_set_dir(config->pin_pgd, false);
+        gpio_set_dir(config->pin_pgd, GPIO_IN);
         gpio_pull_up(config->pin_pgd);
+        gpio_set_irq_enabled(config->pin_pgd, GPIO_IRQ_EDGE_FALL, true);
     }
 
     config->init_done = true;
@@ -110,25 +126,25 @@ bool enable_system_power_dual(power_dual_t *config){
     if(!config->init_done){
         init_system_power_dual(config);
     }
-
+    
     sleep_ms(500);
     gpio_put(config->pin_en_reg, true);
     sleep_ms(500);
     gpio_put(config->pin_en_ldo, true);
 
-    bool state = true;
+    bool state = false;
+    bool state_led = false;
     if(config->use_pgd){
-        bool state_led = false;
-        state = monitor_system_power_pgd_start(config->pin_pgd);
+        state = monitor_system_power_pgd_start(config->pin_pgd, false);
+        
+        if(!state) {
+            disable_system_power_dual(config);
+        }
         while(!state){
             gpio_put(config->pin_led, state_led);
             state_led = !state_led;
             sleep_ms(1000);
-            printf("... system board not available. Please check!");
         }
-    }
-    if(!state) {
-        disable_system_power_dual(config);
     }
     config->state = state;
     return config->state;

@@ -15,7 +15,7 @@ int8_t ad57x4_spi_transmission(ad57x4_t *config, bool rnw, uint8_t reg, uint8_t 
 // =========================== FUNCTIONS ===========================
 bool ad57x4_init(ad57x4_t *config){
     if(!config->spi_mod->init_done){
-        configure_spi_module(config->spi_mod, config->gpio_num_csn, false);
+        configure_spi_module(config->spi_mod, false);
     }
 
     // --- Init of GPIOs

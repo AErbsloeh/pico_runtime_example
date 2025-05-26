@@ -4,7 +4,7 @@
 // ======================================== FUNCTIONS ===============================================
 bool adgs1208_init(adgs1208_t *config_device){
     if(!config_device->spi_handler->init_done){
-        configure_spi_module(config_device->spi_handler, config_device->gpio_num_csn, false);
+        configure_spi_module(config_device->spi_handler, false);
     }
 
     // --- Init of GPIO CS

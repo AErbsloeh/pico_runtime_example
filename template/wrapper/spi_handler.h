@@ -46,11 +46,10 @@ static spi_device_handler_t DEVICE_SPI_DEFAULT = {
 
 /*! \brief Function for configuring the SPI interface of RP2040
 * \param handler        Pointer to struct for setting-up the SPI interface module
-* \param gpio_num_csn   GPIO number of used CSN (default: PICO_DEFAULT_SPI_CSN_PIN)
 * \param use_spi_slave  Boolean if module is used as slave
 * \return   Bool if configuration of SPI module was successful
 */
-bool configure_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_csn, bool use_spi_slave);
+bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave);
 
 
 /*! \brief Function for sending data via hardware-defined SPI interface of the RP2040
@@ -76,10 +75,9 @@ int8_t receive_data_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_c
 
 /*! \brief Function for configuring a software-defined SPI interface for RP2040
 * \param handler        Pointer to struct for setting-up the SPI interface module
-* \param gpio_num_csn   GPIO number of used CSN (default: PICO_DEFAULT_SPI_CSN_PIN)
 * \return   Bool if configuration of SPI module was successful
 */
-bool configure_spi_module_soft(spi_device_handler_t *handler, uint8_t gpio_num_csn);
+bool configure_spi_module_soft(spi_device_handler_t *handler);
 
 
 /*! \brief Function for sending data via software-defined SPI interface

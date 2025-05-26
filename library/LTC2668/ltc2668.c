@@ -15,7 +15,7 @@ int8_t handler_pico_spi_transmission(ltc2668_handler_t *handler, uint8_t command
 bool ltc2668_init(ltc2668_handler_t *config_device){
     // --- Init of SPI module
     if(!config_device->spi_handler->init_done){
-        configure_spi_module(config_device->spi_handler, config_device->gpio_num_csn, false);
+        configure_spi_module(config_device->spi_handler, false);
     }
 
     bool error_check = true;

@@ -16,7 +16,7 @@
 */
 typedef struct{
     spi_device_handler_t *spi_handler;
-    uint8_t device_csn;
+    uint8_t device_config;
     bool init_done;
 } ad5141_spi_t;
 

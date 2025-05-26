@@ -11,6 +11,8 @@ int main(){
     static ads8881_handler_t setting_device = {
         .spi_handler = &DEVICE_SPI_DEFAULT,
         .gpio_num_csn = 1,
+		.gpio_num_conv = 0,
+		.mode = ADS8881_THREE_WIRE_W_BUSY_IND,
         .init_done = false
     };
 

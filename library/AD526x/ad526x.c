@@ -21,12 +21,19 @@ bool AD526x_write_data(ad526x_device_t *handler, bool chnnl, uint8_t data){
 // ======================================== FUNCTIONS ===============================================
 bool ad526x_init(ad526x_device_t *handler){
     if(!handler->spi_handler->init_done){
-        configure_spi_module(handler->spi_handler);
+        configure_spi_module(handler->spi_handler, false);
     }
+	
+	gpio_init(handler->gpio_cs);
+    gpio_set_dir(handler->gpio_cs, GPIO_OUT);
+    gpio_set_drive_strength(handler->gpio_cs, GPIO_DRIVE_STRENGTH_2MA);
+    gpio_put(handler->gpio_cs, true);
 
     ad526x_soft_reset(handler);
     ad526x_define_shutdown(handler);
-    return true;
+       
+	handler->init_done = true;    
+    return handler->init_done;
 }
 
 

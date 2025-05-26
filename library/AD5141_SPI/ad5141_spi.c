@@ -50,8 +50,13 @@ bool ad5141_spi_control_shutdown(ad5141_spi_t *device_config, bool enable_rdac0,
 bool ad5141_spi_init(ad5141_spi_t *device_config)
 {
     if(!device_config->spi_handler->init_done){
-        configure_spi_module(device_config->spi_handler, false, device_config->device_csn);
+        configure_spi_module(device_config->spi_handler, false);
     } 
+	
+	gpio_init(device_config->device_config);
+    gpio_set_dir(device_config->device_config, GPIO_OUT);
+    gpio_set_drive_strength(device_config->device_config, GPIO_DRIVE_STRENGTH_2MA);
+    gpio_put(device_config->device_config, true);
 
     ad5141_spi_reset_software(device_config);
     ad5141_spi_control_shutdown(device_config, true, true);    

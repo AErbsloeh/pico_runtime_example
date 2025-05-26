@@ -41,8 +41,10 @@ add_executable(main main.c
     wrapper/i2c_handler.c
     wrapper/spi_handler.c
     wrapper/tmr_handler.c    
+	wrapper/pwr_watch.c
     src/testbench.c
     src/init_system.c
+	src/gpio_callbacks.c
 )
 
 pico_set_program_name(main "main")
