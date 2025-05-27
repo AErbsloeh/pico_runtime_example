@@ -6,10 +6,9 @@
 
 
 /*! \brief  Function for initialisating the GPIO and modules of RP Pico (used in this system)
-*   \param wait_until_usb_connected   Boolean for waiting until USB (terminal opened) is connected
 *   \return                           Boolean for initialisation of RPi Pico device completed
 */
-bool init_gpio_pico(bool wait_until_usb_connected);
+bool init_gpio_pico(void);
 
 
 /*! \brief  Function for initialisating the System Functionalities

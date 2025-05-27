@@ -8,6 +8,7 @@
 #include "hardware/spi.h"
 
 
+// ========================================= DEFINITION ===============================================
 /*! \brief Struct handler for configuring the SPI interface of RP2040
 * \param pin_mosi           GPIO num of used MOSI
 * \param pin_sclk           GPIO num of used SCLK
@@ -29,9 +30,9 @@ typedef struct{
     bool msb_first;
     uint8_t bits_per_transfer;
     bool init_done;
-} spi_device_handler_t;
+} spi_pico_t;
 
-static spi_device_handler_t DEVICE_SPI_DEFAULT = {
+static spi_pico_t DEVICE_SPI_DEFAULT = {
     .pin_mosi = PICO_DEFAULT_SPI_TX_PIN,
     .pin_sclk = PICO_DEFAULT_SPI_SCK_PIN,
     .pin_miso = PICO_DEFAULT_SPI_RX_PIN,
@@ -44,12 +45,13 @@ static spi_device_handler_t DEVICE_SPI_DEFAULT = {
 };
 
 
+// ========================================= DEFINITION FOR NORMAL SPI ===============================================
 /*! \brief Function for configuring the SPI interface of RP2040
 * \param handler        Pointer to struct for setting-up the SPI interface module
 * \param use_spi_slave  Boolean if module is used as slave
 * \return   Bool if configuration of SPI module was successful
 */
-bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave);
+bool configure_spi_module(spi_pico_t *handler, bool use_spi_slave);
 
 
 /*! \brief Function for sending data via hardware-defined SPI interface of the RP2040
@@ -59,7 +61,7 @@ bool configure_spi_module(spi_device_handler_t *handler, bool use_spi_slave);
 * \param length         Number of bytes to send/receive
 * \return               Number of written/read bytes
 */
-int8_t send_data_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], size_t length);
+int8_t send_data_spi_module(spi_pico_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], size_t length);
 
 
 /*! \brief Function for sending and receiving data via hardware-defined SPI interface of the RP2040
@@ -70,14 +72,15 @@ int8_t send_data_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_csn,
 * \param length         Number of bytes to send/receive
 * \return               Number of written/read bytes
 */
-int8_t receive_data_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], uint8_t data_rx[], size_t length);
+int8_t receive_data_spi_module(spi_pico_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], uint8_t data_rx[], size_t length);
 
 
+// ========================================= DEFINITION FOR SOFT SPI ===============================================
 /*! \brief Function for configuring a software-defined SPI interface for RP2040
 * \param handler        Pointer to struct for setting-up the SPI interface module
 * \return   Bool if configuration of SPI module was successful
 */
-bool configure_spi_module_soft(spi_device_handler_t *handler);
+bool configure_spi_module_soft(spi_pico_t *handler);
 
 
 /*! \brief Function for sending data via software-defined SPI interface
@@ -86,7 +89,7 @@ bool configure_spi_module_soft(spi_device_handler_t *handler);
 * \param data           Data array (uint8_t) for sending and getting data
 * \return   Bool if configuration of SPI module was successful
 */
-uint16_t send_data_spi_module_soft(spi_device_handler_t *handler, uint8_t gpio_num_csn, uint16_t data);
+uint16_t send_data_spi_module_soft(spi_pico_t *handler, uint8_t gpio_num_csn, uint16_t data);
 
 
 /*! \brief Function with RPi Pico constructor for processing data from buffer 

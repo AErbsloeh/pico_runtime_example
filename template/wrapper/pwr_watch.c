@@ -39,7 +39,7 @@ bool monitor_system_power_pgd_start(uint8_t pin_pgd, bool enable_callback){
         if(!enable_callback){
             gpio_set_irq_enabled(pin_pgd, GPIO_IRQ_EDGE_FALL, true);
         } else {
-            gpio_set_irq_enabled_with_callback(pin_pgd, GPIO_IRQ_EDGE_FALL, true, &irq_gpio_callback);
+            gpio_set_irq_enabled_with_callback(pin_pgd, GPIO_IRQ_EDGE_FALL, true, &irq_gpio_callbacks);
         }
     }
     return !power_not_ready;

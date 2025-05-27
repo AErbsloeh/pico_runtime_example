@@ -19,6 +19,7 @@
 #include "src/gpio_callbacks.h"
 
 
+#define BLOCK_USB           true
 #define TESTBENCH_ACTIVE    TB_MODE_NONE
 // ==================== PIN DEFINITION =====================
 #define BUTTON_BOARD        11
@@ -27,21 +28,22 @@
 
 // ==================== PICO/SYSTEM DEFINITION =====================
 // --- Timer  
-//extern repeating_timer_t tmr0;
-//extern tmr_isr_handler_t tmr0_hndl;
+bool irq_tmr0(repeating_timer_t *rt);
+extern repeating_timer_t tmr0;
+extern tmr_repeat_irq_t tmr0_hndl;
 
 // ----- USB Communication
 #define USB_FIFO_SIZE   3
 extern char data[USB_FIFO_SIZE];
-extern usb_fifo_buffer usb_buffer;
+extern usb_fifo_t usb_buffer;
 
 
 // ==================== I2C DEFINITION =====================
-//extern i2c_device_handler_t i2c_mod;
+//extern i2c_pico_t i2c_mod;
 
 
 // ==================== SPI DEFINITION =====================
-//extern spi_device_handler_t spi_mod;
+//extern spi_pico_t spi_mod;
 
 
 #endif

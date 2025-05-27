@@ -9,7 +9,7 @@
 * \param gpio 	GPIO number which indicates the ISR call
 * \param events	Number of events
 */
-void irq_gpio_callback(uint gpio, uint32_t events);
+void irq_gpio_callbacks(uint gpio, uint32_t events);
 
 
 #endif

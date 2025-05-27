@@ -1,7 +1,10 @@
+#include <stdio.h>
+#include "pico/stdlib.h"
 #include "wrapper/usb_handler.h"
 
 
-void handling_usb_fifo_buffer(usb_fifo_buffer* fifo_buffer){
+// ============================== FUNCTIONS FOR PROCESSING ==============================
+void handling_usb_fifo_buffer(usb_fifo_t* fifo_buffer){
     char* buffer = *fifo_buffer->data;
     buffer[fifo_buffer->position] = getchar();
 
@@ -16,7 +19,7 @@ void handling_usb_fifo_buffer(usb_fifo_buffer* fifo_buffer){
 };
 
 
-void process_usb_data(usb_fifo_buffer* fifo_buffer){
+void process_usb_data(usb_fifo_t* fifo_buffer){
     //Getting data
     handling_usb_fifo_buffer(fifo_buffer);
     // Datahandler            
@@ -24,24 +27,29 @@ void process_usb_data(usb_fifo_buffer* fifo_buffer){
         char* buffer = *fifo_buffer->data;
         char val_chck = buffer[2];
         
-        if(val_chck == '1'){
-            // Turn On LED
-            set_default_led(true);
-            printf("LED on\n");
-        }
-        else if(val_chck == '0'){
-            // Turn Off LED
-            set_default_led(false);
-            printf("LED off\n");
-        }
-        else{
-            printf("Invalid Input!\n");
+        switch(val_chck){
+            case '0':
+                // Turn Off LED
+                set_default_led(false);
+                printf("LED off\n");
+            break;
+            case '1':
+                // Turn On LED
+                set_default_led(true);
+                printf("LED on\n");
+            break;
+            default:
+                // Echo Mode
+                for(uint8_t idx = 0; idx < fifo_buffer->length; idx++){
+                    putchar(buffer[fifo_buffer->length-1-idx]);
+                }
+            break;
         }        
     }
 };
 
 
-
+// ============================== FUNCTIONS FOR COMPRESSED DATA TRANSMISSION ==============================
 uint16_t send_uint16_data_to_hexstring(char separator, uint16_t data){
     printf("%c%04x", separator, data & 0xFFFF);
 }

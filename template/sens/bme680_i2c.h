@@ -16,13 +16,13 @@
 
 // Handler for configuring and controlling the environment sensor BME680 from Bosch 
 typedef struct {
-    i2c_device_handler_t *i2c_mod;
+    i2c_pico_t *i2c_mod;
     bool    state_sdo_vddio;
     bool    init_done;
-} bme680_i2c_handler_t;
+} bme680_i2c_t;
 
 
-static bme680_i2c_handler_t BME680_I2C_DEFAULT_CONFIG = {
+static bme680_i2c_t BME680_I2C_DEFAULT_CONFIG = {
     .i2c_mod = &DEVICE_I2C_DEFAULT,
     .state_sdo_vddio = true,
     .init_done = false
@@ -35,7 +35,7 @@ static bme680_i2c_handler_t BME680_I2C_DEFAULT_CONFIG = {
 *   \param  print_id    Boolean to print the sensor ID
 *   \return             Boolean if right Chip ID of sensor is available (0xB4)
 */
-bool BME680_i2c_read_id(bme680_i2c_handler_t *handler, bool print_id);
+bool BME680_i2c_read_id(bme680_i2c_t *handler, bool print_id);
 
 
 /*! \brief Function for performing a sofware reset on the environment sensor BME680 from Bosch
@@ -43,7 +43,7 @@ bool BME680_i2c_read_id(bme680_i2c_handler_t *handler, bool print_id);
 *   \param  print_id    Boolean to print the sensor ID
 *   \return             Boolean if right Chip ID of sensor is available (0xB4)
 */
-bool BME680_i2c_soft_reset(bme680_i2c_handler_t *handler);
+bool BME680_i2c_soft_reset(bme680_i2c_t *handler);
 
 
 #endif

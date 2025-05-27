@@ -1,7 +1,7 @@
 #include "wrapper/i2c_handler.h"
 
 
-bool init_i2c_module(i2c_device_handler_t *handler){
+bool init_i2c_module(i2c_pico_t *handler){
     if(!handler->init_done){
         configure_i2c_module(handler);
         check_i2c_bus_for_device_total(handler);
@@ -10,7 +10,7 @@ bool init_i2c_module(i2c_device_handler_t *handler){
 }
 
 
-bool configure_i2c_module(i2c_device_handler_t *handler){
+bool configure_i2c_module(i2c_pico_t *handler){
     i2c_init(handler->i2c_mod, handler->fi2c_khz * 1000);
 
     gpio_set_function(handler->pin_sda, GPIO_FUNC_I2C);
@@ -28,7 +28,7 @@ bool reserved_addr(uint8_t addr) {
 }
 
 
-void scan_i2c_bus_for_device(i2c_device_handler_t *handler){
+void scan_i2c_bus_for_device(i2c_pico_t *handler){
     init_i2c_module(handler);     
     
     printf("\n=== Scanning I2C Bus for devices ===\n");
@@ -49,7 +49,7 @@ void scan_i2c_bus_for_device(i2c_device_handler_t *handler){
 }
 
 
-bool check_i2c_bus_for_device_specific(i2c_device_handler_t *handler, uint8_t addr){
+bool check_i2c_bus_for_device_specific(i2c_pico_t *handler, uint8_t addr){
     init_i2c_module(handler);
 
     uint8_t rxdata = 0;
@@ -59,7 +59,7 @@ bool check_i2c_bus_for_device_specific(i2c_device_handler_t *handler, uint8_t ad
 }
 
 
-bool check_i2c_bus_for_device_total(i2c_device_handler_t *handler){
+bool check_i2c_bus_for_device_total(i2c_pico_t *handler){
     init_i2c_module(handler);
 
     bool ret;
@@ -74,14 +74,14 @@ bool check_i2c_bus_for_device_total(i2c_device_handler_t *handler){
 }
 
 
-bool construct_i2c_write_data(i2c_device_handler_t *i2c_handler, uint8_t adr, uint8_t buffer_tx[], size_t len_tx){
+bool construct_i2c_write_data(i2c_pico_t *i2c_handler, uint8_t adr, uint8_t buffer_tx[], size_t len_tx){
     uint8_t feedback = i2c_write_blocking(i2c_handler->i2c_mod, adr, buffer_tx, len_tx, false);
     sleep_us(10);
     return feedback != PICO_ERROR_GENERIC;
 }
 
 
-bool construct_i2c_read_data(i2c_device_handler_t *i2c_handler, uint8_t adr, uint8_t buffer_tx[], size_t len_tx, uint8_t buffer_rx[], size_t len_rx){
+bool construct_i2c_read_data(i2c_pico_t *i2c_handler, uint8_t adr, uint8_t buffer_tx[], size_t len_tx, uint8_t buffer_rx[], size_t len_rx){
     i2c_write_blocking(i2c_handler->i2c_mod, adr, buffer_tx, len_tx, true);
     sleep_us(10);
     uint8_t feedback = i2c_read_blocking(i2c_handler->i2c_mod, adr, buffer_rx, len_rx, false);

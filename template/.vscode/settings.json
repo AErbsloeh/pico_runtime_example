@@ -39,6 +39,14 @@
     "files.associations": {
         "hardware_io.h": "c",
         "timer_daq.h": "c",
-        "testbench.h": "c"
+        "testbench.h": "c",
+        "usb_handler.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "span": "c",
+        "led_control.h": "c",
+        "gpio_callbacks.h": "c",
+        "tmr_handler.h": "c"
     }
 }

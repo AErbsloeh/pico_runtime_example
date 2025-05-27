@@ -1,7 +1,7 @@
 #include "src/init_system.h"
 
 
-bool init_gpio_pico(bool wait_until_usb_connected){
+bool init_gpio_pico(){
     // --- Init of Wireless Module (if used)
     if(PICO_BOARD == "pico2_w" || PICO_BOARD == "pico_w") {
         if (cyw43_arch_init()) {
@@ -17,13 +17,13 @@ bool init_gpio_pico(bool wait_until_usb_connected){
     gpio_set_dir(BUTTON_BOARD, GPIO_IN);
     gpio_pull_up(BUTTON_BOARD);
     gpio_set_slew_rate(BUTTON_BOARD, GPIO_SLEW_RATE_SLOW);
-    gpio_set_irq_enabled_with_callback(BUTTON_BOARD, GPIO_IRQ_EDGE_FALL, true, &irq_gpio_callback);
+    gpio_set_irq_enabled_with_callback(BUTTON_BOARD, GPIO_IRQ_EDGE_FALL, true, &irq_gpio_callbacks);
 
 
     // --- Init of Serial COM-Port
     stdio_init_all();
 	// Wait until USB is connected
-    if (wait_until_usb_connected)
+    if (BLOCK_USB)
         while(!stdio_usb_connected()){
             sleep_ms(10);
         };
@@ -35,10 +35,24 @@ bool init_gpio_pico(bool wait_until_usb_connected){
 bool init_system(void){
     uint8_t num_init_done = 0;
 
-    if(enable_timer_irq(&tmr0_example)){
-        printf("Timer ISR done\n");
+    // --- Init of Timer
+    if(enable_timer_irq(&tmr0_hndl)){
         num_init_done++;
     };
 
-    return num_init_done == 1;
+    // --- Blocking Routine if init is not completed
+    if(num_init_done == 1){
+        sleep_ms(10);
+        set_default_led(true);
+        return true;
+
+    } else {
+        while(true){
+            printf("... Init System not done yet\n");
+            sleep_ms(1000);
+            set_default_led(!get_default_led());
+        }
+        return false;
+    }
+    
 }

@@ -6,7 +6,6 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
-
 #include "wrapper/i2c_handler.h"
 
 
@@ -17,12 +16,12 @@
 
 // Handler for configuring and controlling the device configuration
 typedef struct {
-    i2c_device_handler_t *i2c_mod;
+    i2c_pico_t *i2c_mod;
     uint8_t gpio_rnw;
     bool    init_done;
-} m24m01e_handler_t;
+} m24m01e_t;
 
-static m24m01e_handler_t M24M01E_DEFAULT_CONFIG = {
+static m24m01e_t M24M01E_DEFAULT_CONFIG = {
     .i2c_mod = &DEVICE_I2C_DEFAULT,
     .gpio_rnw = 0,
     .init_done = false
@@ -34,28 +33,28 @@ static m24m01e_handler_t M24M01E_DEFAULT_CONFIG = {
 *   \param  handler     Handler for setting the device
 *   \return             Boolean if right Chip ID of sensor is available (0xB4)
 */
-bool M24M01E_init(m24m01e_handler_t *handler);
+bool M24M01E_init(m24m01e_t *handler);
 
 
 /*! \brief Function for initializing the EEPROM
 *   \param  handler     Handler for setting the device
 *   \return             Boolean if right Chip ID of sensor is available (0xB4)
 */
-bool M24M01E_read_data(m24m01e_handler_t *handler);
+bool M24M01E_read_data(m24m01e_t *handler);
 
 
 /*! \brief Function for initializing the EEPROM
 *   \param  handler     Handler for setting the device
 *   \return             Boolean if right Chip ID of sensor is available (0xB4)
 */
-bool M24M01E_write_data(m24m01e_handler_t *handler);
+bool M24M01E_write_data(m24m01e_t *handler);
 
 
 /*! \brief Function for initializing the EEPROM
 *   \param  handler     Handler for setting the device
 *   \return             Boolean if right Chip ID of sensor is available (0xB4)
 */
-bool M24M01E_delete_flash(m24m01e_handler_t *handler);
+bool M24M01E_delete_flash(m24m01e_t *handler);
 
 
 

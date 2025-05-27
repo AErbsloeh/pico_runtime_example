@@ -28,13 +28,13 @@ typedef struct {
     bool enable_state;
     bool init_done;
     void (*func_irq);
-} tmr_isr_handler_t;
+} tmr_repeat_irq_t;
 
 
 // ========================================= EXAMPLE ===============================================
 bool tmr_irq_routine_example(repeating_timer_t *rt);
 static repeating_timer_t tmr_example;
-static tmr_isr_handler_t tmr0_example = {
+static tmr_repeat_irq_t tmr0_example = {
     .timer = &tmr_example,
     .irq_number = 0,
     .period_us = 250000,
@@ -47,16 +47,16 @@ static tmr_isr_handler_t tmr0_example = {
 
 // ======================================== FUNCTIONS ===============================================
 /*! \brief Enabling an repeating timer using an interrupt service routine (ISR) on Pico
-    \param handler      Struct handler for the repeating timer
-    \return             Boolean for done initialisation of timer ISR
+* \param handler      Struct handler for the repeating timer
+* \return             Boolean for done initialisation of timer ISR
 */
-bool enable_timer_irq(tmr_isr_handler_t* handler);
+bool enable_timer_irq(tmr_repeat_irq_t* handler);
 
 
 /*! \brief Disabling an repeating timer using an interrupt service routine (ISR) on Pico
-    \param handler      Struct handler for the repeating timer
-    \return             Boolean for done initialisation of timer ISR
+* \param handler      Struct handler for the repeating timer
+* \return             Boolean for done initialisation of timer ISR
 */
-bool disable_timer_irq(tmr_isr_handler_t* handler);
+bool disable_timer_irq(tmr_repeat_irq_t* handler);
 
 #endif

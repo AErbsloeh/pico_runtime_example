@@ -3,7 +3,7 @@
 
 int main(){   
     // Init Phase 
-    init_gpio_pico(false);
+    init_gpio_pico();
     init_system();
     run_testbench(TESTBENCH_ACTIVE);
 
