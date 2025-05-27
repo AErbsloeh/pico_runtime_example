@@ -1,7 +1,7 @@
 #include "sens/sht21.h"
 
 // ======================================== FUNCTIONS ===============================================
-bool SHT21_init(sht21_handler_t *handler){
+bool SHT21_init(sht21_t *handler){
     init_i2c_module(handler->i2c_mod);
 
     if(check_i2c_bus_for_device_specific(handler->i2c_mod, 0x40)){
@@ -59,14 +59,14 @@ bool SHT21_init(sht21_handler_t *handler){
 }
 
 
-void SHT21_do_soft_reset(sht21_handler_t *handler){
+void SHT21_do_soft_reset(sht21_t *handler){
     uint8_t buffer[1] = {SHT21_RESET};
     i2c_write_blocking(handler->i2c_mod->i2c_mod, 0x40, buffer, 1, true);
     sleep_ms(10);
 }
 
 
-uint8_t SHT21_read_user_register(sht21_handler_t *handler){
+uint8_t SHT21_read_user_register(sht21_t *handler){
     uint8_t buffer[1] = {SHT21_USER_REG_R};
     i2c_write_blocking(handler->i2c_mod->i2c_mod, 0x40, buffer, 1, false);
     i2c_read_blocking(handler->i2c_mod->i2c_mod, 0x40, buffer, 1, false);
@@ -74,7 +74,7 @@ uint8_t SHT21_read_user_register(sht21_handler_t *handler){
 }
 
 
-uint16_t SHT21_read_data(sht21_handler_t *handler, uint8_t command){
+uint16_t SHT21_read_data(sht21_t *handler, uint8_t command){
     uint8_t  buffer[3] = {command};
 
     i2c_write_blocking(handler->i2c_mod->i2c_mod, 0x40, buffer, 1, false);
@@ -88,25 +88,25 @@ uint16_t SHT21_read_data(sht21_handler_t *handler, uint8_t command){
 }
 
 
-float SHT21_get_humidity_float(sht21_handler_t *handler){
+float SHT21_get_humidity_float(sht21_t *handler){
     uint16_t raw_data     = SHT21_read_data(handler, SHT21_RH_NO_HOLD);
     float    rel_humidity = -6 + (125 * raw_data) / 65536;
     return rel_humidity;
 }
 
 
-uint16_t SHT21_get_humidity_uint(sht21_handler_t *handler){
+uint16_t SHT21_get_humidity_uint(sht21_t *handler){
     return SHT21_read_data(handler, SHT21_RH_NO_HOLD);
 }
 
 
-float SHT21_get_temperature_float(sht21_handler_t *handler){
+float SHT21_get_temperature_float(sht21_t *handler){
     uint16_t raw_data    = SHT21_read_data(handler, SHT21_T_NO_HOLD);
     float    temperature = 226.3 + (175.72 * raw_data) / 65536;
     return temperature;
 }
 
 
-uint16_t SHT21_get_temperature_uint(sht21_handler_t *handler){
+uint16_t SHT21_get_temperature_uint(sht21_t *handler){
     return SHT21_read_data(handler, SHT21_T_NO_HOLD);     
 }

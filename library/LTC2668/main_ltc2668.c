@@ -8,7 +8,7 @@
 
 
 int main(){ 
-    static ltc2668_handler_t LTC2668_DEFAULT_CONFIG = {
+    static ltc2668_t LTC2668_DEFAULT_CONFIG = {
     .spi_handler = &DEVICE_SPI_DEFAULT,
     .gpio_num_csn = PICO_DEFAULT_SPI_CSN_PIN,
     .gpio_num_clrn = 0,

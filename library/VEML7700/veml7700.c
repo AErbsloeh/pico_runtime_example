@@ -1,7 +1,7 @@
 #include "sens/veml7700.h"
 
 // ======================================== FUNCTIONS ===============================================
-uint16_t VEML7700_read_data(veml7700_handler_t *handler, uint8_t command){
+uint16_t VEML7700_read_data(veml7700_t *handler, uint8_t command){
     uint8_t buffer_tx[1] = {command};
     uint8_t buffer_rx[2] = {command};
     construct_i2c_read_data(handler->i2c_mod, VEML7700_ADR, buffer_tx, 1, buffer_rx, 2);
@@ -10,7 +10,7 @@ uint16_t VEML7700_read_data(veml7700_handler_t *handler, uint8_t command){
 }
 
 
-bool VEML7700_read_id(veml7700_handler_t *handler, bool print_id){
+bool VEML7700_read_id(veml7700_t *handler, bool print_id){
     uint16_t id = VEML7700_read_data(handler, 0x07);
     if(print_id){
         printf("Read ID of VEML: %x\n", id);
@@ -19,7 +19,7 @@ bool VEML7700_read_id(veml7700_handler_t *handler, bool print_id){
 }
 
 
-uint16_t VEML7700_get_als_value(veml7700_handler_t *handler){
+uint16_t VEML7700_get_als_value(veml7700_t *handler){
     if(handler->init_done){
         return VEML7700_read_data(handler, 0x04); 
     } else {
@@ -29,7 +29,7 @@ uint16_t VEML7700_get_als_value(veml7700_handler_t *handler){
 }
 
 
-uint16_t VEML7700_get_white(veml7700_handler_t *handler){
+uint16_t VEML7700_get_white(veml7700_t *handler){
     if(handler->init_done){
         return VEML7700_read_data(handler, 0x05); 
     } else {
@@ -40,7 +40,7 @@ uint16_t VEML7700_get_white(veml7700_handler_t *handler){
 }
 
 
-bool VEML7700_init(veml7700_handler_t *handler){
+bool VEML7700_init(veml7700_t *handler){
     init_i2c_module(handler->i2c_mod);
       
     if(!VEML7700_read_id(handler, false)){

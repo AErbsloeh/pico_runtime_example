@@ -22,7 +22,7 @@ typedef struct{
     uint8_t gpio_num_a1;
     uint8_t gpio_num_a2;
     bool init_done;
-} adg1408_handler_t;
+} adg1408_t;
 
 
 static adg1408_handler_t DEFAULT_ADG1408_CONFIG = {
@@ -39,14 +39,14 @@ static adg1408_handler_t DEFAULT_ADG1408_CONFIG = {
 * \param handler    Device handler for using device
 * \return           Boolean if initialization is done completely
 */
-bool adg1408_init(adg1408_handler_t *handler);
+bool adg1408_init(adg1408_t *handler);
 
 
 /*! \brief Function for enabling a channel of multiplexer ADG1408 from Analog Devices
 * \param handler    Device handler for using device
 * \param sel_chnnl  Value for selecting the number of channel (0 = disable, 1-8: channel)
 */
-void adg1408_select_chnnl(adg1408_handler_t *handler, uint8_t sel_chnnl);
+void adg1408_select_chnnl(adg1408_t *handler, uint8_t sel_chnnl);
 
 
 #endif

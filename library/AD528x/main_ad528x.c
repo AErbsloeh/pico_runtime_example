@@ -8,7 +8,7 @@
 
 
 int main(){ 
-    static ad528x_device_t setting_device = {
+    static ad528x_t setting_device = {
         .i2c_handler = &DEVICE_I2C_DEFAULT,
         .mode_sel = 0,
         .shutdown = true,

@@ -19,15 +19,15 @@
 * \param init_done      Boolean if device configuration is done        
 */
 typedef struct{
-    spi_device_handler_t *spi_handler;
+    spi_pico_t *spi_handler;
     uint8_t gpio_cs;
     bool device_mode;
     bool shutdown;
     bool init_done;
-} ad526x_device_t;
+} ad526x_t;
 
 
-static ad526x_device_t AD526X_DEFAULT_CONFIG = {
+static ad526x_t AD526X_DEFAULT_CONFIG = {
     .spi_handler = &DEVICE_SPI_DEFAULT,
     .gpio_cs = PICO_DEFAULT_SPI_CSN_PIN,
     .device_mode = false,
@@ -41,21 +41,21 @@ static ad526x_device_t AD526X_DEFAULT_CONFIG = {
 * \param handler    Device handler for using device
 * \return           Boolean if initialization is done completely
 */
-bool ad526x_init(ad526x_device_t *handler);
+bool ad526x_init(ad526x_t *handler);
 
 
 /*! \brief Function for doing a software reset to midscale
 * \param handler    Device handler for using device
 * \return           Boolean if process is done completely
 */
-bool ad526x_soft_reset(ad526x_device_t *handler);
+bool ad526x_soft_reset(ad526x_t *handler);
 
 
 /*! \brief Function for controlling the shutdown of device
 * \param handler    Device handler for using device
 * \return           Boolean if process is done completely
 */
-bool ad526x_define_shutdown(ad526x_device_t *handler);
+bool ad526x_define_shutdown(ad526x_t *handler);
 
 
 /*! \brief Function for doing a software reset to midscale
@@ -64,7 +64,7 @@ bool ad526x_define_shutdown(ad526x_device_t *handler);
 * \param data       Uint8_t value with position of channel
 * \return           Boolean if process is done completely
 */
-bool ad526x_define_output(ad526x_device_t *handler, bool chnnl, uint8_t data);
+bool ad526x_define_output(ad526x_t *handler, bool chnnl, uint8_t data);
 
 
 #endif

@@ -7,7 +7,7 @@
 
 
 int main(){ 
-    adg1408_handler_t setting_device = {
+    adg1408_t setting_device = {
         .gpio_num_en = 0,
         .gpio_num_a0 = 1,
         .gpio_num_a1 = 2,

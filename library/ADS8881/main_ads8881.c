@@ -8,7 +8,7 @@
 
 
 int main(){ 
-    static ads8881_handler_t setting_device = {
+    static ads8881_t setting_device = {
         .spi_handler = &DEVICE_SPI_DEFAULT,
         .gpio_num_csn = 1,
 		.gpio_num_conv = 0,

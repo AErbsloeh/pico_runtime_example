@@ -15,7 +15,7 @@
 * \param init_done      Boolean if device configuration is done        
 */
 typedef struct{
-    i2c_device_handler_t *i2c_handler;
+    i2c_pico_t *i2c_handler;
     uint8_t adr;
     bool init_done;
 } ad5141_i2c_t;

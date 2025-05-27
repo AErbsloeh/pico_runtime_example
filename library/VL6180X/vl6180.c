@@ -2,7 +2,7 @@
 
 
 // ======================================== INTERNAL READ/WRITE COMMANDS ===============================================
-bool VL6180_write_data(vl6180_handler_t *handler, uint16_t command, uint8_t data){
+bool VL6180_write_data(vl6180_t *handler, uint16_t command, uint8_t data){
     uint8_t buffer_tx[3] = {0x00};
     buffer_tx[0] = (command & 0xFF00) >> 8;
     buffer_tx[1] = (command & 0x00FF) >> 0;
@@ -16,7 +16,7 @@ bool VL6180_write_data(vl6180_handler_t *handler, uint16_t command, uint8_t data
 }
 
 
-bool VL6180_write_bytes(vl6180_handler_t *handler, uint16_t command, uint16_t data){
+bool VL6180_write_bytes(vl6180_t *handler, uint16_t command, uint16_t data){
     uint8_t buffer_tx[4] = {0x00};
     buffer_tx[0] = (command & 0xFF00) >> 8;
     buffer_tx[1] = (command & 0x00FF) >> 0;
@@ -31,7 +31,7 @@ bool VL6180_write_bytes(vl6180_handler_t *handler, uint16_t command, uint16_t da
 }
 
 
-bool VL6180_read_data(vl6180_handler_t *handler, uint16_t command, uint8_t buffer_rx[], size_t length){
+bool VL6180_read_data(vl6180_t *handler, uint16_t command, uint8_t buffer_rx[], size_t length){
     uint8_t buffer_tx[2] = {0x00};
     buffer_tx[0] = (command & 0xFF00) >> 8;
     buffer_tx[1] = (command & 0x00FF) >> 0;
@@ -45,26 +45,26 @@ bool VL6180_read_data(vl6180_handler_t *handler, uint16_t command, uint8_t buffe
 
 
 // ======================================== FUNCTIONS ===============================================
-bool VL6180_read_id(vl6180_handler_t *handler, bool print_id){
+bool VL6180_read_id(vl6180_t *handler, bool print_id){
     uint8_t buffer_rx[1] = {0x00};
     VL6180_read_data(handler, 0x0000, buffer_rx, 1); 
     return buffer_rx[0] == 0xB4;
 }
 
 
-bool VL6180_soft_reset(vl6180_handler_t *handler){
+bool VL6180_soft_reset(vl6180_t *handler){
     VL6180_write_data(handler, 0x0016, 0x01);
     return true;
 }
 
 
-bool VL6180_disable_reset(vl6180_handler_t *handler){
+bool VL6180_disable_reset(vl6180_t *handler){
     VL6180_write_data(handler, 0x0016, 0x00);
     return true;
 }
 
 
-void VL6180_set_scaling(vl6180_handler_t *handler, uint16_t new_scaling_value){
+void VL6180_set_scaling(vl6180_t *handler, uint16_t new_scaling_value){
     int scalerValues[] = {0, 253, 127, 84};
     if (new_scaling_value < 1 || new_scaling_value > 3) { return; }
 
@@ -83,7 +83,7 @@ void VL6180_set_scaling(vl6180_handler_t *handler, uint16_t new_scaling_value){
 
 
 
-bool VL6180_init(vl6180_handler_t *handler){
+bool VL6180_init(vl6180_t *handler){
     init_i2c_module(handler->i2c_mod);
 
     if(!VL6180_read_id(handler, false)){
@@ -168,7 +168,7 @@ bool VL6180_init(vl6180_handler_t *handler){
     }    
 }
 
-uint8_t VL6180_get_range_error(vl6180_handler_t *handler){
+uint8_t VL6180_get_range_error(vl6180_t *handler){
     uint8_t buffer_rx[1] = {0x00};
     VL6180_read_data(handler, 0x004D, buffer_rx, 1); 
     uint8_t error_code = ((buffer_rx[0] >> 4) & 0x0F);
@@ -176,7 +176,7 @@ uint8_t VL6180_get_range_error(vl6180_handler_t *handler){
 }
 
 
-uint8_t VL6180_get_range_error_isr(vl6180_handler_t *handler){
+uint8_t VL6180_get_range_error_isr(vl6180_t *handler){
     uint8_t buffer_rx[1] = {0x00};
     VL6180_read_data(handler, 0x004F, buffer_rx, 1); 
     uint8_t error_code = buffer_rx[0] & 0x07;
@@ -184,19 +184,19 @@ uint8_t VL6180_get_range_error_isr(vl6180_handler_t *handler){
 }
 
 
-bool VL6180_start_single_measurement(vl6180_handler_t *handler){
+bool VL6180_start_single_measurement(vl6180_t *handler){
     return VL6180_write_data(handler, 0x0018, 0x01);
 }
 
-bool VL6180_start_cont_measurement(vl6180_handler_t *handler){
+bool VL6180_start_cont_measurement(vl6180_t *handler){
     return VL6180_write_data(handler, 0x0018, 0x03);
 }
 
-bool VL6180_stop_cont_measurement(vl6180_handler_t *handler){
+bool VL6180_stop_cont_measurement(vl6180_t *handler){
     return VL6180_write_data(handler, 0x0018, 0x00);
 }
 
-uint8_t VL6180_get_range_value(vl6180_handler_t *handler){
+uint8_t VL6180_get_range_value(vl6180_t *handler){
     uint8_t buffer_rx[1] = {0x00};
     VL6180_read_data(handler, 0x0062, buffer_rx, 1);
     //VL6180_write_data(handler, 0x0015, 0x07);

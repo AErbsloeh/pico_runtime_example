@@ -24,16 +24,16 @@
 
 // Handler for configuring and controlling the device
 typedef struct {
-    i2c_device_handler_t *i2c_mod;
+    i2c_pico_t *i2c_mod;
     uint8_t gain;
     uint8_t int_time;
     bool    en_device;
     bool    use_isr_thres;
 	bool    init_done;
-} veml7700_handler_t;
+} veml7700_t;
 
 
-static veml7700_handler_t VEML7700_DEFAULT_CONFIG = {
+static veml7700_t VEML7700_DEFAULT_CONFIG = {
 	.i2c_mod = &DEVICE_I2C_DEFAULT,
 	.gain = VEML7700_GAIN_X1,
 	.int_time = VEML7700_INT_100MS,
@@ -52,7 +52,7 @@ static veml7700_handler_t VEML7700_DEFAULT_CONFIG = {
  * \param handler   VEML7700 Handler for init. and processing data
  * \return True, if initialisation of sensor was successful
  */
-bool VEML7700_init(veml7700_handler_t *handler);
+bool VEML7700_init(veml7700_t *handler);
 
 
 /*! \brief Function for reading VEML7700 device ID
@@ -60,18 +60,18 @@ bool VEML7700_init(veml7700_handler_t *handler);
  * \param print_id	Do print the ID into terminal
  * \return True, if right device is available
  */
-bool VEML7700_read_id(veml7700_handler_t *handler, bool print_id);
+bool VEML7700_read_id(veml7700_t *handler, bool print_id);
 
 
 /*!	\brief Function for getting the value for Ambient Light Sensitivity (ALS) from VEML7700
  *	\param handler 	VEML7700 Handler for init. and processing data 
  */
-uint16_t VEML7700_get_als_value(veml7700_handler_t *handler);
+uint16_t VEML7700_get_als_value(veml7700_t *handler);
 
 
 /*!	\brief Function for getting the value for White Light Density from VEML7700
  *	\param handler 	VEML7700 Handler for init. and processing data 
  */
-uint16_t VEML7700_get_white(veml7700_handler_t *handler);
+uint16_t VEML7700_get_white(veml7700_t *handler);
 
 #endif

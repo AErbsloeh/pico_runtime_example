@@ -1,7 +1,7 @@
 #include "sens/adg1408.h"
 
 
-bool adg1408_init(adg1408_handler_t *handler){
+bool adg1408_init(adg1408_t *handler){
     gpio_init(handler->gpio_num_en);
     gpio_set_dir(handler->gpio_num_en, GPIO_OUT);
     gpio_put(handler->gpio_num_en, false);
@@ -23,7 +23,7 @@ bool adg1408_init(adg1408_handler_t *handler){
 }
 
 
-void adg1408_select_chnnl(adg1408_handler_t *handler, uint8_t sel_chnnl){ 
+void adg1408_select_chnnl(adg1408_t *handler, uint8_t sel_chnnl){ 
     if(!handler->init_done){
         adg1408_init(handler);
     } else {

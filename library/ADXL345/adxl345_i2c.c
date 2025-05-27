@@ -2,7 +2,7 @@
 
 
 // ========================== INTERNAL FUNCTIONS ==========================
-bool ADXL345_i2c_write_byte(adxl345_i2c_handler_t *handler, uint8_t command, uint8_t data){
+bool ADXL345_i2c_write_byte(adxl345_i2c_t *handler, uint8_t command, uint8_t data){
     uint8_t buffer_tx[2] = {command};
     buffer_tx[1] = data;
 
@@ -12,13 +12,13 @@ bool ADXL345_i2c_write_byte(adxl345_i2c_handler_t *handler, uint8_t command, uin
 };
 
 
-bool ADXL345_i2c_write_block(adxl345_i2c_handler_t *handler, uint8_t data[], uint8_t size){
+bool ADXL345_i2c_write_block(adxl345_i2c_t *handler, uint8_t data[], uint8_t size){
     i2c_write_blocking(handler->i2c_mod->i2c_mod, ADXL345_I2C_ADR, data, size, false);
     return true;
 };
 
 
-uint64_t ADXL345_i2c_read_data(adxl345_i2c_handler_t *handler, uint8_t command, uint8_t buffer_rx[], uint8_t size) { 
+uint64_t ADXL345_i2c_read_data(adxl345_i2c_t *handler, uint8_t command, uint8_t buffer_rx[], uint8_t size) { 
     uint8_t buffer_tx[1] = {command}; 
 
     // I2C-Read mit Wiederholung bei Fehlern 
@@ -46,7 +46,7 @@ uint64_t ADXL345_i2c_read_data(adxl345_i2c_handler_t *handler, uint8_t command, 
 
 
 // ========================== CALLABLE FUNCTIONS ==========================
-bool ADXL345_init(adxl345_i2c_handler_t *handler) { 
+bool ADXL345_init(adxl345_i2c_t *handler) { 
     if(!handler->i2c_mod->init_done){
         configure_i2c_module(handler->i2c_mod); 
     }
@@ -69,14 +69,14 @@ bool ADXL345_init(adxl345_i2c_handler_t *handler) {
 };
 
 
-bool ADXL345_i2c_read_id(adxl345_i2c_handler_t *handler){
+bool ADXL345_i2c_read_id(adxl345_i2c_t *handler){
     uint8_t buffer[1] = {0};
     ADXL345_i2c_read_data(handler, 0x00, buffer, 1);
     return (buffer[0] == 0xE5);
 };
 
 
-int ADXL345_get_acceleration(adxl345_i2c_handler_t *handler, float *x, float *y, float *z) { 
+int ADXL345_get_acceleration(adxl345_i2c_t *handler, float *x, float *y, float *z) { 
 
     uint8_t buffer[6];
     uint64_t result = ADXL345_i2c_read_data(handler, ADXL345_DATAX0, buffer, sizeof(buffer));
@@ -98,7 +98,7 @@ int ADXL345_get_acceleration(adxl345_i2c_handler_t *handler, float *x, float *y,
 };
 
 
-void ADXL345_reset_offset(adxl345_i2c_handler_t *handler){
+void ADXL345_reset_offset(adxl345_i2c_t *handler){
     // Reset der Offset-Register
     ADXL345_i2c_write_byte(handler, ADXL345_OFSX, 0x00);
     ADXL345_i2c_write_byte(handler, ADXL345_OFSY, 0x00);
@@ -106,7 +106,7 @@ void ADXL345_reset_offset(adxl345_i2c_handler_t *handler){
 };
 
 
-bool ADXL345_do_calibration(adxl345_i2c_handler_t *handler){
+bool ADXL345_do_calibration(adxl345_i2c_t *handler){
     /*********************************************
      * Sensor has to lay on a flat surface
      * and should not be moved during calibration

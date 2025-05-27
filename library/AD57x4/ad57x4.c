@@ -1,7 +1,7 @@
 #include "sens/ad57x4.h"
 
 
-// =========================== DEFINITIONS ===========================
+// =========================== INTERNAL FUNCTIONS ===========================
 int8_t ad57x4_spi_transmission(ad57x4_t *config, bool rnw, uint8_t reg, uint8_t adr, uint16_t data) {
     uint8_t buffer_tx[3];
     buffer_tx[0] = ((rnw) ? 0x80 : 0x00) | ((reg & 0x07) << 3) | ((adr & 0x07) << 0);
@@ -12,7 +12,7 @@ int8_t ad57x4_spi_transmission(ad57x4_t *config, bool rnw, uint8_t reg, uint8_t 
 }
 
 
-// =========================== FUNCTIONS ===========================
+// =========================== CALLABLE FUNCTIONS ===========================
 bool ad57x4_init(ad57x4_t *config){
     if(!config->spi_mod->init_done){
         configure_spi_module(config->spi_mod, false);

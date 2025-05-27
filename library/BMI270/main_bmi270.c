@@ -15,7 +15,7 @@ int main(){
         .fi2c_khz = 400,
         .init_done = false
     };
-    static bmi270_handler_t sens_device = {
+    static bmi270_t sens_device = {
         .i2c_mod = &I2C_USED,
         .en_adv_pwr_mode = false,
         .en_temp_sensor = true,

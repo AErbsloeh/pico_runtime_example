@@ -2,7 +2,7 @@
 
 
 // ======================================== INTERNAL READ/WRITE COMMANDS ===============================================
-int8_t handler_pico_spi_transmission(ltc2668_handler_t *handler, uint8_t command, uint8_t adr, uint16_t data){
+int8_t handler_pico_spi_transmission(ltc2668_t *handler, uint8_t command, uint8_t adr, uint16_t data){
     uint8_t buffer_tx[3] = {0x00};
     buffer_tx[0] = ((command & 0x0F) << 0x04) | ((adr & 0x0F) << 0x00);
     buffer_tx[1] = ((data & 0xFF00) >> 0x08);
@@ -12,7 +12,7 @@ int8_t handler_pico_spi_transmission(ltc2668_handler_t *handler, uint8_t command
 }
 
 // ======================================== FUNCTIONS ===============================================
-bool ltc2668_init(ltc2668_handler_t *config_device){
+bool ltc2668_init(ltc2668_t *config_device){
     // --- Init of SPI module
     if(!config_device->spi_handler->init_done){
         configure_spi_module(config_device->spi_handler, false);
@@ -79,7 +79,7 @@ bool ltc2668_init(ltc2668_handler_t *config_device){
 }
 
 
-void ltc2668_clear_data(ltc2668_handler_t *config_device){
+void ltc2668_clear_data(ltc2668_t *config_device){
     if(config_device->use_clrn_hw){
         // Do HW reset
         for(uint8_t idx = 0; idx < 4; idx ++){
@@ -95,28 +95,28 @@ void ltc2668_clear_data(ltc2668_handler_t *config_device){
 }
 
 
-void ltc2668_mux_control(ltc2668_handler_t *config_device, bool enable, uint8_t channel){
+void ltc2668_mux_control(ltc2668_t *config_device, bool enable, uint8_t channel){
     uint16_t mux_data = (enable) ? (0x0010 | channel & 0x000F) : 0x0000;
     handler_pico_spi_transmission(config_device, LTC2668_CMD_MUX_CONTROL, 0x00, mux_data);
 }
 
-void ltc2668_write_output_all_channel(ltc2668_handler_t *config_device, uint16_t data){
+void ltc2668_write_output_all_channel(ltc2668_t *config_device, uint16_t data){
     handler_pico_spi_transmission(config_device, LTC2668_CMD_WR_DAC_N, 0x00, data);
 }
 
 
-void ltc2668_write_output_single_channel(ltc2668_handler_t *config_device, uint16_t data, uint8_t channel){
+void ltc2668_write_output_single_channel(ltc2668_t *config_device, uint16_t data, uint8_t channel){
     handler_pico_spi_transmission(config_device, LTC2668_CMD_WR_DAC_ALL, channel & 0x0F, data);
 }
 
 
-void ltc2668_update_output_all_channel(ltc2668_handler_t *config_device, uint16_t data){
+void ltc2668_update_output_all_channel(ltc2668_t *config_device, uint16_t data){
     uint16_t data_real = (config_device->use_16bit_dev) ? data : (data & 0x0FFF) << 4;
     handler_pico_spi_transmission(config_device, LTC2668_CMD_WR_UPD_DAC_ALL, 0x00, data_real);
 }
 
 
-void ltc2668_update_output_single_channel(ltc2668_handler_t *config_device, uint16_t data, uint8_t channel){
+void ltc2668_update_output_single_channel(ltc2668_t *config_device, uint16_t data, uint8_t channel){
     uint16_t data_real = (config_device->use_16bit_dev) ? data : (data & 0x0FFF) << 4;
     handler_pico_spi_transmission(config_device, LTC2668_CMD_WR_UPD_DAC_N, channel & 0x0F, data_real);
 }

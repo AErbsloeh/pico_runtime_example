@@ -10,13 +10,13 @@
 
 // Handler for configuring and controlling the device configuration
 typedef struct {
-    i2c_device_handler_t *i2c_mod;
+    i2c_pico_t *i2c_mod;
     bool    init_done;
     // Variabes for calibrating sensor
     float offset_x;
     float offset_y;
     float offset_z;
-} adxl345_i2c_handler_t;
+} adxl345_i2c_t;
 
 
 
@@ -51,7 +51,7 @@ typedef struct {
 #define ADXL345_BW_RATE 0x2C // Bandwidth and rate control
 
 
-static adxl345_i2c_handler_t ADXL345_I2C_DEFAULT_CONFIG = {
+static adxl345_i2c_t ADXL345_I2C_DEFAULT_CONFIG = {
     .i2c_mod = &DEVICE_I2C_DEFAULT,
     .init_done = false,
 	.offset_x = 0.0,
@@ -65,14 +65,14 @@ static adxl345_i2c_handler_t ADXL345_I2C_DEFAULT_CONFIG = {
 *   \param  handler     Handler for setting the sensor
 *   \return             Boolean if sensor is available
 */
-bool ADXL345_init(adxl345_i2c_handler_t *handler);
+bool ADXL345_init(adxl345_i2c_t *handler);
 
 
 /*! \brief Function for reading the Chip ID of the acceleration sensor ADXL345
 *   \param  handler     Handler for setting the sensor
 *   \return             Boolean if sensor is available
 */
-bool ADXL345_i2c_read_id(adxl345_i2c_handler_t *handler);
+bool ADXL345_i2c_read_id(adxl345_i2c_t *handler);
 
 
 /*! \brief Function for getting the acceleration data from ADXL345
@@ -82,20 +82,20 @@ bool ADXL345_i2c_read_id(adxl345_i2c_handler_t *handler);
 *   \param  z           Pointer to store the Z-Axis data
 *   \return             Boolean if sensor is available
 */
-int ADXL345_get_acceleration(adxl345_i2c_handler_t *handler, float *x, float *y, float *z); 
+int ADXL345_get_acceleration(adxl345_i2c_t *handler, float *x, float *y, float *z); 
 
 
 /*! \brief Function for resetting the offset values in struct for ADXL345 from Analog Devices
 *   \param  handler     Handler for setting the sensor
 *   \return            	None
 */
-void ADXL345_reset_offset(adxl345_i2c_handler_t *handler);
+void ADXL345_reset_offset(adxl345_i2c_t *handler);
 
 
 /*! \brief Function for performing a sensor calibration with defining the offsets for ADXL345 from Analog Devices
 *   \param  handler     Handler for setting the sensor
 *   \return             Boolean if sensor calibration is done
 */
-bool ADXL345_do_calibration(adxl345_i2c_handler_t *handler);
+bool ADXL345_do_calibration(adxl345_i2c_t *handler);
 
 #endif

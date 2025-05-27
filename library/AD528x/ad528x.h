@@ -25,15 +25,15 @@
 * \param init_done      Boolean if device configuration is done        
 */
 typedef struct{
-    i2c_device_handler_t *i2c_handler;
+    i2c_pico_t *i2c_handler;
     uint8_t mode_sel;
     bool shutdown;
     uint8_t gpio_state;
     bool init_done;
-} ad528x_device_t;
+} ad528x_t;
 
 
-static ad528x_device_t AD528X_DEFAULT_CONFIG = {
+static ad528x_t AD528X_DEFAULT_CONFIG = {
     .i2c_handler = &DEVICE_I2C_DEFAULT,
     .mode_sel = 0,
     .shutdown = true,
@@ -47,28 +47,28 @@ static ad528x_device_t AD528X_DEFAULT_CONFIG = {
 * \param handler    Device handler for using device
 * \return           Boolean if initialization is done completely
 */
-bool ad528x_init(ad528x_device_t *handler);
+bool ad528x_init(ad528x_t *handler);
 
 
 /*! \brief Function for doing a software reset to midscale
 * \param handler    Device handler for using device
 * \return           Boolean if process is done completely
 */
-bool ad528x_soft_reset(ad528x_device_t *handler);
+bool ad528x_soft_reset(ad528x_t *handler);
 
 
 /*! \brief Function for controlling the shutdown of device
 * \param handler    Device handler for using device
 * \return           Boolean if process is done completely
 */
-bool ad528x_define_shutdown(ad528x_device_t *handler);
+bool ad528x_define_shutdown(ad528x_t *handler);
 
 
 /*! \brief Function for controlling the GPIO output pins of device
 * \param handler    Device handler for using device
 * \return           Boolean if process is done completely
 */
-bool ad528x_define_gpio_output(ad528x_device_t *handler);
+bool ad528x_define_gpio_output(ad528x_t *handler);
 
 
 /*! \brief Function for doing a software reset to midscale
@@ -77,7 +77,7 @@ bool ad528x_define_gpio_output(ad528x_device_t *handler);
 * \param data       Uint8_t value with position of channel
 * \return           Boolean if process is done completely
 */
-bool ad528x_define_output(ad528x_device_t *handler, bool chnnl_b, uint8_t data);
+bool ad528x_define_output(ad528x_t *handler, bool chnnl_b, uint8_t data);
 
 
 #endif

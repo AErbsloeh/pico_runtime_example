@@ -15,7 +15,7 @@
 * \param init_done      Boolean if device configuration is done        
 */
 typedef struct{
-    spi_device_handler_t *spi_handler;
+    spi_pico_t *spi_handler;
     uint8_t device_config;
     bool init_done;
 } ad5141_spi_t;

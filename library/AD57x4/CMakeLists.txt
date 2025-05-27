@@ -35,15 +35,9 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(main main.c 
-    hardware_io.c
-    wrapper/usb_handler.c
-    wrapper/i2c_handler.c
+add_executable(main main_ad57x4.c 
     wrapper/spi_handler.c
-    wrapper/timer_daq.c    
-    src/testbench.c
-    src/init_system.c
-    sens/dac_ad57x4.c
+    sens/ad57x4.c
 )
 
 pico_set_program_name(main "main")
@@ -57,10 +51,7 @@ pico_enable_stdio_usb(main 1)
 target_link_libraries(main
     pico_stdlib
     pico_bootsel_via_double_reset
-    hardware_clocks
-    hardware_pio
     hardware_spi
-    hardware_i2c
 )
 
 # Add the standard include files to the build

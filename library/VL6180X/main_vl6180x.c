@@ -15,7 +15,7 @@ int main(){
         .fi2c_khz = 400,
         .init_done = false
     };
-    static vl6180_handler_t sens_device = {
+    static vl6180_t sens_device = {
         .i2c_mod = &I2C_USED,
         .max_convergence_ms = 63,
         .init_done = false

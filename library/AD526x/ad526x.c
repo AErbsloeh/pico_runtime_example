@@ -1,7 +1,8 @@
 #include "sens/ad526x.h"
 
 
-bool AD5260_write_data(ad526x_device_t *handler, uint8_t data){
+// ======================================== INTERNAL FUNCTIONS ===============================================
+bool AD5260_write_data(ad526x_t *handler, uint8_t data){
     uint8_t buffer_tx[1] = {data};
     return send_data_spi_module(handler->spi_handler, handler->gpio_cs, buffer_tx, 1);    
 }
@@ -18,7 +19,7 @@ bool AD526x_write_data(ad526x_device_t *handler, bool chnnl, uint8_t data){
 }
 
 
-// ======================================== FUNCTIONS ===============================================
+// ======================================== CALLABLE FUNCTIONS ===============================================
 bool ad526x_init(ad526x_device_t *handler){
     if(!handler->spi_handler->init_done){
         configure_spi_module(handler->spi_handler, false);

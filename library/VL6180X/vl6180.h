@@ -25,12 +25,12 @@
 
 // Handler for configuring and controlling the device configuration
 typedef struct {
-    i2c_device_handler_t *i2c_mod;
+    i2c_pico_t *i2c_mod;
     uint8_t max_convergence_ms;
     bool    init_done;
-} vl6180_handler_t;
+} vl6180_t;
 
-static vl6180_handler_t VL6180_DEFAULT_CONFIG = {
+static vl6180_t VL6180_DEFAULT_CONFIG = {
     .i2c_mod = &DEVICE_I2C_DEFAULT,
     .max_convergence_ms = 1,
     .init_done = false
@@ -43,63 +43,63 @@ static vl6180_handler_t VL6180_DEFAULT_CONFIG = {
 *   \param  print_id    Boolean to print the sensor ID
 *   \return             Boolean if right Chip ID of sensor is available (0xB4)
 */
-bool VL6180_read_id(vl6180_handler_t *handler, bool print_id);
+bool VL6180_read_id(vl6180_t *handler, bool print_id);
 
 
 /*! \brief Function for initialization of Proximity sensing module VL6180 from STmicroelectronics 
 *   \param  handler     Handler for setting the device
 *   \return             Boolean if right Chip ID of sensor is available (0x24)
 */
-bool VL6180_init(vl6180_handler_t *handler);
+bool VL6180_init(vl6180_t *handler);
 
 
 /*! \brief Function for set the scaling value of device
 *   \param  handler             Handler for setting the device
 *   \param new_scaling_value    Scaling value (1 .. 3)
 */
-void VL6180_set_scaling(vl6180_handler_t *handler, uint16_t new_scaling_value);
+void VL6180_set_scaling(vl6180_t *handler, uint16_t new_scaling_value);
 
 
 /*! \brief Function for reading the range error register of VL6180
 *   \param  handler     Handler for setting the device
 *   \return             Error code of 0x004D register
 */
-uint8_t VL6180_get_range_error(vl6180_handler_t *handler);
+uint8_t VL6180_get_range_error(vl6180_t *handler);
 
 
 /*! \brief Function for reading the range error ISR register of VL6180
 *   \param  handler     Handler for setting the device
 *   \return             Error code of 0x004F register
 */
-uint8_t VL6180_get_range_error_isr(vl6180_handler_t *handler);
+uint8_t VL6180_get_range_error_isr(vl6180_t *handler);
 
 
 /*! \brief Function for triggering the single measurement method
 *   \param  handler     Handler for setting the device
 *   \return             Boolean with transmission is done without error
 */
-bool VL6180_start_single_measurement(vl6180_handler_t *handler);
+bool VL6180_start_single_measurement(vl6180_t *handler);
 
 
 /*! \brief Function for triggering the continous measurement method
 *   \param  handler     Handler for setting the device
 *   \return             Boolean with transmission is done without error
 */
-bool VL6180_start_cont_measurement(vl6180_handler_t *handler);
+bool VL6180_start_cont_measurement(vl6180_t *handler);
 
 
 /*! \brief Function for stopping the continous measurement method
 *   \param  handler     Handler for setting the device
 *   \return             Boolean with transmission is done without error
 */
-bool VL6180_stop_cont_measurement(vl6180_handler_t *handler);
+bool VL6180_stop_cont_measurement(vl6180_t *handler);
 
 
 /*! \brief Function for reading the range value
 *   \param  handler     Handler for setting the device
 *   \return             uint8_t value of distance in mm (0...255 mm)
 */
-uint8_t VL6180_get_range_value(vl6180_handler_t *handler);
+uint8_t VL6180_get_range_value(vl6180_t *handler);
 
 
 

@@ -49,14 +49,14 @@
  * **********************************************************************************************************************************************************
  */
 typedef struct {
-    i2c_device_handler_t *i2c_mod;
+    i2c_pico_t *i2c_mod;
     bool    heater_enable;
     bool    otp_enable;
     uint8_t resolution;
     bool    init_done;
-} sht21_handler_t;
+} sht21_t;
 
-static sht21_handler_t SHT21_CONFIG_DEFAULT = {
+static sht21_t SHT21_CONFIG_DEFAULT = {
 	.i2c_mod = &DEVICE_I2C_DEFAULT,
 	.heater_enable = SHT21_HEATER_OFF,
 	.otp_enable = SHT21_DISABLE_OTP,
@@ -73,14 +73,14 @@ static sht21_handler_t SHT21_CONFIG_DEFAULT = {
  * \param handler   SHT21 Handler for init. and processing data
  * \return True, if initialisation of SHT21 sensor was successful
  */
-bool SHT21_init(sht21_handler_t *handler);
+bool SHT21_init(sht21_t *handler);
 
 
 /** \brief Performing a soft reset of the SHT21
  *
  * \param handler   SHT21 Handler for init. and processing data
  */
-void SHT21_do_soft_reset(sht21_handler_t *handler);
+void SHT21_do_soft_reset(sht21_t *handler);
 
 
 /** \brief Read data and calculate humidity from SHT21 sensor
@@ -88,7 +88,7 @@ void SHT21_do_soft_reset(sht21_handler_t *handler);
  * \param handler   SHT21 Handler for init. and processing data
  * \return Relative humidity [%]
  */
-float SHT21_get_humidity_float(sht21_handler_t *handler);
+float SHT21_get_humidity_float(sht21_t *handler);
 
 
 /** \brief Read humidity data from SHT21 sensor
@@ -96,7 +96,7 @@ float SHT21_get_humidity_float(sht21_handler_t *handler);
  * \param handler   SHT21 Handler for init. and processing data
  * \return Relative humidity (without calcuting, only rawdata)
  */
-uint16_t SHT21_get_humidity_uint(sht21_handler_t *handler);
+uint16_t SHT21_get_humidity_uint(sht21_t *handler);
 
 
 /** \brief Read data and calculate temperature from SHT21 sensor
@@ -104,7 +104,7 @@ uint16_t SHT21_get_humidity_uint(sht21_handler_t *handler);
  * \param handler   SHT21 Handler for init. and processing data
  * \return Temperature [K]
  */
-float SHT21_get_temperature_float(sht21_handler_t *handler);
+float SHT21_get_temperature_float(sht21_t *handler);
 
 
 /** \brief Read temperature data from SHT21 sensor
@@ -112,6 +112,6 @@ float SHT21_get_temperature_float(sht21_handler_t *handler);
  * \param handler   SHT21 Handler for init. and processing data
  * \return Temperature (without calcuting, only rawdata)
  */
-uint16_t SHT21_get_temperature_uint(sht21_handler_t *handler);
+uint16_t SHT21_get_temperature_uint(sht21_t *handler);
 
 #endif
