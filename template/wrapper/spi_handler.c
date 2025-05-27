@@ -40,7 +40,7 @@ int8_t receive_data_spi_module(spi_device_handler_t *handler, uint8_t gpio_num_c
 }
 
 
-bool configure_spi_module_soft(spi_device_handler_t *handler, uint8_t gpio_num_csn){
+bool configure_spi_module_soft(spi_device_handler_t *handler){
     // GPIO: SCLK
     gpio_init(handler->pin_sclk);
     gpio_set_dir(handler->pin_sclk, GPIO_OUT);

@@ -17,7 +17,7 @@ bool init_gpio_pico(bool wait_until_usb_connected){
     gpio_set_dir(BUTTON_BOARD, GPIO_IN);
     gpio_pull_up(BUTTON_BOARD);
     gpio_set_slew_rate(BUTTON_BOARD, GPIO_SLEW_RATE_SLOW);
-    gpio_set_irq_enabled_with_callback(BUTTON_BOARD, GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_set_irq_enabled_with_callback(BUTTON_BOARD, GPIO_IRQ_EDGE_FALL, true, &irq_gpio_callback);
 
 
     // --- Init of Serial COM-Port

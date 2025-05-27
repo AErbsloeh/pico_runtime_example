@@ -16,9 +16,10 @@
 
 #include "src/init_system.h"
 #include "src/testbench.h"
-#include "src/gpio_callback.h"
+#include "src/gpio_callbacks.h"
 
 
+#define TESTBENCH_ACTIVE    TB_MODE_NONE
 // ==================== PIN DEFINITION =====================
 #define BUTTON_BOARD        11
 #define LED_TEST_DEFAULT    17
