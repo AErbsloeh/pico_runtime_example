@@ -8,8 +8,8 @@
 
 // ========================================= DEFINITIONS ===============================================
 /*! \brief Struct handler for configuring the I2C interface of RP2040
-* \param pin_sda        GPIO num of used SDA
-* \param pin_scl        GPIO num of used SCL
+* \param pin_sda        GPIO num of used Serial Data Line (SDA)
+* \param pin_scl        GPIO num of used Serial Clock Line (SCL)
 * \param i2c_mod        I2C handler of RP2040 (i2c0 or i2c1)
 * \param fi2c_khz       Used I2C clock [in kHz]
 * \param avai_devices   Number of available devices on bus

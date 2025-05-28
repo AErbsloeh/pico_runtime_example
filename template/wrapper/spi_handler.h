@@ -10,9 +10,9 @@
 
 // ========================================= DEFINITION ===============================================
 /*! \brief Struct handler for configuring the SPI interface of RP2040
-* \param pin_mosi           GPIO num of used MOSI
-* \param pin_sclk           GPIO num of used SCLK
-* \param pin_miso           GPIO num of used MISO
+* \param pin_mosi           GPIO num of used Master Out Slave In (MOSI) or TX Line of MCU
+* \param pin_sclk           GPIO num of used Serial Clock Line (SCLK) or SCK Line of MCU
+* \param pin_miso           GPIO num of used Master In Slave Out (MISO) or RX Line of MCU
 * \param spi_mod            SPI handler of RP2040 (spi0 or spi1)
 * \param fspi_khz           Used SPI clock [in kHz]
 * \param mode               Used SPI mode
