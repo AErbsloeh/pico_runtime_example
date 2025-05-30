@@ -9,15 +9,15 @@
 
 int main(){ 
     static ltc2668_t LTC2668_DEFAULT_CONFIG = {
-    .spi_handler = &DEVICE_SPI_DEFAULT,
-    .gpio_num_csn = PICO_DEFAULT_SPI_CSN_PIN,
-    .gpio_num_clrn = 0,
-    .use_clrn_hw = false,
-    .pwr_up_chnnl = LTC2668_PWRUP_DAC_ALL,
-    .use_int_vref = true,
-    .vref_range = LTC2668_RANGE_BI_VREF,
-    .init_done = false
-};
+		.spi_handler = &DEVICE_SPI_DEFAULT,
+		.gpio_num_csn = PICO_DEFAULT_SPI_CSN_PIN,
+		.gpio_num_clrn = 0,
+		.use_clrn_hw = false,
+		.pwr_up_chnnl = LTC2668_PWRUP_DAC_ALL,
+		.use_int_vref = true,
+		.vref_range = LTC2668_RANGE_BI_VREF,
+		.init_done = false
+	};
 
     // Init of device
     ltc2668_init(&setting_device);
