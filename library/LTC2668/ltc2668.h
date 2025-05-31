@@ -3,7 +3,6 @@
 
 
 #include <stdio.h>
-#include "hardware/spi.h"
 #include "hardware/gpio.h"
 #include "wrapper/spi_handler.h"
 
@@ -73,10 +72,10 @@ typedef struct{
     uint8_t vref_range;
     bool use_16bit_dev;
     bool init_done;
-} ltc2668_handler_t;
+} ltc2668_t;
 
 
-static ltc2668_handler_t LTC2668_DEFAULT_CONFIG = {
+static ltc2668_t LTC2668_DEFAULT_CONFIG = {
     .spi_handler = &DEVICE_SPI_DEFAULT,
     .gpio_num_csn = 1,
     .gpio_num_clrn = 0,
@@ -91,73 +90,68 @@ static ltc2668_handler_t LTC2668_DEFAULT_CONFIG = {
 
 // ================================= FUNCTIONS =================================
 /*! \brief Function for configuring the the Digital-Analog-Converter LTC2668
-* \param config_device  Device handler for using device
-* \return               Boolean if initialization is done completely
+* \param cnf  	Device handler for using device
+* \return       Boolean if initialization is done completely
 */
-bool ltc2668_init(ltc2668_handler_t *config_device);
+bool ltc2668_init(ltc2668_t *cnf);
 
 
 /*! \brief Function for clearing the output (soft) of the Digital-Analog-Converter LTC2668
-* \param config_device  Device handler for using device
-* \param chnl           Channel number for updating the voltage reference mode
+* \param cnf  			Device handler for using device
+* \param chnnl          Channel number for updating the voltage reference mode
 * \param vref_mode      Reference mode (called with LTC2668_RANGE_<x>)
 */
-void ltc2668_update_vrange(ltc2668_handler_t *config_device, uint8_t chnl, uint8_t vref_mode);
+void ltc2668_update_vrange(ltc2668_t *cnf, uint8_t chnnl, uint8_t vref_mode);
 
 
 /*! \brief Function for clearing the output (soft) of the Digital-Analog-Converter LTC2668
-* \param config_device  Device handler for using device
+* \param cnf  Device handler for using device
 */
-void ltc2668_clear_data_soft(ltc2668_handler_t *config_device);
+void ltc2668_clear_data_soft(ltc2668_t *cnf);
 
 
 /*! \brief Function for clearing the output of the Digital-Analog-Converter LTC2668
-* \param config_device  Device handler for using device
+* \param cnf  Device handler for using device
 */
-void ltc2668_clear_data(ltc2668_handler_t *config_device);
+void ltc2668_clear_data(ltc2668_t *cnf);
 
 
 /*! \brief Function for controlling the internal MUX of the DAC LTC2668
-* \param config_device  Device handler for using device
+* \param cnf  Device handler for using device
 * \param enable         Enable mux control
 * \param channel        Selected channel number
 */
-void ltc2668_mux_control(ltc2668_handler_t *config_device, bool enable, uint8_t channel);
+void ltc2668_mux_control(ltc2668_t *cnf, bool enable, uint8_t chnnl);
 
-/*! \brief Function for controlling the span setting of all DAC channels
-* \param config_device  Device handler for using device
-* \param span           Span code
-*/
-void ltc2668_span_all_control(ltc2668_handler_t *config_device, uint8_t span);
 
 /*! \brief Function for writing the data output (and not update) of all channels of the DAC LTC2668
-* \param config_device  Device handler for using device
-* \param data           Data to apply on all channels
+* \param cnf  Device handler for using device
+* \param data           Data to apply on all chnnls
 */
-void ltc2668_write_output_all_channel(ltc2668_handler_t *config_device, uint16_t data);
+void ltc2668_write_output_all_channel(ltc2668_t *cnf, uint16_t data);
 
 
 /*! \brief Function for writing the data output (and not update) of one channel of the DAC LTC2668
-* \param config_device  Device handler for using device
+* \param cnf  Device handler for using device
 * \param data           Data to apply on all channels
-* \param channel        Selected channel to update the data
+* \param chnnl        	Selected channel to update the data
 */
-void ltc2668_write_output_single_channel(ltc2668_handler_t *config_device, uint16_t data, uint8_t channel);
+void ltc2668_write_output_single_channel(ltc2668_t *cnf, uint16_t data, uint8_t chnnl);
 
 
 /*! \brief Function for updating the data output of all channels of the DAC LTC2668
-* \param config_device  Device handler for using device
+* \param cnf  Device handler for using device
 * \param data           Data to apply on all channels
 */
-void ltc2668_update_output_all_channel(ltc2668_handler_t *config_device, uint16_t data);
+void ltc2668_update_output_all_channel(ltc2668_t *cnf, uint16_t data);
 
 
 /*! \brief Function for updating the data output of one channel of the DAC LTC2668
-* \param config_device  Device handler for using device
+* \param cnf  Device handler for using device
 * \param data           Data to apply on all channels
-* \param channel        Selected channel to update the data
+* \param chnnl        	Selected channel to update the data
 */
-void ltc2668_update_output_single_channel(ltc2668_handler_t *config_device, uint16_t data, uint8_t channel);
+void ltc2668_update_output_single_channel(ltc2668_t *cnf, uint16_t data, uint8_t chnnl);
 
 
 #endif
