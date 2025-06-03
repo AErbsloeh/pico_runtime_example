@@ -9,6 +9,6 @@ int main(){
 
     // Main Loop
     while (true) {  
-        process_usb_data(&usb_buffer);
+        apply_usb_callback(&usb_buffer);
     }
 }

@@ -45,6 +45,7 @@ add_executable(main main.c
     src/testbench.c
     src/init_system.c
 	src/gpio_callbacks.c
+    src/usb_callbacks.c
 )
 
 pico_set_program_name(main "main")

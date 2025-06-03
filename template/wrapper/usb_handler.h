@@ -2,9 +2,6 @@
 #define USB_HANDLER_H
 
 
-#include "wrapper/led_control.h"
-
-
 // ============================== DEFINITIONS ==============================
 /*! \brief Struct handler for configuring USB FIFO Buffer
 * \param ready      Boolean if FIFO buffer has new data is ready for processing
@@ -25,12 +22,6 @@ typedef struct{
 * \param fifo_buffer    Struct handler for handling FIFO buffer   
 */
 void handling_usb_fifo_buffer(usb_fifo_t* fifo_buffer);
-
-
-/*! \brief Function for processing the output of FIFO buffer
-* \param fifo_buffer    Struct handler for handling FIFO buffer   
-*/
-void process_usb_data(usb_fifo_t* fifo_buffer);
 
 
 // ============================== FUNCTIONS FOR COMPRESSED DATA TRANSMISSION ==============================
@@ -60,5 +51,6 @@ int16_t send_int16_data_to_hexstring(char separator, int16_t data);
 * \param data           uint16 data value   
 */
 int16_t send_int16_data_to_hex(char separator, int16_t data);
+
 
 #endif

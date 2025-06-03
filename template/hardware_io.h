@@ -12,13 +12,13 @@
 #include "hardware/gpio.h"
 #include "hardware/clocks.h"
 #include "wrapper/led_control.h"
-#include "wrapper/usb_handler.h"
 #include "wrapper/tmr_handler.h"
 #include "wrapper/pwr_watch.h"
 
 #include "src/init_system.h"
 #include "src/testbench.h"
 #include "src/gpio_callbacks.h"
+#include "src/usb_callbacks.h"
 
 
 #define BLOCK_USB           true
