@@ -3,12 +3,12 @@
 
 bool init_gpio_pico(){
     // --- Init of Wireless Module (if used)
-    if(PICO_BOARD == "pico2_w" || PICO_BOARD == "pico_w") {
+    #ifdef PICO_CYW43_SUPPORTED 
         if (cyw43_arch_init()) {
             return -1;
         }
-    }   
-
+    #endif 
+    
     // --- Init of GPIOs
     init_default_led(LED_TEST_DEFAULT);
 
