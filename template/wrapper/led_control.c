@@ -1,5 +1,8 @@
 #include "wrapper/led_control.h"
-
+#ifdef PICO_CYW43_SUPPORTED
+    #include "pico/cyw43_arch.h"
+#endif
+#include "hardware/gpio.h"
 
 // ======================================== INTERNAL FUNCTIONS ===============================================
 uint8_t pin_used = 0;

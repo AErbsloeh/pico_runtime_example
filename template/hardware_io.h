@@ -2,13 +2,7 @@
 #define HARDWARE_IO_H
 
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "pico/stdlib.h"
-#ifdef PICO_CYW43_SUPPORTED
-    #include "pico/cyw43_arch.h"
-#endif
-
 #include "hardware/gpio.h"
 #include "hardware/clocks.h"
 #include "wrapper/led_control.h"

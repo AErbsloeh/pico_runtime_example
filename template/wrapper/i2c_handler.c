@@ -1,4 +1,5 @@
 #include "wrapper/i2c_handler.h"
+#include <stdio.h>
 
 
 bool init_i2c_module(i2c_pico_t *handler){

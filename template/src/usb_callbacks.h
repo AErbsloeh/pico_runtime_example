@@ -1,7 +1,7 @@
 #ifndef USB_CALLBACKS_H_
 #define USB_CALLBACKS_H_
 
-#include <stdbool.h>
+
 #include "pico/stdlib.h"
 #include "wrapper/usb_handler.h"
 

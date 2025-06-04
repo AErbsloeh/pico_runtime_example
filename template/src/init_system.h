@@ -2,7 +2,7 @@
 #define INIT_SYSTEM_H_
 
 
-#include "hardware_io.h"
+#include "stdbool.h"
 
 
 /*! \brief  Function for initialisating the GPIO and modules of RP Pico (used in this system)

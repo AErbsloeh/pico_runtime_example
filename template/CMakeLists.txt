@@ -25,6 +25,9 @@ endif()
 # ====================================================================================
 set(PICO_BOARD pico2_w CACHE STRING "Board type")
 
+
+
+
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
@@ -35,17 +38,17 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 add_executable(main main.c 
-    hardware_io.c
-    wrapper/led_control.c
-    wrapper/usb_handler.c
     wrapper/i2c_handler.c
+    wrapper/led_control.c
+    wrapper/pwr_watch.c
     wrapper/spi_handler.c
-    wrapper/tmr_handler.c    
-	wrapper/pwr_watch.c
-    src/testbench.c
+    wrapper/tmr_handler.c  
+    wrapper/usb_handler.c
+    src/gpio_callbacks.c
     src/init_system.c
-	src/gpio_callbacks.c
+    src/testbench.c
     src/usb_callbacks.c
+    hardware_io.c
 )
 
 pico_set_program_name(main "main")
@@ -66,6 +69,12 @@ target_link_libraries(main
     hardware_i2c
 )
 add_definitions(-DPICO_BOARD="${PICO_BOARD}")
+
+# Extract if wireless board is available
+string(FIND "${PICO_BOARD}" "_w" POSITION)
+if(POSITION GREATER -1)
+    add_definitions(-DPICO_CYW43_SUPPORTED)
+endif()
 
 
 # Add the standard include files to the build

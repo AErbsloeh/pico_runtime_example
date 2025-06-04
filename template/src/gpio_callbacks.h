@@ -1,8 +1,9 @@
 #ifndef GPIO_CALLBACKS_H_
 #define GPIO_CALLBACKS_H_
 
-#include <stdint.h>
-#include "pico/types.h"
+
+#include <stdio.h>
+#include "pico/stdlib.h"
 
 
 /*!	Function for running the handler of GPIO ISR callbacks

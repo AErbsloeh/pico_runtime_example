@@ -1,4 +1,5 @@
 {
+    "cmake.showSystemKits": false,
     "cmake.options.statusBarVisibility": "hidden",
     "cmake.options.advanced": {
         "build": {
@@ -11,9 +12,9 @@
             "statusBarVisibility": "hidden"
         }
     },
-    "cmake.configureOnEdit": true,
-    "cmake.automaticReconfigure": true,
-    "cmake.configureOnOpen": true,
+    "cmake.configureOnEdit": false,
+    "cmake.automaticReconfigure": false,
+    "cmake.configureOnOpen": false,
     "cmake.generator": "Ninja",
     "cmake.cmakePath": "${userHome}/.pico-sdk/cmake/v3.31.5/bin/cmake",
     "C_Cpp.debugShortcut": false,
@@ -32,21 +33,11 @@
         "PICO_TOOLCHAIN_PATH": "${env:HOME}/.pico-sdk/toolchain/14_2_Rel1",
         "PATH": "${env:HOME}/.pico-sdk/toolchain/14_2_Rel1/bin:${env:HOME}/.pico-sdk/picotool/2.1.1/picotool:${env:HOME}/.pico-sdk/cmake/v3.31.5/bin:${env:HOME}/.pico-sdk/ninja/v1.12.1:${env:PATH}"
     },
-    "raspberry-pi-pico.cmakeAutoConfigure": false,
-    "raspberry-pi-pico.useCmakeTools": true,
+    "raspberry-pi-pico.cmakeAutoConfigure": true,
+    "raspberry-pi-pico.useCmakeTools": false,
     "raspberry-pi-pico.cmakePath": "${HOME}/.pico-sdk/cmake/v3.31.5/bin/cmake",
     "raspberry-pi-pico.ninjaPath": "${HOME}/.pico-sdk/ninja/v1.12.1/ninja",
     "files.associations": {
-        "hardware_io.h": "c",
-        "timer_daq.h": "c",
-        "testbench.h": "c",
-        "usb_handler.h": "c",
-        "array": "c",
-        "string": "c",
-        "string_view": "c",
-        "span": "c",
-        "led_control.h": "c",
-        "gpio_callbacks.h": "c",
-        "tmr_handler.h": "c"
+        "gpio.h": "c"
     }
 }
