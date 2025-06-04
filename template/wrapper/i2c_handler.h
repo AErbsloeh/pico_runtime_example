@@ -1,7 +1,7 @@
 #ifndef I2C_HANDLER_H
 #define I2C_HANDLER_H
 
-#include <stdio.h>
+
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 

@@ -1,4 +1,8 @@
 #include "src/init_system.h"
+#ifdef PICO_CYW43_SUPPORTED
+    #include "pico/cyw43_arch.h"
+#endif
+#include "hardware_io.h"
 
 
 bool init_gpio_pico(){

@@ -2,6 +2,9 @@
 #define USB_HANDLER_H
 
 
+#include "pico/stdlib.h"
+
+
 // ============================== DEFINITIONS ==============================
 /*! \brief Struct handler for configuring USB FIFO Buffer
 * \param ready      Boolean if FIFO buffer has new data is ready for processing

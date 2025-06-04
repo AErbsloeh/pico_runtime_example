@@ -1,4 +1,5 @@
 #include "wrapper/spi_handler.h"
+#include "hardware/gpio.h"
 
 
 // ========================================= DEFINITION FOR NORMAL SPI ===============================================
