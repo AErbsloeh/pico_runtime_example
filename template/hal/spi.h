@@ -1,5 +1,5 @@
-#ifndef SPI_HANDLER_H
-#define SPI_HANDLER_H
+#ifndef HAL_SPI_H_
+#define HAL_SPI_H_
 
 
 #include "pico/stdlib.h"

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "hardware/gpio.h"
 #include "hardware/spi.h"
-#include "wrapper/spi_handler.h"
+#include "hal/spi.h"
 
 
 // More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/adgs1208-1209.pdf
@@ -17,13 +17,13 @@
 /*! \brief Struct handler for configuring the Multiplexer ADGS120X from Analog Devices with SPI interface
 * \param spi_handler    Predefined SPI handler for RP2040
 * \param gpio_num_csn   GPIO Pin for Chip Select
-* \param num_device_dc  Number of devices which are daisy chained
+* \param num_device_dc  Number of devices which are daisy chained (< 1 will be activated)
 * \param use_rstn_hw    Boolean if hardware reset line is used 
 * \param gpio_num_rstn  GPIO Pin for Reset Line (optional)
 * \param init_done      Boolean if device configuration is done        
 */
 typedef struct{
-    spi_pico_t *spi_handler;
+    spi_pico_handler_t *spi_handler;
     uint8_t gpio_num_csn;
     uint8_t num_device_dc;
     bool use_rstn_hw;

@@ -1,5 +1,5 @@
-#ifndef USB_HANDLER_H
-#define USB_HANDLER_H
+#ifndef HAL_USB_H_
+#define HAL_USB_H_
 
 
 #include "pico/stdlib.h"

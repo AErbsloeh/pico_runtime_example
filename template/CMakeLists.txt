@@ -25,9 +25,6 @@ endif()
 # ====================================================================================
 set(PICO_BOARD pico2_w CACHE STRING "Board type")
 
-
-
-
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
@@ -38,17 +35,18 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 add_executable(main main.c 
-    wrapper/i2c_handler.c
-    wrapper/led_control.c
-    wrapper/pwr_watch.c
-    wrapper/spi_handler.c
-    wrapper/tmr_handler.c  
-    wrapper/usb_handler.c
+    hal/i2c.c
+    hal/led.c
+    hal/spi.c
+    hal/tmr.c  
+    hal/usb.c
+    src/pwr_watch.c
     src/gpio_callbacks.c
     src/init_system.c
     src/testbench.c
     src/usb_callbacks.c
     hardware_io.c
+    sens/btstack_spp_counter.c
 )
 
 pico_set_program_name(main "main")
@@ -61,12 +59,14 @@ pico_enable_stdio_usb(main 1)
 # Add the standard library to the build
 target_link_libraries(main
     pico_stdlib
-    pico_cyw43_arch_none 
     pico_bootsel_via_double_reset
     hardware_clocks
     hardware_pio
     hardware_spi
     hardware_i2c
+    pico_btstack_classic
+    pico_btstack_cyw43
+    pico_cyw43_arch_none
 )
 add_definitions(-DPICO_BOARD="${PICO_BOARD}")
 

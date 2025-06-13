@@ -36,7 +36,7 @@ pico_sdk_init()
 # Add executable. Default name is the project name, version 0.1
 include_directories(lib)
 add_executable(main main_ltc2668.c 
-    wrapper/spi_handler.c
+    hal/spi.c
     sens/ltc2668.c
 )
 

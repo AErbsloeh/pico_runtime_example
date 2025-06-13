@@ -2,11 +2,12 @@
 
 This repo contains a simple firmware template (folder structure, basic functionality, ...) for deploying projects. The used pins and code of WS2812b are specific to the KB2040. You find the pinout of the KB2040 [here](https://learn.adafruit.com/adafruit-kb2040/pinouts).
 
-## Wrapper Functions (wrapper)
+## Hardware Abstraction Layer (hal)
 - SPI handler
 - I2C handler
 - USB handler
 - Timer interrupt
+- LED control
 - GPIO interrupt via Button
 - Basic functions for using a USB FIFO buffer and sending data hex to/from device from/to host
 
@@ -21,10 +22,3 @@ This repo contains a simple firmware template (folder structure, basic functiona
 - Digital Multiplexer: ADG1408, ADGS1208
 - PIO examples: WS2812, Blink LED
 - Distance Estimuation: VL6180x
-
-## Generator Functions
-This repo supports the template-based generation of functions which needs quantized parameters. Via Python, you are able to configure the wanted function: 
-- IIR / FIR filter
-- Waveform Caller using Look-Up-Table (LUT)
-- Moving Average
-- FIR Allpass-Filter

@@ -1,5 +1,5 @@
-#ifndef LED_CONTROL_H_
-#define LED_CONTROL_H_
+#ifndef HAL_LED_H_
+#define HAL_LED_H_
 
 
 #include <stdio.h>

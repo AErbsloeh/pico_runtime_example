@@ -9,7 +9,7 @@ bool init_gpio_pico(){
     // --- Init of Wireless Module (if used)
     #ifdef PICO_CYW43_SUPPORTED 
         if (cyw43_arch_init()) {
-            return -1;
+            return false;
         }
     #endif 
     

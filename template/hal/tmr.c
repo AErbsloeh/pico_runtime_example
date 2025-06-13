@@ -1,5 +1,5 @@
-#include "wrapper/tmr_handler.h"
-#include "wrapper/led_control.h"
+#include "hal/tmr.h"
+#include "hal/led.h"
 
 
 /* --------------- EXAMPLE FOR USING A TIMER --------------- */

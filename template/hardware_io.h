@@ -5,10 +5,10 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/clocks.h"
-#include "wrapper/led_control.h"
-#include "wrapper/tmr_handler.h"
-#include "wrapper/pwr_watch.h"
+#include "hal/led.h"
+#include "hal/tmr.h"
 
+#include "src/pwr_watch.h"
 #include "src/init_system.h"
 #include "src/testbench.h"
 #include "src/gpio_callbacks.h"

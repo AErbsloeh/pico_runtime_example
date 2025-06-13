@@ -1,5 +1,5 @@
-#ifndef I2C_HANDLER_H
-#define I2C_HANDLER_H
+#ifndef HAL_I2C_H_
+#define HAL_I2C_H_
 
 
 #include "pico/stdlib.h"

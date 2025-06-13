@@ -3,7 +3,7 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 
-#include "wrapper/spi_handler.h"
+#include "hal/spi.h"
 #include "sens/ads8881.h"
 
 

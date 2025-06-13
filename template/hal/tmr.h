@@ -1,5 +1,5 @@
-#ifndef TIMER_DAQ_H
-#define TIMER_DAQ_H
+#ifndef HAL_TMR_H_
+#define HAL_TMR_H_
 
 
 #include <stdio.h>

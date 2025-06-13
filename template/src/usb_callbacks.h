@@ -3,7 +3,7 @@
 
 
 #include "pico/stdlib.h"
-#include "wrapper/usb_handler.h"
+#include "hal/usb.h"
 
 
 /*! \brief Function for processing the output of FIFO buffer
