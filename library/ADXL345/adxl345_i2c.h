@@ -3,9 +3,8 @@
 
 
 #include <stdio.h>
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
-#include "wrapper/i2c_handler.h"
+#include <stdlib.h>
+#include "hal/i2c.h"
 
 
 // Handler for configuring and controlling the device configuration

@@ -1,4 +1,5 @@
 #include "sens/adg1408.h"
+#include "hardware/gpio.h"
 
 
 bool adg1408_init(adg1408_t *handler){

@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
-
+#
 #include "sens/adg1408.h"
 
 

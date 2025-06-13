@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
 
-#include "wrapper/spi_handler.h"
 #include "sens/ltc2668.h"
 
 

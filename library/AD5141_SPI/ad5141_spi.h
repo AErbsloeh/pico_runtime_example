@@ -2,10 +2,7 @@
 #define AD5141_SPI_H_
 
 
-#include <stdio.h>
-#include "wrapper/spi_handler.h"
-#include "hardware/spi.h"
-#include "hardware/gpio.h"
+#include "hal/spi.h"
 
 
 // ========================================================== DEFINITIONS ==========================================================

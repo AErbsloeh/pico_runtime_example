@@ -3,7 +3,6 @@
 
 
 #include <stdio.h>
-#include "hardware/gpio.h"
 #include "hal/spi.h"
 
 

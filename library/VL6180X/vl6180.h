@@ -2,11 +2,7 @@
 #define VL6180_H_
 
 
-#include <stdio.h>
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
-#include "hardware/i2c.h"
-#include "wrapper/i2c_handler.h"
+#include "hal/i2c.h"
 
 
 // More Informations from sensor: https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.st.com/resource/en/datasheet/vl6180.pdf&ved=2ahUKEwjL9YiCrZSLAxUDSvEDHYZQFuwQFnoECBAQAQ&usg=AOvVaw0EYhww0GCbs05jcovK_Ly2

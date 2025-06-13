@@ -2,10 +2,7 @@
 #define _SHT21_H_
 
 #include <stdio.h>
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
-#include "hardware/i2c.h"
-#include "wrapper/i2c_handler.h"
+#include "hal/i2c.h"
 
 
 /* **********************************************************************************************************************************************************

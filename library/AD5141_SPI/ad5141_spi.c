@@ -1,4 +1,7 @@
 #include "sens/ad5141_spi.h"
+#include <stdio.h>
+#include "hardware/spi.h"
+#include "hardware/gpio.h"
 
 
 void ad5141_spi_reset_handler_params(ad5141_spi_t *device_config)

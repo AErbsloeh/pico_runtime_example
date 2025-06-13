@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
 
-#include "wrapper/i2c_handler.h"
 #include "sens/ad5142a.h"
 
 

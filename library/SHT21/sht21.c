@@ -1,4 +1,8 @@
 #include "sens/sht21.h"
+#include "pico/stdlib.h"
+#include "hardware/gpio.h"
+#include "hardware/i2c.h"
+
 
 // ======================================== FUNCTIONS ===============================================
 bool SHT21_init(sht21_t *handler){

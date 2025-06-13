@@ -1,5 +1,6 @@
 #include "sens/veml7700.h"
 
+
 // ======================================== FUNCTIONS ===============================================
 uint16_t VEML7700_read_data(veml7700_t *handler, uint8_t command){
     uint8_t buffer_tx[1] = {command};

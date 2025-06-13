@@ -1,5 +1,7 @@
 #include "sens/bmi270_i2c.h"
 #include "sens/bmi270_config.h"
+#include "pico/stdlib.h"
+#include "hardware/gpio.h"
 
 
 // ======================================== INTERNAL READ/WRITE FUNCTIONS ===============================================

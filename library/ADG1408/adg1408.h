@@ -3,8 +3,6 @@
 
 
 #include <stdio.h>
-#include "hardware/gpio.h"
-#include "hardware/spi.h"
 
 
 // More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/adg1408_1409.pdf

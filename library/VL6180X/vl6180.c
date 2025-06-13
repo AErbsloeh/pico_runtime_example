@@ -1,4 +1,6 @@
 #include "sens/vl6180.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 
 // ======================================== INTERNAL READ/WRITE COMMANDS ===============================================

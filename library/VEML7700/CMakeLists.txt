@@ -36,7 +36,7 @@ pico_sdk_init()
 # Add executable. Default name is the project name, version 0.1
 include_directories(lib)
 add_executable(main main_VEML7700.c 
-    wrapper/i2c_handler.c
+    hal/i2c.c
     sens/veml7700.c
 )
 

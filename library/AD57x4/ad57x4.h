@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "hardware/gpio.h"
 #include "hardware/spi.h"
-#include "wrapper/spi_handler.h"
+#include "hal/spi.h"
 
 
 // More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/ad5724_5734_5754.pdf

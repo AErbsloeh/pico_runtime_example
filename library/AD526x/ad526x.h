@@ -3,9 +3,7 @@
 
 
 #include <stdio.h>
-#include "hardware/spi.h"
-#include "hardware/gpio.h"
-#include "wrapper/spi_handler.h"
+#include "hal/spi.h"
 
 
 // More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/AD5260_5262.pdf

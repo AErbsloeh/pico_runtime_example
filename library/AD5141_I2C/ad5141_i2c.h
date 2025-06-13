@@ -3,9 +3,7 @@
 
 
 #include <stdio.h>
-#include "wrapper/i2c_handler.h"
-#include "hardware/i2c.h"
-#include "hardware/gpio.h"
+#include "hal/i2c.h"
 
 
 // ========================================================== DEFINITIONS ==========================================================

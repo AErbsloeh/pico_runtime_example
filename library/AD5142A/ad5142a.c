@@ -1,4 +1,6 @@
 #include "sens/ad5142a.h"
+#include <stdio.h>
+#include "hardware/gpio.h"
 
 
 uint8_t ad5142a_get_device_adr(uint8_t mode_adr)

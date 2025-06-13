@@ -1,4 +1,6 @@
 #include "sens/ad5141_i2c.h"
+#include "hardware/i2c.h"
+#include "hardware/gpio.h"
 
 
 uint8_t ad5141_i2c_get_device_adr(uint8_t mode_adr)

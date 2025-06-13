@@ -2,11 +2,9 @@
 #define BMI270_I2C_H_
 
 
-#include <stdio.h>
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
+#include <stdlib.h>
 #include "hardware/i2c.h"
-#include "wrapper/i2c_handler.h"
+#include "hal/i2c.h"
 
 
 // More Informations from sensor: https://content.arduino.cc/assets/bmi270-ds000.pdf

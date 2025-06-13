@@ -1,4 +1,6 @@
 #include "sens/ad526x.h"
+#include "hardware/spi.h"
+#include "hardware/gpio.h"
 
 
 // ======================================== INTERNAL FUNCTIONS ===============================================

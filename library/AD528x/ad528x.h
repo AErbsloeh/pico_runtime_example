@@ -3,9 +3,7 @@
 
 
 #include <stdio.h>
-#include "hardware/spi.h"
-#include "hardware/gpio.h"
-#include "wrapper/i2c_handler.h"
+#include "hal/i2c.h"
 
 
 // More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/AD5280_5282.pdf

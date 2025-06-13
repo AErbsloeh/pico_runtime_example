@@ -1,4 +1,5 @@
 #include "sens/adxl345_i2c.h"
+#include "hardware/gpio.h"
 
 
 // ========================== INTERNAL FUNCTIONS ==========================
