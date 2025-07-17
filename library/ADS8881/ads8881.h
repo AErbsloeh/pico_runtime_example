@@ -3,7 +3,7 @@
 
 
 #include "hardware/spi.h"
-#include "hal/spi.h"
+#include "lib/spi_handler.h"
 
 
 // More informations on: https://www.ti.com/lit/ds/symlink/ads8881.pdf?ts=1738727064904&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FADS8881
@@ -23,7 +23,7 @@
 * \param init_done      Boolean if device configuration is done        
 */
 typedef struct{
-    spi_pico_handler_t *spi_handler;
+    spi_device_handler_t *spi_handler;
     uint8_t gpio_num_din;
     uint8_t gpio_num_cnv;
     uint8_t adc_mode;

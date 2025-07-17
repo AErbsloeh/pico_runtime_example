@@ -10,7 +10,7 @@
 #define CMD_UPD_DAC_N           0x01
 #define CMD_UPD_DAC_ALL         0x09
 #define CMD_WR_UPD_DAC_N        0x03
-#define CMD_WR_UPD_DAC_ALL      0x0A
+#define CMD_WR_UPD_DAC_ALL      0x02
 #define CMD_PWR_DWN_DAC_N       0x04
 #define CMD_PWR_DWN_ALL         0x05
 #define CMD_MUX_CONTROL         0x0B
