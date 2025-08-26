@@ -40,7 +40,7 @@ bool init_system(void){
     uint8_t num_init_done = 0;
 
     // --- Init of Timer
-    if(enable_timer_irq(&tmr0_hndl)){
+    if(init_timer_irq(&tmr0_hndl)){
         num_init_done++;
     };
 
