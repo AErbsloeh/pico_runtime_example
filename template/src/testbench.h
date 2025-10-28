@@ -6,8 +6,10 @@
 
 
 // =============================== DEFINITIONS ===============================
-#define TB_MODE_NONE    0x00
-#define TB_MODE_MUX     0x01
+typedef enum{
+    TB_NONE,
+    TB_MUX
+} testbench_mode_t;
 
 
 // =============================== FUNCTIONS ===============================
@@ -15,7 +17,7 @@
 * \param mode   Unsigned integer for selecting the right testmode
 * \return       Boolean if test is done
 */
-bool run_testbench(uint8_t mode);
+bool run_testbench(testbench_mode_t mode);
 
 
 #endif

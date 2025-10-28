@@ -5,20 +5,22 @@
 #include "pico/stdlib.h"
 #include "stdbool.h"
 
-/*! \brief Enum struct for defining suitable system state
+/*! \brief Enum struct for defining suitable system states
 */
 typedef enum{
     STATE_NONE,
     STATE_INIT,
     STATE_IDLE,
+    STATE_TEST,
     STATE_ERROR
 } system_state_t;
 
 
 /*! \brief  Function for initialisating the GPIO and modules of RP Pico (used in this system)
-*   \return                           Boolean for initialisation of RPi Pico device completed
+*   \param block_usb    Boolean for waiting routine until serial port is opened
+*   \return             Boolean for initialisation of RPi Pico device completed
 */
-bool init_gpio_pico(void);
+bool init_gpio_pico(bool block_usb);
 
 
 /*! \brief  Function for initialisating the System Functionalities
