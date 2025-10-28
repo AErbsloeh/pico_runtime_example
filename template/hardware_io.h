@@ -17,6 +17,7 @@
 
 #define BLOCK_USB           true
 #define TESTBENCH_ACTIVE    TB_MODE_NONE
+extern system_state_t system_state;
 // ==================== PIN DEFINITION =====================
 #define BUTTON_BOARD        11
 #define LED_TEST_DEFAULT    17

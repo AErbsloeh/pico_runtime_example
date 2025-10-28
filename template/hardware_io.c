@@ -1,6 +1,7 @@
 #include "hardware_io.h"
 
 
+system_state_t system_state = STATE_NONE;
 // ==================== PICO/SYSTEM DEFINITION =====================
 // --- Timer
 bool irq_tmr0(repeating_timer_t *rt){

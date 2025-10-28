@@ -46,7 +46,6 @@ add_executable(main main.c
     src/testbench.c
     src/usb_callbacks.c
     hardware_io.c
-    sens/btstack_spp_counter.c
 )
 
 pico_set_program_name(main "main")

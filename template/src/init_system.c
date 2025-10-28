@@ -6,6 +6,7 @@
 
 
 bool init_gpio_pico(){
+    set_system_state(STATE_INIT);
     // --- Init of Wireless Module (if used)
     #ifdef PICO_CYW43_SUPPORTED 
         if (cyw43_arch_init()) {
@@ -47,16 +48,62 @@ bool init_system(void){
     // --- Blocking Routine if init is not completed
     if(num_init_done == 1){
         sleep_ms(10);
-        set_default_led(true);
+        set_system_state(STATE_IDLE);
         return true;
 
     } else {
         while(true){
             printf("... Init System not done yet\n");
+            set_system_state(STATE_ERROR);
             sleep_ms(1000);
             set_default_led(!get_default_led());
         }
         return false;
     }
     
+}
+
+
+uint64_t get_runtime_ms(void){
+    absolute_time_t now = get_absolute_time();
+    return to_us_since_boot(now) / 1000;
+}
+
+
+system_state_t get_system_state(void){
+    return system_state;
+}
+
+
+bool set_system_state(system_state_t new_state){
+    bool valid_state = false;
+    switch(new_state){
+        case STATE_NONE:
+            set_default_led(false);
+            valid_state = true;
+            break;
+        case STATE_INIT:
+            set_default_led(false);
+            valid_state = true;
+            break;
+        case STATE_IDLE:
+            set_default_led(false);
+            valid_state = true;
+            break;
+        case STATE_ERROR:
+            set_default_led(false);
+            valid_state = false;
+            break;
+        default:
+            set_default_led(false);
+            valid_state = false;
+            break;
+    }
+    system_state = new_state;
+    return true;
+}
+
+
+uint64_t get_status_register(void){
+    return 0;
 }
