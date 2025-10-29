@@ -1,8 +1,1 @@
-**/__pycache__
-**/venv
-**/.venv
-
-**/sens/*.c
-**/sens/*.h
-**/build
 **/.vscode
