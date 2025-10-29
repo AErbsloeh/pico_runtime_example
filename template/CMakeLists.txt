@@ -23,7 +23,7 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico2_w CACHE STRING "Board type")
+set(PICO_BOARD pico CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -40,7 +40,6 @@ add_executable(main main.c
     hal/spi.c
     hal/tmr.c  
     hal/usb.c
-    src/pwr_watch.c
     src/gpio_callbacks.c
     src/init_system.c
     src/testbench.c
@@ -63,15 +62,17 @@ target_link_libraries(main
     hardware_pio
     hardware_spi
     hardware_i2c
-    pico_btstack_classic
-    pico_btstack_cyw43
-    pico_cyw43_arch_none
 )
 add_definitions(-DPICO_BOARD="${PICO_BOARD}")
 
 # Extract if wireless board is available
 string(FIND "${PICO_BOARD}" "_w" POSITION)
 if(POSITION GREATER -1)
+    target_link_libraries(main
+        pico_btstack_classic
+        pico_btstack_cyw43
+        pico_cyw43_arch_none
+    )
     add_definitions(-DPICO_CYW43_SUPPORTED)
 endif()
 
