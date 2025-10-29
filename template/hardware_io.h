@@ -8,7 +8,6 @@
 #include "hal/led.h"
 #include "hal/tmr.h"
 
-#include "src/pwr_watch.h"
 #include "src/init_system.h"
 #include "src/testbench.h"
 #include "src/gpio_callbacks.h"
@@ -18,7 +17,7 @@
 extern system_state_t system_state;
 // ==================== PIN DEFINITION =====================
 #define BUTTON_BOARD        11
-#define LED_TEST_DEFAULT    17
+#define LED_TEST_DEFAULT    25
 
 
 // ==================== PICO/SYSTEM DEFINITION =====================

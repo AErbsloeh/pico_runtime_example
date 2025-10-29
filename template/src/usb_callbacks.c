@@ -6,18 +6,11 @@
 typedef enum {
     ECHO,
     STATE,
+    RUNTIME,
     ENABLE_LED,
     DISABLE_LED,
     TOGGLE_LED
 } usb_cmd_t;
-
-
-// ======================== INTERNAL FUNCTIONS ========================
-void send_bytes(char* buffer, size_t num_bytes){
-    for(size_t idx = 0; idx < num_bytes; idx++){
-        putchar(buffer[num_bytes- 1 - idx]);
-    }
-}
 
 
 // ========================== PROCOTOL FUNCS ==========================
@@ -26,9 +19,19 @@ void echo(char* buffer){
 }
 
 
-void send_state(char* buffer){
+void get_state(char* buffer){
     buffer[0] = system_state;
     send_bytes(buffer, sizeof(buffer));
+}
+
+
+void get_runtime(char* buffer){
+    char buffer_send[9] = {buffer[2]};
+    uint64_t runtime = get_runtime_ms();
+    for(uint8_t idx = 0; idx < 8; idx++){
+        buffer_send[idx+1] = (runtime >> (8 * idx)) & 0xFF;
+    }
+    send_bytes(buffer_send, sizeof(buffer_send));
 }
 
 
@@ -57,11 +60,12 @@ bool apply_usb_callback(usb_fifo_t* fifo_buffer){
         char* buffer = *fifo_buffer->data;
         switch(buffer[2]){
             case ECHO:          echo(buffer);           break;
-            case STATE:         send_state(buffer);     break; 
+            case STATE:         get_state(buffer);      break; 
+            case RUNTIME:       get_runtime(buffer);    break;
             case ENABLE_LED:    enable_led();           break;
             case DISABLE_LED:   disable_led();          break;
             case TOGGLE_LED:    toogle_led();           break;
-            default:            sleep_ms(1);            break;        
+            default:            sleep_us(10);           break;        
         }  
     }
     return true;

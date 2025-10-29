@@ -10,7 +10,7 @@ uint8_t pin_used = 0;
 
 // ======================================== CALLABLE FUNCTIONS ===============================================
 void init_default_led(uint8_t led_pin){
-	uint8_t pin_used = led_pin;
+	pin_used = led_pin;
 
 	#ifdef PICO_CYW43_SUPPORTED
 		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, false);

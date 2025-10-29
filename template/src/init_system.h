@@ -32,7 +32,7 @@ bool init_system(void);
 /*! \brief Function for getting the runtime since last reboot
 * \return                           Time structure with runtime in ms
 */
-uint64_t  get_runtime_ms(void);
+uint64_t get_runtime_ms(void);
 
 
 /*! \brief Function for getting the status register of the system
@@ -45,11 +45,6 @@ system_state_t get_system_state(void);
 * \return           Boolean if new state is valid
 */
 bool set_system_state(system_state_t state);
-
-
-/*! \brief Function for getting the status register of the system
-*/
-uint64_t get_status_register(void);
 
 
 #endif

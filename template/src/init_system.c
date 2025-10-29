@@ -12,13 +12,13 @@ bool init_gpio_pico(bool block_usb){
         if (cyw43_arch_init()) {
             return false;
         }
-    #endif 
+    #endif
     
     // --- Init of GPIOs
     init_default_led(LED_TEST_DEFAULT);
 
     // --- Init GPIO + IRQ (Low Level)
-    /*pio_init(BUTTON_BOARD);
+    /*gpio_init(BUTTON_BOARD);
     gpio_set_dir(BUTTON_BOARD, GPIO_IN);
     gpio_pull_up(BUTTON_BOARD);
     gpio_set_slew_rate(BUTTON_BOARD, GPIO_SLEW_RATE_SLOW);
@@ -26,11 +26,13 @@ bool init_gpio_pico(bool block_usb){
 
     // --- Init of Serial COM-Port
     stdio_init_all();
-	// Wait until USB is connected
-    if (block_usb)
+    stdio_set_translate_crlf(&stdio_usb, false);
+    if (block_usb){
+        // Wait until USB is connected
         while(!stdio_usb_connected()){
-            sleep_ms(10);
+            sleep_ms(1);
         };
+    };
     return true;
 }
 
@@ -87,11 +89,11 @@ bool set_system_state(system_state_t new_state){
                 valid_state = true;
                 break;
             case STATE_IDLE:
-                set_default_led(false);
+                set_default_led(true);
                 valid_state = true;
                 break;
             case STATE_ERROR:
-                set_default_led(false);
+                set_default_led(true);
                 valid_state = false;
                 break;
             default:
@@ -103,9 +105,4 @@ bool set_system_state(system_state_t new_state){
     } else {
         return false;
     };    
-}
-
-
-uint64_t get_status_register(void){
-    return 0;
 }

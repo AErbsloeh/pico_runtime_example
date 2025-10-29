@@ -19,24 +19,30 @@ void handling_usb_fifo_buffer(usb_fifo_t* fifo_buffer){
 
 
 // ============================== FUNCTIONS FOR COMPRESSED DATA TRANSMISSION ==============================
-uint16_t send_uint16_data_to_hexstring(char separator, uint16_t data){
+void send_bytes(char* buffer, size_t num_bytes){
+    size_t written = fwrite(buffer, 1, num_bytes, stdout);
+    fflush(stdout);
+}
+
+
+void send_uint16_data_to_hexstring(char separator, uint16_t data){
     printf("%c%04x", separator, data & 0xFFFF);
 }
 
 
-uint16_t send_uint16_data_to_hex(char separator, uint16_t data){
+void send_uint16_data_to_hex(char separator, uint16_t data){
     char val_hgh = ((data >> 8) & 0x0000FF) + 0x00;
     char val_low = ((data >> 0) & 0x0000FF) + 0x00;  
     printf("%c%c%c", separator, val_hgh, val_low);
 }
 
 
-int16_t send_int16_data_to_hexstring(char separator, int16_t data){
+void send_int16_data_to_hexstring(char separator, int16_t data){
     printf("%c%04x", separator, data & 0xFFFF);
 }
 
 
-int16_t send_int16_data_to_hex(char separator, int16_t data){
+void send_int16_data_to_hex(char separator, int16_t data){
     char val_hgh = ((data >> 8) & 0x0000FF) + 0x00;
     char val_low = ((data >> 0) & 0x0000FF) + 0x00;  
     printf("%c%c%c", separator, val_hgh, val_low);
