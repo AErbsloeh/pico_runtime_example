@@ -3,6 +3,18 @@
     #include "pico/cyw43_arch.h"
 #endif
 #include "hardware_io.h"
+#include "hardware/watchdog.h"
+
+
+void reset_pico_mcu(bool wait_until_done){
+    set_system_state(STATE_RESET);
+    watchdog_enable(100, 1);
+    if(wait_until_done){
+        while(true){
+            tight_loop_contents();
+        }
+    };
+}
 
 
 bool init_gpio_pico(bool block_usb){

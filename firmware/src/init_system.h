@@ -9,11 +9,18 @@
 */
 typedef enum{
     STATE_NONE,
+    STATE_RESET,
     STATE_INIT,
     STATE_IDLE,
     STATE_TEST,
     STATE_ERROR
 } system_state_t;
+
+
+/*! \brief Function for resetting the Pico MCU
+* \param wait_until_done   Boolean for waiting routine until reset is done
+*/
+void reset_pico_mcu(bool wait_until_done);
 
 
 /*! \brief  Function for initialisating the GPIO and modules of RP Pico (used in this system)

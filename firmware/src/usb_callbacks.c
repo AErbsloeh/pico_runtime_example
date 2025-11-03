@@ -5,6 +5,7 @@
 // ============================= COMMANDS =============================
 typedef enum {
     ECHO,
+    RESET,
     STATE,
     RUNTIME,
     ENABLE_LED,
@@ -16,6 +17,11 @@ typedef enum {
 // ========================== PROCOTOL FUNCS ==========================
 void echo(char* buffer){
     send_bytes(buffer, sizeof(buffer));
+}
+
+
+void system_reset(void){
+    reset_pico_mcu(true);
 }
 
 
@@ -60,6 +66,7 @@ bool apply_usb_callback(usb_fifo_t* fifo_buffer){
         char* buffer = *fifo_buffer->data;
         switch(buffer[2]){
             case ECHO:          echo(buffer);           break;
+            case RESET:         system_reset();         break;
             case STATE:         get_state(buffer);      break; 
             case RUNTIME:       get_runtime(buffer);    break;
             case ENABLE_LED:    enable_led();           break;

@@ -58,6 +58,7 @@ pico_enable_stdio_usb(main 1)
 target_link_libraries(main
     pico_stdlib
     pico_bootsel_via_double_reset
+    hardware_watchdog
     hardware_clocks
     hardware_pio
     hardware_spi

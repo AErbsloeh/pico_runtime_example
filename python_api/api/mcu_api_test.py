@@ -1,26 +1,25 @@
 import pytest
-from mcu_api import scan_available_serial_ports, HandlerUSB
+from mcu_api import DeviceAPI
 
 
 @pytest.fixture()
 def dut():
-    com_list = scan_available_serial_ports()
-    mcu_api = HandlerUSB(
-        com_name=com_list[0]
+    mcu_api = DeviceAPI(
+
     )
     mcu_api.open()
     yield mcu_api
 
 
-def test_num_bytes(dut: HandlerUSB):
+def test_num_bytes(dut: DeviceAPI):
     assert dut.total_num_bytes == 3
 
 
-def test_check_opened(dut: HandlerUSB):
+def test_check_opened(dut: DeviceAPI):
     assert dut.is_com_port_active == True
 
 
-def test_toggle_led(dut: HandlerUSB):
+def test_toggle_led(dut: DeviceAPI):
     dut.toogle_led()
 
 
