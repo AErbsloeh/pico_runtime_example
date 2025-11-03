@@ -2,12 +2,16 @@ import pytest
 from mcu_api import DeviceAPI
 
 
+@pytest.fixture(scope="module")
+def init_before_all_tests():
+    DeviceAPI().do_reset()
+
+
 @pytest.fixture()
 def dut():
     mcu_api = DeviceAPI(
-
+        com_name="AUTOCOM"
     )
-    mcu_api.open()
     yield mcu_api
 
 

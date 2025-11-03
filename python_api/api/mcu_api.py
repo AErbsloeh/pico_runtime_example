@@ -1,6 +1,7 @@
 from logging import getLogger, Logger
 from serial import Serial, STOPBITS_ONE, EIGHTBITS, PARITY_NONE
 from serial.tools import list_ports
+from time import sleep
 
 
 class ProcessInteractionPico:
@@ -127,6 +128,7 @@ class DeviceAPI:
     def do_reset(self) -> None:
         """Performing a Software Reset on the Platform"""
         self.__device.write_wofb(bytes([0x01, 0x00, 0x00]))
+        sleep(4)
 
     def get_system_state(self) -> str:
         """Retuning the System State of the System"""
