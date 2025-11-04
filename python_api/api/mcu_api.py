@@ -69,36 +69,47 @@ class ProcessInteractionPico:
 class DeviceAPI:
     __device: ProcessInteractionPico
     __logger: Logger
-    __usb_vid: int = 0x26E2
-    __usb_pid: int = 0x4020
+    __usb_vid: int = 0x2E8A # Pico2 specific device number
+    __usb_pid: int = 0x0009 #
 
-    def __init__(self, com_name: str="AUTOCOM", baud: int=115200) -> None:
+    def __init__(self, com_name: str="AUTOCOM", timeout: float=1.0, baud: int=115200, make_connection: bool=True) -> None:
         """Init. of the device with name and baudrate of the device
         :param com_name:    String with the serial port name of the used device
+        :param timeout:     Floating value with timeout for the communication
         :param baud:        Baud rate of the communication between API and device [default: 115.200]
         """
         self.__logger = getLogger(__name__)
-        self.__device = ProcessInteractionPico(
-            device=Serial(
-                port=com_name if not "AUTOCOM" else self.scan_com_name[0],
-                baudrate=baud,
-                parity=PARITY_NONE,
-                stopbits=STOPBITS_ONE,
-                bytesize=EIGHTBITS,
-                inter_byte_timeout=0.5
-            ),
-            num_bytes_head=1,
-            num_bytes_data=2
-        )
-        if self.is_com_port_active:
-            self.__device.close()
-        self.__device.open()
+        if make_connection:
+            self.__device = ProcessInteractionPico(
+                num_bytes_head=1,
+                num_bytes_data=2,
+                device=Serial(
+                    port=com_name if com_name != "AUTOCOM" else self.scan_com_name[0],
+                    baudrate=baud,
+                    parity=PARITY_NONE,
+                    stopbits=STOPBITS_ONE,
+                    bytesize=EIGHTBITS,
+                    inter_byte_timeout=timeout
+                )
+            )
+            if self.is_com_port_active:
+                self.__device.close()
+            self.__device.open()
+
+    @property
+    def __read_usb_properties(self) -> list:
+        """Reading the USB properties of all devices device"""
+        return [{"com": ps.device, "pid": ps.pid, "vid": ps.vid} for ps in list_ports.comports()]
 
     @property
     def scan_com_name(self) -> list:
         """Returning the COM Port name of the addressable devices"""
-        list_right_com = [port for port in list_ports.comports() if
+        available_coms = list_ports.comports()
+        list_right_com = [port.device for port in available_coms if
                           port.vid == self.__usb_vid and port.pid == self.__usb_pid]
+        if len(list_right_com) == 0:
+            raise ConnectionError(f"No COM Port with right USB found - Please adapt the VID and PID values from "
+                                  f"available COM ports: {self.__read_usb_properties}")
         self.__logger.debug(f"Found {len(list_right_com)} COM ports available")
         return list_right_com
 
@@ -135,14 +146,19 @@ class DeviceAPI:
         ret = self.__device.write_wfb(bytes([0x02, 0x00, 0x00]))
         return str(ret)
 
+    def get_runtime(self) -> str:
+        """"""
+        ret = self.__device.write_wfb(bytes([0x03, 0x00, 0x00]))
+        return str(ret)
+
     def enable_led(self):
         """Changing the state of the LED with enabling it"""
-        self.__device.write_wofb(bytes([0x03, 0x00, 0x00]))
+        self.__device.write_wofb(bytes([0x04, 0x00, 0x00]))
 
     def disable_led(self):
         """Changing the state of the LED with disabling it"""
-        self.__device.write_wofb(bytes([0x04, 0x00, 0x00]))
+        self.__device.write_wofb(bytes([0x05, 0x00, 0x00]))
 
     def toogle_led(self):
         """Changing the state of the LED with toggling it"""
-        self.__device.write_wofb(bytes([0x05, 0x00, 0x00]))
+        self.__device.write_wofb(bytes([0x06, 0x00, 0x00]))
