@@ -6,7 +6,8 @@
 typedef enum {
     ECHO,
     RESET,
-    STATE,
+    STATE_SYS,
+    STATE_PIN,
     RUNTIME,
     ENABLE_LED,
     DISABLE_LED,
@@ -15,8 +16,8 @@ typedef enum {
 
 
 // ========================== PROCOTOL FUNCS ==========================
-void echo(char* buffer){
-    send_bytes(buffer, sizeof(buffer));
+void echo(char* buffer, size_t length){
+    send_bytes(buffer, length);
 }
 
 
@@ -25,17 +26,25 @@ void system_reset(void){
 }
 
 
-void get_state(char* buffer){
-    buffer[0] = system_state;
-    send_bytes(buffer, sizeof(buffer));
+void get_state_system(char* buffer, size_t length){
+    buffer[2] = system_state;
+    send_bytes(buffer, length);
+}
+
+
+void get_state_pin(char* buffer, size_t length){
+    buffer[2] = get_default_led();
+    send_bytes(buffer, length);
 }
 
 
 void get_runtime(char* buffer){
-    char buffer_send[9] = {buffer[2]};
+    char buffer_send[9] = {0};
+    buffer_send[0] = buffer[0];
     uint64_t runtime = get_runtime_ms();
     for(uint8_t idx = 0; idx < 8; idx++){
-        buffer_send[idx+1] = (runtime >> (8 * idx)) & 0xFF;
+        buffer_send[idx+1] = (uint8_t)runtime;
+        runtime >>= 8;
     }
     send_bytes(buffer_send, sizeof(buffer_send));
 }
@@ -58,21 +67,20 @@ void toogle_led(void){
 
 // ======================== CALLABLE FUNCS ==========================
 bool apply_usb_callback(usb_fifo_t* fifo_buffer){
-    //Getting data
     handling_usb_fifo_buffer(fifo_buffer);
     
-    // Datahandler    
     if(fifo_buffer->ready){
         char* buffer = *fifo_buffer->data;
-        switch(buffer[2]){
-            case ECHO:          echo(buffer);           break;
-            case RESET:         system_reset();         break;
-            case STATE:         get_state(buffer);      break; 
-            case RUNTIME:       get_runtime(buffer);    break;
-            case ENABLE_LED:    enable_led();           break;
-            case DISABLE_LED:   disable_led();          break;
-            case TOGGLE_LED:    toogle_led();           break;
-            default:            sleep_us(10);           break;        
+        switch(buffer[0]){
+            case ECHO:          echo(buffer, fifo_buffer->length);               break;
+            case RESET:         system_reset();             break;
+            case STATE_SYS:     get_state_system(buffer, fifo_buffer->length);   break;
+            case STATE_PIN:     get_state_pin(buffer, fifo_buffer->length);      break; 
+            case RUNTIME:       get_runtime(buffer);        break;
+            case ENABLE_LED:    enable_led();               break;
+            case DISABLE_LED:   disable_led();              break;
+            case TOGGLE_LED:    toogle_led();               break;
+            default:            sleep_us(10);               break;        
         }  
     }
     return true;

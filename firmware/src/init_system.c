@@ -77,7 +77,7 @@ bool init_system(void){
 
 uint64_t get_runtime_ms(void){
     absolute_time_t now = get_absolute_time();
-    return to_us_since_boot(now) / 1000;
+    return to_us_since_boot(now);
 }
 
 

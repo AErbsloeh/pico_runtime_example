@@ -31,32 +31,9 @@ void handling_usb_fifo_buffer(usb_fifo_t* fifo_buffer);
 /*! \brief Function for converting char data for sending out
 * \param buffer     Buffer with characters
 * \param num_bytes  Number of bytes to send
+* \return           Number of written bytes
 */
-void send_bytes(char* buffer, size_t num_bytes);
-
-
-/*! \brief Function for converting uint16 data with used separator into hex string and sending out
-* \param separator      One char value for separating on host computer
-*/
-void send_uint16_data_to_hexstring(char separator, uint16_t data);
-
-
-/*! \brief Function for converting uint16 data with used separator into hex and sending out
-* \param separator      One char value for separating on host computer  
-*/
-void send_uint16_data_to_hex(char separator, uint16_t data);
-
-
-/*! \brief Function for converting int16 data with used separator into hex string and sending out
-* \param separator      One char value for separating on host computer  
-*/
-void send_int16_data_to_hexstring(char separator, int16_t data);
-
-
-/*! \brief Function for converting int16 data with used separator into hex and sending out
-* \param separator      One char value for separating on host computer 
-*/
-void send_int16_data_to_hex(char separator, int16_t data);
+size_t send_bytes(char* buffer, size_t num_bytes);
 
 
 #endif

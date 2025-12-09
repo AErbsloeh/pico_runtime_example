@@ -1,69 +1,34 @@
+from dataclasses import dataclass
 from logging import getLogger, Logger
+from time import sleep
 from serial import Serial, STOPBITS_ONE, EIGHTBITS, PARITY_NONE
 from serial.tools import list_ports
-from time import sleep
+from api.serial import ProcessInteractionPico
 
 
-class ProcessInteractionPico:
-    __logger: Logger
-    __device: Serial
-    __BYTES_HEAD: int = 1
-    __BYTES_DATA: int = 2
+def _convert_pin_state(state: int) -> str:
+    if state == 0:
+        return 'None'
+    else:
+        return 'LED_USER'
 
-    def __init__(self, device: Serial, num_bytes_head: int=1, num_bytes_data: int=2) -> None:
-        """Class for interacting with the USB serial devices
-        :param device:  Class with properties of the Serial device
-        :param num_bytes_head: Number of bytes head, implemented on Pico
-        :param num_bytes_data: Number of bytes data, implemented on Pico
-        """
-        self.__logger = getLogger(__name__)
-        self.__BYTES_HEAD = num_bytes_head
-        self.__BYTES_DATA = num_bytes_data
-        self.__device = device
 
-    @property
-    def total_num_bytes(self) -> int:
-        """Returning the total number of bytes for each transmission"""
-        return self.__BYTES_DATA + self.__BYTES_HEAD
+def _convert_system_state(state: int) -> str:
+    state_name = ["NONE", "RESET", "INIT", "IDLE", "TEST", "ERROR"]
+    return state_name[state]
 
-    def is_open(self) -> bool:
-        """Return True if the device is open, False otherwise"""
-        return self.__device.is_open
 
-    def read(self, no_bytes: int):
-        """Read content from device"""
-        return self.__device.read(no_bytes)
-
-    def write_wofb(self, data: bytes) -> None:
-        """Write content to device without feedback"""
-        self.__device.write(data)
-
-    def write_wfb(self, data: bytes):
-        """Write all information to device (specific bytes)"""
-        self.__device.write(data)
-        return self.__device.read(len(data))
-
-    def write_wfb_lf(self, data: bytes) -> bytes:
-        """Write all information to device (unlimited bytes until LF)"""
-        self.__device.write(data)
-        return self.__device.read_until()
-
-    def write_wfb_hex(self, head: int, data: int) -> bytes:
-        """Write content to FPGA/MCU for specific custom-made task"""
-        transmit_byte = head.to_bytes(self.__BYTES_HEAD, 'little')
-        transmit_byte += data.to_bytes(self.__BYTES_DATA, 'big')
-        self.__device.write(transmit_byte)
-        return self.__device.read(len(transmit_byte))
-
-    def open(self) -> None:
-        """Starting a connection to device"""
-        if self.__device.is_open:
-            self.__device.close()
-        self.__device.open()
-
-    def close(self) -> None:
-        """Closing a connection to device"""
-        self.__device.close()
+@dataclass
+class SystemState:
+    """Dataclass for handling the system state of the device
+    Attributes:
+        pins:       String with enabled GPIO pins (selection from MCU)
+        system:     String with actual system state
+        runtime:    Float with actual execution runtime after last reset
+    """
+    pins: str
+    system: str
+    runtime: float
 
 
 class DeviceAPI:
@@ -89,7 +54,10 @@ class DeviceAPI:
                     parity=PARITY_NONE,
                     stopbits=STOPBITS_ONE,
                     bytesize=EIGHTBITS,
-                    inter_byte_timeout=timeout
+                    inter_byte_timeout=timeout,
+                    xonxoff=False,
+                    rtscts=False,
+                    dsrdtr=False
                 )
             )
             if self.is_com_port_active:
@@ -98,8 +66,18 @@ class DeviceAPI:
 
     @property
     def __read_usb_properties(self) -> list:
-        """Reading the USB properties of all devices device"""
         return [{"com": ps.device, "pid": ps.pid, "vid": ps.vid} for ps in list_ports.comports()]
+
+    def __write_wfb(self, head: int, data: int, size: int=0) -> bytes:
+        return self.__device.write_wfb(
+            data=self.__device.convert(head, data),
+            size=size
+        )
+
+    def __write_wofb(self, head: int, data: int, size: int=0) -> None:
+        self.__device.write_wofb(
+            data=self.__device.convert(head, data),
+        )
 
     @property
     def scan_com_name(self) -> list:
@@ -133,32 +111,57 @@ class DeviceAPI:
 
     def echo(self, data: str) -> str:
         """Sending some characters to the device and returning the result"""
-        ret = self.__device.write_wfb(bytes([0x00, 0x00, 0x00]))
-        return str(ret)
+        padding = len(data) % self.__device.num_bytes == 1
+        if padding:
+            data += " "
+
+        chunks = [int.from_bytes(data[i:i+2].encode('utf-8'), 'big') for i in range(0, len(data), 2)]
+        val = bytes()
+        for chunk in chunks:
+            ret = self.__write_wfb(0, chunk)[1:]
+            if ret[0] != 0x00:
+                raise ValueError
+            val += ret
+        if padding:
+            val = val[:-1]
+        return val.decode('utf8')
 
     def do_reset(self) -> None:
         """Performing a Software Reset on the Platform"""
-        self.__device.write_wofb(bytes([0x01, 0x00, 0x00]))
+        self.__write_wfb(1, 0)
         sleep(4)
 
     def get_system_state(self) -> str:
-        """Retuning the System State of the System"""
-        ret = self.__device.write_wfb(bytes([0x02, 0x00, 0x00]))
-        return str(ret)
+        """Retuning the System State"""
+        ret = self.__write_wfb(2, 0)[-1]
+        return _convert_system_state(ret)
 
-    def get_runtime(self) -> str:
-        """"""
-        ret = self.__device.write_wfb(bytes([0x03, 0x00, 0x00]))
-        return str(ret)
+    def get_pin_state(self) -> str:
+        """Retuning the Pin States"""
+        ret = self.__write_wfb(3, 0)[-1]
+        return _convert_pin_state(ret)
+
+    def get_runtime_sec(self) -> float:
+        """Returning the execution runtime of the device after last reset in seconds"""
+        ret = self.__write_wfb(4, 0, size=9)
+        return int.from_bytes(ret[1:], byteorder='little', signed=False) / 1e6
+
+    def get_state(self) -> SystemState:
+        """Returning the state of the system"""
+        return SystemState(
+            pins=self.get_pin_state(),
+            system=self.get_system_state(),
+            runtime=self.get_runtime_sec()
+        )
 
     def enable_led(self):
         """Changing the state of the LED with enabling it"""
-        self.__device.write_wofb(bytes([0x04, 0x00, 0x00]))
+        self.__write_wofb(5, 0)
 
     def disable_led(self):
         """Changing the state of the LED with disabling it"""
-        self.__device.write_wofb(bytes([0x05, 0x00, 0x00]))
+        self.__write_wofb(6, 0)
 
     def toogle_led(self):
         """Changing the state of the LED with toggling it"""
-        self.__device.write_wofb(bytes([0x06, 0x00, 0x00]))
+        self.__write_wofb(7, 0)
