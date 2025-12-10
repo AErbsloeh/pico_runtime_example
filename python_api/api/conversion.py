@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 def _convert_pin_state(state: int) -> str:
     if state == 0:
-        return 'None'
+        return 'NONE'
     else:
         return 'LED_USER'
 

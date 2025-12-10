@@ -24,9 +24,10 @@ bool irq_tmr_daq0(repeating_timer_t *rt){
     daq_sample_data.iteration ++;
     daq_sample_data.runtime = get_runtime_ms();
     daq_sample_data.channel_id = 1;
-    daq_sample_data.value ++;
-
+    daq_sample_data.value += 4;
     send_daq_data_usb(&daq_sample_data);
+
+    gpio_put(LED_TEST_DEFAULT, !gpio_get(LED_TEST_DEFAULT));
     return true;    
 };
 repeating_timer_t tmr_daq0;

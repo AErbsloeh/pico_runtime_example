@@ -4,7 +4,7 @@ from time import sleep
 import math
 from multiprocessing import Process
 from pathlib import Path
-import psutil
+from psutil import cpu_percent, virtual_memory
 from pylsl import StreamInfo, StreamOutlet, StreamInlet, resolve_bypred, cf_int16, cf_float32, FOREVER
 
 
@@ -21,7 +21,7 @@ def start_stream_data(name: str, channel_num: int, sampling_rate: float) -> None
 
     idx = 0
     while True:
-        idx = idx + math.pi / 20
+        idx += math.pi / 20
         outlet.push_sample([int((2**15-1) * math.sin(idx + math.pi * ch / channel_num)) for ch in range(channel_num)])
         sleep(1/sampling_rate)
 
@@ -36,11 +36,8 @@ def start_stream_utilization(name: str, sampling_rate: float) -> None:
         source_id=name + '_uid'
     )
     outlet = StreamOutlet(info)
-
-    idx = 0
     while True:
-        idx = idx + math.pi / 20
-        outlet.push_sample([psutil.cpu_percent(interval=1/sampling_rate), psutil.virtual_memory().percent])
+        outlet.push_sample([cpu_percent(interval=1/sampling_rate), virtual_memory().percent])
         sleep(1 / sampling_rate)
 
 
@@ -50,7 +47,7 @@ def record_stream(name: str, path2save: Path) -> None:
     # Extract meta
     channels = inlet.info().channel_count()
     sampling_rate = inlet.info().nominal_srate()
-    type = inlet.info().type()
+    sys_type = inlet.info().type()
     data_format = inlet.info().channel_format()
     time = date.today().strftime('%Y%m%d_%H%M')
 
@@ -59,7 +56,7 @@ def record_stream(name: str, path2save: Path) -> None:
     with File(path2save.absolute() / f"{time}_{name}.h5", "w") as f:
         f.attrs["sampling_rate"] = sampling_rate
         f.attrs["channel_count"] = channels
-        f.attrs["type"] = type
+        f.attrs["type"] = sys_type
         f.attrs["creation_date"] = date.today().strftime('%Y-%m-%d')
         f.attrs["data_format"] = data_format
 
@@ -73,27 +70,24 @@ def record_stream(name: str, path2save: Path) -> None:
         idx = 0
         while True:
             sample, ts = inlet.pull_sample(timeout=FOREVER)
-
             # Processing
             if sample is None:
                 continue
             if first_run:
                 timestamp_first = ts
                 first_run = False
-
             # Write into file
+            idx += 1
             ts_dset.resize((idx + 1,))
             ts_dset[idx] = ts - timestamp_first
             data_dset.resize((idx + 1, channels))
             data_dset[idx] = sample
-
-            idx += 1
             f.flush()
 
 if __name__ == "__main__":
     process = list()
-    process.append(Process(target=start_stream_data, args=("data", 100, 32)))
-    process.append(Process(target=start_stream_utilization, args=("util", 10)))
+    process.append(Process(target=start_stream_data, args=("data", 32, 100.)))
+    process.append(Process(target=start_stream_utilization, args=("util", 10.)))
     process.append(Process(target=record_stream, args=("data", Path("../data"))))
     process.append(Process(target=record_stream, args=("util", Path("../data"))))
 
@@ -103,4 +97,3 @@ if __name__ == "__main__":
     process[2].join()
     for p in process:
         p.terminate()
-

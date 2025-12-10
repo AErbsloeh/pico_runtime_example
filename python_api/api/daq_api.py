@@ -4,8 +4,15 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-@dataclass
+@dataclass(frozen=True)
 class RawRecording:
+    """Data class with measured transient data
+    Attributes:
+        sampling_rate:  Float with sampling rate [Hz]
+        num_channels:   Integer with number of channels
+        time:           Numpy array with timestamps [sec]
+        data:           Numpy array with raw data
+    """
     sampling_rate: float
     num_channels: int
     time: np.ndarray
@@ -31,8 +38,8 @@ class DataAPI:
             data = RawRecording(
                 sampling_rate=f.attrs["sampling_rate"],
                 num_channels=f.attrs["channel_count"],
-                time=f["time"][:],
-                data=f["data"][:],
+                time=np.array(f["time"][:] - f["time"][0]),
+                data=np.transpose(f["data"][:]),
                 type=f.attrs["type"],
             )
             f.close()
