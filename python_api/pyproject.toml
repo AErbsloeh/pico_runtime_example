@@ -1,15 +1,19 @@
 [project]
-name = "python-api"
+name = "pico-api"
 version = "0.1.0"
-description = "Add your description here"
+description = "A Python API for handling a microcontroller system like the Raspberry Pi Pico RP2xxx"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pyserial>=3.5",
+    "numpy>=2.3.4",
+    "h5py>=3.15.1",
+    "pylsl>=1.17.6",
 ]
 
 [dependency-groups]
 dev = [
     "pytest>=8.4.2",
-    "numpy"
+    "matplotlib>=3.10.7",
+    "psutil>=7.1.3",
 ]

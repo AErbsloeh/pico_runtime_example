@@ -58,6 +58,19 @@ class ProcessInteractionPico:
         self.__device.write(data)
         return self.__device.read_until()
 
+    @staticmethod
+    def serialize_string(data: str, do_padding: bool) -> list:
+        """Serialize a string to bytes"""
+        if do_padding:
+            data += " "
+        chunks = [int.from_bytes(data[i:i + 2].encode('utf-8'), 'big') for i in range(0, len(data), 2)]
+        return chunks
+
+    @staticmethod
+    def deserialize_string(data: bytes, do_padding: bool) -> str:
+        val = data if not do_padding else data[:-1]
+        return val.decode('utf8')
+
     def open(self) -> None:
         """Starting a connection to device"""
         if self.__device.is_open:
