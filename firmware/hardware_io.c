@@ -1,25 +1,8 @@
 #include "hardware_io.h"
 
 
-system_state_t system_state = STATE_NONE;
+system_state_t system_state = STATE_ERROR;
 // ==================== PICO/SYSTEM DEFINITION =====================
-// --- Timer
-bool irq_tmr0(repeating_timer_t *rt){
-    printf("Timer IRQ\n");  
-    return true;    
-};
-repeating_timer_t tmr0;
-tmr_repeat_irq_t tmr0_hndl = {
-    .timer = &tmr0,
-    .irq_number = 0,
-    .period_us = 250000,
-    .alarm_done = false,
-    .enable_state = true,
-    .init_done = false,
-    .func_irq = irq_tmr0
-};
-
-
 // --- USB PROTOCOL
 char data_usb[USB_FIFO_SIZE] = {0};
 usb_fifo_t usb_buffer = {
@@ -28,6 +11,34 @@ usb_fifo_t usb_buffer = {
 	.position = USB_FIFO_SIZE-1,
 	.data = data_usb
 };  
+
+// --- DAQ Sampling
+daq_data_t daq_sample_data = {
+    .packet_id = 0xA0,
+    .iteration = 0,
+    .runtime = 0,
+    .channel_id = 0,
+    .value = 0
+};
+bool irq_tmr_daq0(repeating_timer_t *rt){
+    daq_sample_data.iteration ++;
+    daq_sample_data.runtime = get_runtime_ms();
+    daq_sample_data.channel_id = 1;
+    daq_sample_data.value ++;
+
+    send_daq_data_usb(&daq_sample_data);
+    return true;    
+};
+repeating_timer_t tmr_daq0;
+tmr_repeat_irq_t tmr_daq0_hndl = {
+    .timer = &tmr_daq0,
+    .irq_number = 0,
+    .period_us = -250000,
+    .alarm_done = false,
+    .enable_state = false,
+    .init_done = false,
+    .func_irq = irq_tmr_daq0
+};
 
 
 // ==================== I2C DEFINITION =====================

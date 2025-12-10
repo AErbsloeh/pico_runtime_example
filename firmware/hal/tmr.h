@@ -22,7 +22,7 @@ extern bool alarm_done;
 typedef struct {
     repeating_timer_t *timer;
     uint32_t irq_number;
-    uint32_t period_us;
+    int64_t period_us;
     bool alarm_done;    
     bool enable_state;
     bool init_done;

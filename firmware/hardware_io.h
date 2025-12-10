@@ -12,6 +12,7 @@
 #include "src/testbench.h"
 #include "src/gpio_callbacks.h"
 #include "src/usb_callbacks.h"
+#include "src/daq_sample.h"
 
 
 extern system_state_t system_state;
@@ -20,16 +21,15 @@ extern system_state_t system_state;
 #define LED_TEST_DEFAULT    25
 
 
-// ==================== PICO/SYSTEM DEFINITION =====================
-// --- Timer  
-bool irq_tmr0(repeating_timer_t *rt);
-extern repeating_timer_t tmr0;
-extern tmr_repeat_irq_t tmr0_hndl;
-
+// ================ PICO/SYSTEM DEFINITION =================
 // ----- USB Communication
 #define USB_FIFO_SIZE   3
 extern char data[USB_FIFO_SIZE];
 extern usb_fifo_t usb_buffer;
+
+// --- DAQ Sampling
+extern daq_data_t daq_sample_data;
+extern tmr_repeat_irq_t tmr_daq0_hndl;
 
 
 // ==================== I2C DEFINITION =====================

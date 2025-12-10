@@ -8,12 +8,12 @@
 /*! \brief Enum struct for defining suitable system states
 */
 typedef enum{
-    STATE_NONE,
+    STATE_ERROR,
     STATE_RESET,
     STATE_INIT,
     STATE_IDLE,
     STATE_TEST,
-    STATE_ERROR
+    STATE_DAQ
 } system_state_t;
 
 

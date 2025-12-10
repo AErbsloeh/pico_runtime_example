@@ -18,7 +18,7 @@ void reset_pico_mcu(bool wait_until_done){
 
 
 bool init_gpio_pico(bool block_usb){
-    set_system_state(STATE_NONE);
+    set_system_state(STATE_INIT);
     // --- Init of Wireless Module (if used)
     #ifdef PICO_CYW43_SUPPORTED 
         if (cyw43_arch_init()) {
@@ -54,7 +54,7 @@ bool init_system(void){
     uint8_t num_init_done = 0;
 
     // --- Init of Timer
-    if(init_timer_irq(&tmr0_hndl)){
+    if(init_daq_sampling(&tmr_daq0_hndl)){
         num_init_done++;
     };
 
@@ -92,10 +92,6 @@ bool set_system_state(system_state_t new_state){
     if(system_state != new_state){
         system_state = new_state;
         switch(new_state){
-            case STATE_NONE:
-                set_default_led(false);
-                valid_state = true;
-                break;
             case STATE_INIT:
                 set_default_led(false);
                 valid_state = true;

@@ -11,7 +11,9 @@ typedef enum {
     RUNTIME,
     ENABLE_LED,
     DISABLE_LED,
-    TOGGLE_LED
+    TOGGLE_LED,
+    START_DAQ,
+    STOP_DAQ
 } usb_cmd_t;
 
 
@@ -65,6 +67,18 @@ void toogle_led(void){
 }
 
 
+void start_daq(void){
+    set_system_state(STATE_DAQ);
+    start_daq_sampling(&tmr_daq0_hndl);
+}
+
+
+void stop_daq(void){
+    set_system_state(STATE_IDLE);
+    stop_daq_sampling(&tmr_daq0_hndl);
+}
+
+
 // ======================== CALLABLE FUNCS ==========================
 bool apply_usb_callback(usb_fifo_t* fifo_buffer){
     handling_usb_fifo_buffer(fifo_buffer);
@@ -80,6 +94,8 @@ bool apply_usb_callback(usb_fifo_t* fifo_buffer){
             case ENABLE_LED:    enable_led();               break;
             case DISABLE_LED:   disable_led();              break;
             case TOGGLE_LED:    toogle_led();               break;
+            case START_DAQ:     start_daq();                break;
+            case STOP_DAQ:      stop_daq();                 break;
             default:            sleep_us(10);               break;        
         }  
     }

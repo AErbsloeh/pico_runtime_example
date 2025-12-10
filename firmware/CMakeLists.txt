@@ -44,6 +44,7 @@ add_executable(main main.c
     src/init_system.c
     src/testbench.c
     src/usb_callbacks.c
+    src/daq_sample.c
     hardware_io.c
 )
 

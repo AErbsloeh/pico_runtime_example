@@ -45,7 +45,7 @@ bool enable_repeat_timer_irq(tmr_repeat_irq_t* handler){
     }     
     
     // Register the func
-    if (!add_repeating_timer_us(handler->period_us, handler->func_irq, NULL, handler->timer)) {
+    if (!add_repeating_timer_us((int64_t)handler->period_us, handler->func_irq, NULL, handler->timer)) {
         handler->enable_state = false;
     } else {
         handler->enable_state = true;
