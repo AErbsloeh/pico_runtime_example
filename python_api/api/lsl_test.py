@@ -7,7 +7,7 @@ from shutil import rmtree
 from .lsl import start_stream_data, start_stream_utilization, record_stream
 
 
-def dummy_lsl_data_generator(channel_num: int=8) -> list:
+def dummy_data_lsl(channel_num: int=8) -> list:
     return [int(2**16 * random.random()) for _ in range(channel_num)]
 
 
@@ -21,7 +21,7 @@ def path():
 
 
 def test_lsl_data(path: Path) -> None:
-    process = [Process(target=start_stream_data, args=("data", 8, dummy_lsl_data_generator))]
+    process = [Process(target=start_stream_data, args=("data", 8, dummy_data_lsl))]
     process.append(Process(target=record_stream, args=("data", path)))
 
     for p in process:

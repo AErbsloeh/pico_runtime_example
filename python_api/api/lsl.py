@@ -6,11 +6,11 @@ from psutil import cpu_percent, virtual_memory
 from pylsl import StreamInfo, StreamInlet, StreamOutlet, resolve_bypred, FOREVER, cf_int32, cf_float32
 
 
-def start_stream_data(name: str, channel_num: int, func) -> None:
+def start_stream_data(name: str, channel_num: int, data_daq_func) -> None:
     """Process for starting a Lab Streaming Layer (LSL) to process the data stream from DAQ system
     :param name:            String with name of the LSL stream (must match with recording process)
     :param channel_num:     Channel number to start stream from
-    :param func:            Function to get DAQ from device (returned list)
+    :param data_daq_func:   Function to get data from DAQ device (returned list)
     :return:                None
     """
     config = StreamInfo(
@@ -24,7 +24,7 @@ def start_stream_data(name: str, channel_num: int, func) -> None:
     outlet = StreamOutlet(config)
 
     while True:
-        data = func()
+        data = data_daq_func()
         if not len(data):
             continue
         outlet.push_sample(data)

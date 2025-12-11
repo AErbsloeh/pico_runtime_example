@@ -180,8 +180,10 @@ class DeviceAPI:
         """
         self.__write_wofb(7, 0)
 
-    def __prepare_daq_for_lsl(self) -> list:
+    def _prepare_daq_for_lsl(self) -> list:
+        # TODO: Fix the dependency with self._device --> raise error in setup LSL stream (ctypes cannot be pickled)
         data = self.__device.read(14)
+        #data = bytearray([0xA0, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xFF])
         if not data[0] == 0xA0 or not data[-1] == 0xFF:
             return list()
         else:
@@ -198,7 +200,8 @@ class DeviceAPI:
         :param path2data:   String with path to the folder for saving data
         :return: None
         """
-        #self._processes = [Process(target=, args=("data", ))]
+        #self._processes = [Process(target=start_stream_data, args=("data", 4, self._prepare_daq_for_lsl))]
+        #self._processes.append(Process(target=record_stream, args=("data", path2data, [1, -1], 2)))
         self._processes = [Process(target=record_stream, args=("data", path2data, [1, -1], 2))]
         if track_util:
             self._processes.append(Process(target=start_stream_utilization, args=("util", 2.)))
@@ -207,8 +210,15 @@ class DeviceAPI:
         for p in self._processes:
             p.start()
         self.__write_wofb(8, 0)
-        # TODO: Move this process in multiprocess part
-        start_stream_data("data", 4, self.__prepare_daq_for_lsl)
+        # TODO: Move this process into multiprocess part
+        start_stream_data("data", 4, self._prepare_daq_for_lsl)
+
+    def wait_daq(self, delay_sec: float=0.) -> None:
+        """Function for WAITING"""
+        if delay_sec >= 0.:
+            self._processes[0].join()
+        else:
+            sleep(delay_sec)
 
     def stop_daq(self) -> None:
         """Changing the state of the DAQ with stopping it"""
@@ -220,6 +230,7 @@ class DeviceAPI:
         """Updating the sampling rate of the DAQ
         :param sampling_rate:   Float with sampling rate [Hz]
         """
+        # TODO: Update func
         sampling_limits = [1e0, 10e3]
         if sampling_rate < sampling_limits[0]:
             raise ValueError(f"Sampling rate cannot be smaller than {sampling_limits[0]}")
