@@ -5,6 +5,7 @@ from serial import Serial, STOPBITS_ONE, EIGHTBITS, PARITY_NONE
 from serial.tools import list_ports
 from threading import Thread, Event
 
+from api import get_path_to_project
 from api.lsl import start_stream_data, start_stream_utilization, record_stream
 from api.mcu_conv import _convert_pin_state, _convert_system_state
 from api.interface import InterfaceSerialUSB
@@ -201,12 +202,13 @@ class DeviceAPI:
                     int.from_bytes(data[11:13], byteorder='little', signed=False)   # uint16_t Data
                 ]
 
-    def start_daq(self, track_util: bool=False, path2data: str="../data") -> None:
+    def start_daq(self, track_util: bool=False, folder_name: str="data") -> None:
         """Changing the state of the DAQ with starting it
         :param track_util:  If true, the utilization (CPU / RAM) of the host computer will be tracked during recording session
-        :param path2data:   String with path to the folder for saving data
+        :param folder_name: String with folder_name to save data
         :return: None
         """
+        path2data = get_path_to_project() / folder_name
         self.__lsl_threads = [Thread(target=start_stream_data, args=("data", 4, self._thread_prepare_daq_for_lsl, self.__lsl_events), daemon=True)]
         self.__lsl_threads.append(Thread(target=record_stream, args=("data", path2data, self.__lsl_events, self._thread_process_sample_in_lsl, 2)))
         if track_util:

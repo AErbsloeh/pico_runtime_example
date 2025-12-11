@@ -6,6 +6,7 @@ from multiprocessing import Process
 from pathlib import Path
 from psutil import cpu_percent, virtual_memory
 from pylsl import StreamInfo, StreamOutlet, StreamInlet, resolve_bypred, cf_int16, cf_float32, FOREVER
+from api import get_path_to_project
 
 
 def start_stream_data(name: str, channel_num: int, sampling_rate: float) -> None:
@@ -85,7 +86,7 @@ def record_stream(name: str, path2save: Path) -> None:
             f.flush()
 
 if __name__ == "__main__":
-    path2save = Path("../data")
+    path2save = get_path_to_project() / "data"
 
     process = [Process(target=start_stream_data, args=("data", 32, 100.))]
     process.append(Process(target=record_stream, args=("data", path2save)))

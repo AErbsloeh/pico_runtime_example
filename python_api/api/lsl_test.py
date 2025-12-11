@@ -13,7 +13,7 @@ def dummy_data_lsl(channel_num: int=8) -> list:
 
 @pytest.fixture(scope="session", autouse=True)
 def path():
-    path = Path("../test")
+    path = Path("../test_data")
     if path.exists():
         rmtree(path)
     path.mkdir(parents=True, exist_ok=True)

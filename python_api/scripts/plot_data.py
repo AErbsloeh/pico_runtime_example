@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from api import DataAPI, RawRecording
+from api import DataAPI, RawRecording, get_path_to_project
 
 
 def plot_histogram_time(packet: RawRecording, show_density: bool=False, show_plot: bool=True) -> None:
@@ -45,7 +45,7 @@ def plot_transient_util(packet: RawRecording, show_plot: bool=True) -> None:
 
 
 if __name__ == "__main__":
-    path2data = "../data"
+    path2data = get_path_to_project() / "data"
     use_case = 0
 
     data = DataAPI(path2data).read_data_file(use_case)

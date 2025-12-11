@@ -5,7 +5,7 @@ from .data_api import DataAPI, RawRecording
 
 @pytest.fixture(scope="session", autouse=True)
 def path():
-    path = Path("../test")
+    path = Path("../test_data")
     yield path
 
 
