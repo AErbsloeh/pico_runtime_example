@@ -6,4 +6,4 @@ if __name__ == '__main__':
 
     dut = DeviceAPI()
     dut.update_daq_sampling_rate(500.)
-    dut.start_daq()
+    dut.start_daq(track_util=True)

@@ -1,14 +1,26 @@
+from dataclasses import dataclass
 from logging import getLogger, Logger
 from time import sleep
 from serial import Serial, STOPBITS_ONE, EIGHTBITS, PARITY_NONE
 from serial.tools import list_ports
 from multiprocessing import Process
-from psutil import cpu_percent, virtual_memory
-from pylsl import StreamInfo, StreamOutlet, cf_int32, cf_float32
 
-from api.lsl import record_stream
-from api.conversion import _convert_pin_state, _convert_system_state, SystemState
+from api.lsl import start_stream_data, start_stream_utilization, record_stream
+from api.mcu_conv import _convert_pin_state, _convert_system_state
 from api.serial import ProcessInteractionPico
+
+
+@dataclass(frozen=True)
+class SystemState:
+    """Dataclass for handling the system state of the device
+    Attributes:
+        pins:       String with enabled GPIO pins (selection from MCU)
+        system:     String with actual system state
+        runtime:    Float with actual execution runtime after last reset [sec.]
+    """
+    pins: str
+    system: str
+    runtime: float
 
 
 class DeviceAPI:
@@ -64,7 +76,9 @@ class DeviceAPI:
 
     @property
     def scan_com_name(self) -> list:
-        """Returning the COM Port name of the addressable devices"""
+        """Returning the COM Port name of the addressable devices
+        :return: List of COM Port names with matched VIP und PID properties of the USB-COMs
+        """
         available_coms = list_ports.comports()
         list_right_com = [port.device for port in available_coms if
                           port.vid == self.__usb_vid and port.pid == self.__usb_pid]
@@ -80,9 +94,14 @@ class DeviceAPI:
         return self.__device.total_num_bytes
 
     @property
-    def is_com_port_active(self):
+    def is_com_port_active(self) -> bool:
         """Boolean for checking if serial communication is open and used"""
         return self.__device.is_open()
+
+    @property
+    def is_daq_active(self) -> bool:
+        """Returning if DAQ is still running"""
+        return self._get_system_state() == "DAQ"
 
     def open(self) -> None:
         """Opening the serial communication between API and device"""
@@ -101,7 +120,10 @@ class DeviceAPI:
         sleep(4)
 
     def echo(self, data: str) -> str:
-        """Sending some characters to the device and returning the result"""
+        """Sending some characters to the device and returning the result
+        :param data:    String with the data to be sent
+        :return:        String with returned data from DAQ
+        """
         do_padding = len(data) % self.__device.num_bytes == 1
         val = bytes()
         for chunk in self.__device.serialize_string(data, do_padding):
@@ -122,14 +144,18 @@ class DeviceAPI:
         return _convert_pin_state(ret)
 
     def _get_runtime_sec(self) -> float:
-        """Returning the execution runtime of the device after last reset in seconds"""
+        """Returning the execution runtime of the device after last reset
+        :return:    Float value with runtime in seconds
+        """
         ret = self.__write_wfb(4, 0, size=9)
         if ret[0] != 0x04:
             raise ValueError
-        return int.from_bytes(ret[1:], byteorder='little', signed=False) / 1e6
+        return 1e-6 * int.from_bytes(ret[1:], byteorder='little', signed=False)
 
     def get_state(self) -> SystemState:
-        """Returning the state of the system"""
+        """Returning the state of the system
+        :return:    Class SystemState with information about pin state, system state and actual runtime of the system
+        """
         return SystemState(
             pins=self._get_pin_state(),
             system=self._get_system_state(),
@@ -137,65 +163,52 @@ class DeviceAPI:
         )
 
     def enable_led(self) -> None:
-        """Changing the state of the LED with enabling it"""
+        """Changing the state of the LED with enabling it
+        :return:        None
+        """
         self.__write_wofb(5, 0)
 
     def disable_led(self) -> None:
-        """Changing the state of the LED with disabling it"""
+        """Changing the state of the LED with disabling it
+        :return:        None
+        """
         self.__write_wofb(6, 0)
 
     def toggle_led(self) -> None:
-        """Changing the state of the LED with toggling it"""
+        """Changing the state of the LED with toggling it
+        :return:        None
+        """
         self.__write_wofb(7, 0)
 
-    def _start_stream_data(self, name: str) -> None:
-        config = StreamInfo(
-            name=name,
-            type='custom_daq',
-            channel_count=4,
-            nominal_srate=1.,
-            channel_format=cf_int32,
-            source_id=name + '_uid'
-        )
-        outlet = StreamOutlet(config)
-
-        while True:
-            data = self.__device.read(14)
-            if not data[0] == 0xA0 or not data[-1] == 0xFF:
-                continue
-            outlet.push_sample([
+    def __prepare_daq_for_lsl(self) -> list:
+        data = self.__device.read(14)
+        if not data[0] == 0xA0 or not data[-1] == 0xFF:
+            return list()
+        else:
+            return [
                 int.from_bytes(data[2:10], byteorder='little', signed=False),   # Runtime MCU
                 int(data[1]),                                                   # Index
                 int(data[10]),                                                  # Channel Number
                 int.from_bytes(data[11:13], byteorder='little', signed=False)   # uint16_t Data
-            ])
+            ]
 
-    @staticmethod
-    def _start_stream_utilization(name: str, sampling_rate: float) -> None:
-        config = StreamInfo(
-            name=name,
-            type='utilization',
-            channel_count=2,
-            nominal_srate=sampling_rate,
-            channel_format=cf_float32,
-            source_id=name + '_uid'
-        )
-        outlet = StreamOutlet(config)
-        while True:
-            outlet.push_sample([cpu_percent(interval=1 / sampling_rate), virtual_memory().percent])
-            sleep(1 / sampling_rate)
-
-    def start_daq(self, track_util: bool=False) -> None:
-        """Changing the state of the DAQ with starting it"""
+    def start_daq(self, track_util: bool=False, path2data: str="../data") -> None:
+        """Changing the state of the DAQ with starting it
+        :param track_util:  If true, the utilization (CPU / RAM) of the host computer will be tracked during recording session
+        :param path2data:   String with path to the folder for saving data
+        :return: None
+        """
         #self._processes = [Process(target=, args=("data", ))]
-        self._processes = [Process(target=record_stream, args=("data", "../data"))]
-        #if track_util:
-        #    self._processes.append(Process(target=self._start_stream_utilization, args=("util", 2.)))
+        self._processes = [Process(target=record_stream, args=("data", path2data, [1, -1], 2))]
+        if track_util:
+            self._processes.append(Process(target=start_stream_utilization, args=("util", 2.)))
+            self._processes.append(Process(target=record_stream, args=("util", path2data)))
 
         for p in self._processes:
             p.start()
         self.__write_wofb(8, 0)
-        self._start_stream_data("data")
+        # TODO: Move this process in multiprocess part
+        start_stream_data("data", 4, self.__prepare_daq_for_lsl)
 
     def stop_daq(self) -> None:
         """Changing the state of the DAQ with stopping it"""
@@ -204,7 +217,9 @@ class DeviceAPI:
             p.terminate()
 
     def update_daq_sampling_rate(self, sampling_rate: float) -> None:
-        """Updating the sampling rate of the DAQ"""
+        """Updating the sampling rate of the DAQ
+        :param sampling_rate:   Float with sampling rate [Hz]
+        """
         sampling_limits = [1e0, 10e3]
         if sampling_rate < sampling_limits[0]:
             raise ValueError(f"Sampling rate cannot be smaller than {sampling_limits[0]}")

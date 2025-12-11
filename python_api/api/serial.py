@@ -6,8 +6,8 @@ from serial import Serial
 class ProcessInteractionPico:
     __logger: Logger
     __device: Serial
-    __BYTES_HEAD: int = 1
-    __BYTES_DATA: int = 2
+    __BYTES_HEAD: int
+    __BYTES_DATA: int
 
     def __init__(self, device: Serial, num_bytes_head: int=1, num_bytes_data: int=2) -> None:
         """Class for interacting with the USB serial devices

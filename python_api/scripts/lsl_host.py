@@ -85,15 +85,21 @@ def record_stream(name: str, path2save: Path) -> None:
             f.flush()
 
 if __name__ == "__main__":
-    process = list()
-    process.append(Process(target=start_stream_data, args=("data", 32, 100.)))
-    process.append(Process(target=start_stream_utilization, args=("util", 10.)))
-    process.append(Process(target=record_stream, args=("data", Path("../data"))))
-    process.append(Process(target=record_stream, args=("util", Path("../data"))))
+    path2save = Path("../data")
 
+    process = [Process(target=start_stream_data, args=("data", 32, 100.))]
+    process.append(Process(target=record_stream, args=("data", path2save)))
+    process.append(Process(target=start_stream_utilization, args=("util", 10.)))
+    process.append(Process(target=record_stream, args=("util", path2save)))
+
+    # --- Start processes
     for p in process:
         p.start()
 
-    process[2].join()
+    # --- Wait
+    sleep(10.)
+    #process[0].join()
+
+    # --- Stop processes
     for p in process:
         p.terminate()
