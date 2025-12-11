@@ -11,16 +11,16 @@ def path():
 
 def test_loader_data(path: Path):
     dut = DataAPI(path)
-    data = dut.read_file(0)
-    file = dut.get_file_name(0)
+    data = dut.read_data_file(0)
+    file = dut.get_file_name_data(0)
     assert 'data' in file
     assert type(data) == RawRecording
 
 
 def test_loader_util(path: Path):
     dut = DataAPI(path)
-    data = dut.read_file(1)
-    file = dut.get_file_name(1)
+    data = dut.read_utilization_file(0)
+    file = dut.get_file_name_util(0)
     assert 'util' in file
     assert type(data) == RawRecording
 

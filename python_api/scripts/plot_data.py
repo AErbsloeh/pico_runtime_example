@@ -46,8 +46,10 @@ def plot_transient_util(packet: RawRecording, show_plot: bool=True) -> None:
 
 if __name__ == "__main__":
     path2data = "../data"
-    data = DataAPI(path2data).read_file(0)
-    util = DataAPI(path2data).read_file(1)
+    use_case = 0
+
+    data = DataAPI(path2data).read_data_file(use_case)
+    util = DataAPI(path2data).read_utilization_file(use_case)
 
     plot_transient_data(data, show_plot=False)
     plot_transient_util(util, show_plot=False)
