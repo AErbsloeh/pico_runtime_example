@@ -5,10 +5,32 @@ from serial import Serial, STOPBITS_ONE, EIGHTBITS, PARITY_NONE
 from serial.tools import list_ports
 from threading import Thread, Event
 
-from api import get_path_to_project
 from api.lsl import start_stream_data, start_stream_utilization, record_stream
 from api.mcu_conv import _convert_pin_state, _convert_system_state
 from api.interface import InterfaceSerialUSB
+
+
+def get_path_to_project(new_folder: str='', max_levels: int=5) -> str:
+    """Function for getting the path to find the project folder structure in application.
+    :param new_folder:  New folder path
+    :param max_levels:  Max number of levels to get-out for finding pyproject.toml
+    :return:            String with absolute path to start the project structure
+    """
+    from pathlib import Path
+    cwd = Path(".").absolute()
+    current = cwd
+
+    def is_project_root(p):
+        return (p / "pyproject.toml").exists()
+
+    for _ in range(max_levels):
+        if is_project_root(current):
+            return str(current / new_folder)
+        current = current.parent
+
+    if is_project_root(current):
+        return str(current / new_folder)
+    return str(cwd)
 
 
 @dataclass(frozen=True)
@@ -205,10 +227,10 @@ class DeviceAPI:
     def start_daq(self, track_util: bool=False, folder_name: str="data") -> None:
         """Changing the state of the DAQ with starting it
         :param track_util:  If true, the utilization (CPU / RAM) of the host computer will be tracked during recording session
-        :param folder_name: String with folder_name to save data
+        :param folder_name: String with folder name to save data in project folder
         :return: None
         """
-        path2data = get_path_to_project() / folder_name
+        path2data = get_path_to_project(new_folder=folder_name)
         self.__lsl_threads = [Thread(target=start_stream_data, args=("data", 4, self._thread_prepare_daq_for_lsl, self.__lsl_events), daemon=True)]
         self.__lsl_threads.append(Thread(target=record_stream, args=("data", path2data, self.__lsl_events, self._thread_process_sample_in_lsl, 2)))
         if track_util:

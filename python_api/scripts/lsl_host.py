@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from h5py import File
 from time import sleep
 import math
@@ -50,7 +50,7 @@ def record_stream(name: str, path2save: Path) -> None:
     sampling_rate = inlet.info().nominal_srate()
     sys_type = inlet.info().type()
     data_format = inlet.info().channel_format()
-    time = date.today().strftime('%Y%m%d_%H%M')
+    time = datetime.today().strftime('%Y%m%d_%H%M%S')
 
     if not path2save.is_dir():
         path2save.mkdir(parents=True, exist_ok=True)
@@ -58,7 +58,7 @@ def record_stream(name: str, path2save: Path) -> None:
         f.attrs["sampling_rate"] = sampling_rate
         f.attrs["channel_count"] = channels
         f.attrs["type"] = sys_type
-        f.attrs["creation_date"] = date.today().strftime('%Y-%m-%d')
+        f.attrs["creation_date"] = datetime.today().strftime('%Y-%m-%d')
         f.attrs["data_format"] = data_format
 
         ts_dset = f.create_dataset("time", (0,), maxshape=(None,), dtype="float32")
@@ -86,7 +86,7 @@ def record_stream(name: str, path2save: Path) -> None:
             f.flush()
 
 if __name__ == "__main__":
-    path2save = get_path_to_project() / "data"
+    path2save = Path(get_path_to_project("data"))
 
     process = [Process(target=start_stream_data, args=("data", 32, 100.))]
     process.append(Process(target=record_stream, args=("data", path2save)))

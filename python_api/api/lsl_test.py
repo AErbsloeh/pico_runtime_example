@@ -5,6 +5,7 @@ from time import sleep
 from pathlib import Path
 from shutil import rmtree
 from .lsl import start_stream_data, start_stream_utilization, record_stream
+from api import get_path_to_project
 
 
 def dummy_data_lsl(channel_num: int=8) -> list:
@@ -13,7 +14,7 @@ def dummy_data_lsl(channel_num: int=8) -> list:
 
 @pytest.fixture(scope="session", autouse=True)
 def path():
-    path = Path("../test_data")
+    path = Path(get_path_to_project("test_data"))
     if path.exists():
         rmtree(path)
     path.mkdir(parents=True, exist_ok=True)
