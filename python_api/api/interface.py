@@ -1,9 +1,8 @@
 from logging import Logger, getLogger
-
 from serial import Serial
 
 
-class ProcessInteractionPico:
+class InterfaceSerialUSB:
     __logger: Logger
     __device: Serial
     __BYTES_HEAD: int
@@ -40,7 +39,7 @@ class ProcessInteractionPico:
         """Return True if the device is open, False otherwise"""
         return self.__device.is_open
 
-    def read(self, no_bytes: int):
+    def read(self, no_bytes: int) -> bytes:
         """Read content from device"""
         return self.__device.read(no_bytes)
 

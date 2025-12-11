@@ -5,7 +5,7 @@ from api import DataAPI, RawRecording
 
 def plot_histogram_time(packet: RawRecording, show_density: bool=False, show_plot: bool=True) -> None:
     plt.figure()
-    plt.hist(np.diff(packet.time), bins=1001, density=show_density, cumulative=show_density, histtype="stepfilled", color='k')
+    plt.hist(np.diff(packet.time), density=show_density, cumulative=show_density, histtype="stepfilled", color='k')
     plt.xlabel('Sampling Period (s)')
     plt.ylabel('Bins')
     plt.grid(True)

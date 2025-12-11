@@ -6,7 +6,11 @@ if __name__ == '__main__':
     DeviceAPI().do_reset()
 
     dut = DeviceAPI()
-    dut.update_daq_sampling_rate(500.)
+    dut.update_daq_sampling_rate(100.)
+
+    print("START")
     dut.start_daq(track_util=True)
-    sleep(5)
+    sleep(1000.)
+
+    print("STOP")
     dut.stop_daq()

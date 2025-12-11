@@ -3,11 +3,11 @@ from logging import getLogger, Logger
 from time import sleep
 from serial import Serial, STOPBITS_ONE, EIGHTBITS, PARITY_NONE
 from serial.tools import list_ports
-from multiprocessing import Process
+from threading import Thread, Event
 
 from api.lsl import start_stream_data, start_stream_utilization, record_stream
 from api.mcu_conv import _convert_pin_state, _convert_system_state
-from api.serial import ProcessInteractionPico
+from api.interface import InterfaceSerialUSB
 
 
 @dataclass(frozen=True)
@@ -24,14 +24,15 @@ class SystemState:
 
 
 class DeviceAPI:
-    __device: ProcessInteractionPico
+    __device: InterfaceSerialUSB
     __logger: Logger
     __num_bytes_runtime: int = 9
     __num_bytes_data: int = 14
     # Pico 2 specific USB characteristics
     __usb_vid: int = 0x2E8A
     __usb_pid: int = 0x0009
-    _processes: list = list()
+    __lsl_events: Event = Event()
+    __lsl_threads: list[Thread] = list()
 
     def __init__(self, com_name: str="AUTOCOM", timeout: float=1.0, baud: int=115200) -> None:
         """Init. of the device with name and baudrate of the device
@@ -40,7 +41,7 @@ class DeviceAPI:
         :param baud:        Baud rate of the communication between API and device [default: 115.200]
         """
         self.__logger = getLogger(__name__)
-        self.__device = ProcessInteractionPico(
+        self.__device = InterfaceSerialUSB(
             num_bytes_head=1,
             num_bytes_data=2,
             device=Serial(
@@ -52,7 +53,8 @@ class DeviceAPI:
                 inter_byte_timeout=timeout,
                 xonxoff=False,
                 rtscts=False,
-                dsrdtr=False
+                dsrdtr=False,
+                timeout=0.5
             )
         )
         if self.is_com_port_active:
@@ -101,7 +103,7 @@ class DeviceAPI:
     @property
     def is_daq_active(self) -> bool:
         """Returning if DAQ is still running"""
-        return self._get_system_state() == "DAQ"
+        return self._get_system_state() == "DAQ" and self.__lsl_events.is_set()
 
     def open(self) -> None:
         """Opening the serial communication between API and device"""
@@ -113,7 +115,7 @@ class DeviceAPI:
 
     def do_reset(self) -> None:
         """Performing a Software Reset on the Platform"""
-        if len(self._processes):
+        if len(self.__lsl_threads):
             self.stop_daq()
 
         self.__write_wofb(1, 0)
@@ -180,19 +182,24 @@ class DeviceAPI:
         """
         self.__write_wofb(7, 0)
 
-    def _prepare_daq_for_lsl(self) -> list:
-        # TODO: Fix the dependency with self._device --> raise error in setup LSL stream (ctypes cannot be pickled)
+    @property
+    def _thread_process_sample_in_lsl(self) -> list:
+        return [1, -1]
+
+    def _thread_prepare_daq_for_lsl(self) -> list:
         data = self.__device.read(14)
-        #data = bytearray([0xA0, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xFF])
-        if not data[0] == 0xA0 or not data[-1] == 0xFF:
+        if not len(data):
             return list()
         else:
-            return [
-                int.from_bytes(data[2:10], byteorder='little', signed=False),   # Runtime MCU
-                int(data[1]),                                                   # Index
-                int(data[10]),                                                  # Channel Number
-                int.from_bytes(data[11:13], byteorder='little', signed=False)   # uint16_t Data
-            ]
+            if not data[0] == 0xA0 or not data[-1] == 0xFF:
+                return list()
+            else:
+                return [
+                    int.from_bytes(data[2:10], byteorder='little', signed=False),   # Runtime MCU
+                    int(data[1]),                                                   # Index
+                    int(data[10]),                                                  # Channel Number
+                    int.from_bytes(data[11:13], byteorder='little', signed=False)   # uint16_t Data
+                ]
 
     def start_daq(self, track_util: bool=False, path2data: str="../data") -> None:
         """Changing the state of the DAQ with starting it
@@ -200,31 +207,25 @@ class DeviceAPI:
         :param path2data:   String with path to the folder for saving data
         :return: None
         """
-        #self._processes = [Process(target=start_stream_data, args=("data", 4, self._prepare_daq_for_lsl))]
-        #self._processes.append(Process(target=record_stream, args=("data", path2data, [1, -1], 2)))
-        self._processes = [Process(target=record_stream, args=("data", path2data, [1, -1], 2))]
+        self.__lsl_threads = [Thread(target=start_stream_data, args=("data", 4, self._thread_prepare_daq_for_lsl, self.__lsl_events), daemon=True)]
+        self.__lsl_threads.append(Thread(target=record_stream, args=("data", path2data, self.__lsl_events, self._thread_process_sample_in_lsl, 2)))
         if track_util:
-            self._processes.append(Process(target=start_stream_utilization, args=("util", 2.)))
-            self._processes.append(Process(target=record_stream, args=("util", path2data)))
+            self.__lsl_threads.append(Thread(target=start_stream_utilization, args=("util", self.__lsl_events, 2.)))
+            self.__lsl_threads.append(Thread(target=record_stream, args=("util", path2data, self.__lsl_events)))
 
-        for p in self._processes:
+        self.__lsl_events.set()
+        for p in self.__lsl_threads:
             p.start()
-        self.__write_wofb(8, 0)
-        # TODO: Move this process into multiprocess part
-        start_stream_data("data", 4, self._prepare_daq_for_lsl)
 
-    def wait_daq(self, delay_sec: float=0.) -> None:
-        """Function for WAITING"""
-        if delay_sec >= 0.:
-            self._processes[0].join()
-        else:
-            sleep(delay_sec)
+        self.__write_wofb(8, 0)
 
     def stop_daq(self) -> None:
         """Changing the state of the DAQ with stopping it"""
+        self.__lsl_events.clear()
+        for p in self.__lsl_threads:
+            p.join(timeout=1.)
+
         self.__write_wofb(9, 0)
-        for p in self._processes:
-            p.terminate()
 
     def update_daq_sampling_rate(self, sampling_rate: float) -> None:
         """Updating the sampling rate of the DAQ

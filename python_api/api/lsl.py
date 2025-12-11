@@ -2,37 +2,39 @@ from h5py import File
 from datetime import datetime
 from pathlib import Path
 from time import sleep
+from threading import Event
 from psutil import cpu_percent, virtual_memory
 from pylsl import StreamInfo, StreamInlet, StreamOutlet, resolve_bypred, FOREVER, cf_int32, cf_float32
 
 
-def start_stream_data(name: str, channel_num: int, data_daq_func) -> None:
+def start_stream_data(name: str, channel_num: int, data_daq_func, event_func: Event) -> None:
     """Process for starting a Lab Streaming Layer (LSL) to process the data stream from DAQ system
     :param name:            String with name of the LSL stream (must match with recording process)
     :param channel_num:     Channel number to start stream from
     :param data_daq_func:   Function to get data from DAQ device (returned list)
+    :param event_func:      Threading Event manager to control while loop
     :return:                None
     """
     config = StreamInfo(
         name=name,
         type='custom_daq',
         channel_count=channel_num,
-        nominal_srate=1.,
+        nominal_srate=0.,
         channel_format=cf_int32,
         source_id=name + '_uid'
     )
     outlet = StreamOutlet(config)
 
-    while True:
+    while event_func.is_set():
         data = data_daq_func()
         if not len(data):
             continue
         outlet.push_sample(data)
 
-
-def start_stream_utilization(name: str, sampling_rate: float=2.) -> None:
+def start_stream_utilization(name: str, event_func: Event, sampling_rate: float=2.) -> None:
     """Process for starting a Lab Streaming Layer (LSL) to process the utilization of the host computer
-    :param name:             String with name of the LSL stream (must match with recording process)
+    :param name:            String with name of the LSL stream (must match with recording process)
+    :param event_func:      Threading Event manager to control while loop
     :param sampling_rate:   Float with sampling rate for determining the sampling rate
     :return:                None
     """
@@ -48,15 +50,16 @@ def start_stream_utilization(name: str, sampling_rate: float=2.) -> None:
         source_id=name + '_uid'
     )
     outlet = StreamOutlet(config)
-    while True:
+    while event_func.is_set():
         outlet.push_sample([cpu_percent(interval=1 / sampling_rate), virtual_memory().percent])
         sleep(1 / sampling_rate)
 
 
-def record_stream(name: str, path2save: Path | str, take_sample: list=(), subtract_channel: int=0) -> None:
+def record_stream(name: str, path2save: Path | str, event_func: Event, take_sample: list=(), subtract_channel: int=0) -> None:
     """Function for recording and saving the data pushed on LSL stream
     :param name:                String with name of the LSL stream in order to catch it
     :param path2save:           Path to save the data (if string, it will be auto-converted)
+    :param event_func:          Threading Event manager to control while loop
     :param take_sample:         List with indexes to take from LSL pull list for further processing
     :param subtract_channel:    Integer with number of channels to subtract from data stream
     :return: None
@@ -89,7 +92,7 @@ def record_stream(name: str, path2save: Path | str, take_sample: list=(), subtra
         process_list = take_sample if len(take_sample) > 0 else [i for i in range(channels)]
 
         idx = 0
-        while True:
+        while event_func.is_set():
             # Processing
             sample, ts = inlet.pull_sample(timeout=FOREVER)
             if sample is None:
