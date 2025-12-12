@@ -16,4 +16,6 @@ def _convert_system_state(state: int) -> str:
     :return:        String with pin state
     """
     state_name = ["ERROR", "RESET", "INIT", "IDLE", "TEST", "DAQ"]
+    if not 0 <= state < len(state_name):
+        raise ValueError(f'Invalid pin state: {state}')
     return state_name[state]

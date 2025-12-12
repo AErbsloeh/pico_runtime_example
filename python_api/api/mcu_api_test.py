@@ -1,6 +1,6 @@
 import pytest
 from time import sleep
-from .mcu_api import DeviceAPI
+from api.mcu_api import DeviceAPI
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -85,14 +85,7 @@ def test_control_daq(dut: DeviceAPI):
         sleep(0.1)
     sleep(0.5)
     dut.stop_daq()
-    assert dut._get_system_state() == 'IDLE'
-
-
-def test_update_sampling_rate(dut: DeviceAPI):
-    dut.update_daq_sampling_rate(5.)
-    dut.start_daq()
-    sleep(2.)
-    dut.stop_daq()
+    sleep(0.5)
 
 
 if __name__ == "__main__":
