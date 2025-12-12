@@ -80,7 +80,7 @@ system_state_t get_system_state(void){
 bool set_system_state(system_state_t new_state){
     bool valid_state = false;
     
-    if((system_state != new_state) && (system_state != STATE_ERROR)){
+    if((system_state != new_state)){
         system_state = new_state;
         switch(new_state){
             case STATE_INIT:

@@ -7,12 +7,12 @@ project(my_library
 pico_sdk_init()
 
 
-#add_subdirectory(adc)
-#add_subdirectory(dac)
+add_subdirectory(adc)
+add_subdirectory(dac)
 add_subdirectory(hal)
-#add_subdirectory(mux)
-#add_subdirectory(peri)
-#add_subdirectory(poti)
+add_subdirectory(mux)
+add_subdirectory(peri)
+add_subdirectory(poti)
 add_subdirectory(sens)
 
 message(STATUS "Hallo aus der Library!")
