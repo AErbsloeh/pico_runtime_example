@@ -7,7 +7,7 @@ project(my_library
 pico_sdk_init()
 
 
-# add_subdirectory(adc)
+add_subdirectory(adc)
 # add_subdirectory(dac)
 add_subdirectory(hal)
 # add_subdirectory(mux)
