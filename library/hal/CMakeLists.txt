@@ -2,6 +2,7 @@
 add_subdirectory(i2c)
 add_subdirectory(led)
 add_subdirectory(pwr)
+add_subdirectory(pwm)
 add_subdirectory(spi)
 add_subdirectory(tmr)
 add_subdirectory(usb)

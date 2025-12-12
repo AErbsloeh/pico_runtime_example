@@ -52,10 +52,11 @@ pico_set_program_name(main "main")
 pico_set_program_version(main "1.0")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(main 0)
-pico_enable_stdio_usb(main 1)
+pico_enable_stdio_uart(main false)
+pico_enable_stdio_usb(main true)
 
 # Add the standard library to the build
+add_definitions(-DPICO_BOARD="${PICO_BOARD}")
 target_link_libraries(main
     pico_stdlib
     pico_bootsel_via_double_reset
@@ -71,9 +72,6 @@ target_link_libraries(main
     #fatfs_noos
     #wiznet_pico_c
 )
-add_definitions(-DPICO_BOARD="${PICO_BOARD}")
-
-message(STATUS "Hallo aus der Firmware!")
 
 # Extract if wireless board is available
 string(FIND "${PICO_BOARD}" "_w" POSITION)
@@ -87,13 +85,11 @@ if(POSITION GREATER -1)
     add_definitions(-DPICO_CYW43_SUPPORTED)
 endif()
 
-
 # Add the standard include files to the build
 target_include_directories(main PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/.. 
 )
-
 pico_add_extra_outputs(main)
 
 # ==================== TESTING =========================
