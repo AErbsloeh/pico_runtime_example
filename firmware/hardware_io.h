@@ -23,7 +23,7 @@ extern system_state_t system_state;
 // ----- USB Communication
 #define USB_FIFO_SIZE   3
 extern char data[USB_FIFO_SIZE];
-extern usb_fifo_t usb_buffer;
+extern usb_t usb_buffer;
 
 // --- DAQ Sampling
 extern daq_data_t daq_sample_data;
