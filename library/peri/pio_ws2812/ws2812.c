@@ -2,12 +2,19 @@
 #include "ws2812.h"
 #include "ws2812.pio.h"
 
+
 static PIO pio_;
 static uint sm_;
 
+
 static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b);
 
+
 void ws2812_init(PIO pio, uint pin, float freq) {
+    gpio_init(pin);
+    gpio_set_dir(pin, GPIO_OUT);
+    gpio_put(pin, true);
+
     pio_ = pio;
     uint offset = pio_add_program(pio, &ws2812_program);
     sm_ = pio_claim_unused_sm(pio, true);
@@ -24,7 +31,11 @@ void ws2812_init(PIO pio, uint pin, float freq) {
     pio_sm_set_enabled(pio, sm_, true);
 }
 
-void put_pixel_rgb(uint8_t r, uint8_t g, uint8_t b) { pio_sm_put_blocking(pio_, sm_, urgb_u32(r, g, b) << 8u); }
+
+void put_pixel_rgb(uint8_t r, uint8_t g, uint8_t b) { 
+    pio_sm_put_blocking(pio_, sm_, urgb_u32(r, g, b) << 8u);
+}
+
 
 static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
     return ((uint32_t)(r) << 8) | ((uint32_t)(g) << 16) | (uint32_t)(b);

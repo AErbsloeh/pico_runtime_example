@@ -1,10 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "pico/stdlib.h"
 
 #include "hardware/gpio.h"
 #include "hardware/pio.h"
-#include "lib/ws2812.h"
+#include "peri/pio_ws2812/ws2812.pio.h"
+
 
 #define NEOPIXEL_PIN 17
 
@@ -12,9 +11,6 @@
 int main(){   
     // Init Phase 
     // Controlling a NeoPixel LED (only on KB2040)
-    gpio_init(NEOPIXEL_PIN);
-    gpio_set_dir(NEOPIXEL_PIN, GPIO_OUT);
-    gpio_put(NEOPIXEL_PIN, true);
     PIO pio_mod1 = pio1;
     ws2812_init(pio_mod1, NEOPIXEL_PIN, 800000);
     
