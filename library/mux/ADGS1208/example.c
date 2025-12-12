@@ -3,8 +3,8 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 
-#include "hal/spi.h"
-#include "sens/adgs1208.h"
+#include "hal/spi/spi.h"
+#include "mux/adgs1208/adgs1208.h"
 
 
 int main(){ 

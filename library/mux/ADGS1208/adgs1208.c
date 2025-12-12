@@ -1,4 +1,5 @@
-#include "sens/adgs1208.h"
+#include "mux/adgs1208/adgs1208.h"
+#include "hardware/gpio.h"
 
 
 // ======================================== FUNCTIONS ===============================================

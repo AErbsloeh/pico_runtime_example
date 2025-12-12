@@ -2,10 +2,8 @@
 #define ADGS1208_H_
 
 
-#include <stdio.h>
-#include "hardware/gpio.h"
-#include "hardware/spi.h"
-#include "hal/spi.h"
+#include "pico/stdlib.h"
+#include "hal/spi/spi.h"
 
 
 // More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/adgs1208-1209.pdf
@@ -23,7 +21,7 @@
 * \param init_done      Boolean if device configuration is done        
 */
 typedef struct{
-    spi_pico_handler_t *spi_handler;
+    spi_t *spi_handler;
     uint8_t gpio_num_csn;
     uint8_t num_device_dc;
     bool use_rstn_hw;
