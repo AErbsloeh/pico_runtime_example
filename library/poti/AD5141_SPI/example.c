@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 
-#include "sens/ad5141_spi.h"
+#include "poti/ad5141_spi/ad5141_spi.h"
 
 
 int main(){ 

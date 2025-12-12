@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sens/ad5141_i2c.h"
+#include "poti/ad5141_i2c/ad5141_i2c.h"
 
 
 int main(){ 

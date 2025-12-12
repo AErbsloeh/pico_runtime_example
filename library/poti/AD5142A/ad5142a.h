@@ -2,8 +2,7 @@
 #define AD5142A_H_
 
 
-#include "hal/i2c.h"
-#include "hardware/i2c.h"
+#include "hal/i2c/i2c.h"
 
 
 // More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/ad5122a_5142a.pdf

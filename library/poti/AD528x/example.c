@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sens/ad528x.h"
+#include "poti/ad528x/ad528x.h"
 
 
 int main(){ 

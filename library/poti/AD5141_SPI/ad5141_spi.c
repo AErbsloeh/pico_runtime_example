@@ -1,35 +1,35 @@
-#include "sens/ad5141_spi.h"
+#include "poti/ad5141_spi/ad5141_spi.h"
 #include <stdio.h>
 #include "hardware/spi.h"
 #include "hardware/gpio.h"
 
 
-void ad5141_spi_reset_handler_params(ad5141_spi_t *device_config)
+void ad5141_spi_reset_handler_params(ad5141_spi_t *gpio_csn)
 {
-    device_config->init_done = false;
+    gpio_csn->init_done = false;
 }
 
 
-bool ad5141_spi_reset_software(ad5141_spi_t *device_config)
+bool ad5141_spi_reset_software(ad5141_spi_t *gpio_csn)
 {
-    if(!device_config->spi_handler->init_done){
-        configure_spi_module(device_config->spi_handler, false, device_config->device_csn);
+    if(!gpio_csn->spi_handler->init_done){
+        configure_spi_module(gpio_csn->spi_handler, false);
     } 
-    ad5141_spi_reset_handler_params(device_config);
+    ad5141_spi_reset_handler_params(gpio_csn);
 
     uint8_t  buffer[2] = {0};
     buffer[0] = 0xB0;
     buffer[1] = 0x00;
 
-    spi_write_blocking(device_config->spi_handler->spi_mod, buffer, 2);
+    spi_write_blocking(gpio_csn->spi_handler->spi_mod, buffer, 2);
     return true;
 }
 
 
-bool ad5141_spi_control_shutdown(ad5141_spi_t *device_config, bool enable_rdac0, bool enable_rdac1)
+bool ad5141_spi_control_shutdown(ad5141_spi_t *gpio_csn, bool enable_rdac0, bool enable_rdac1)
 {
-    if(!device_config->spi_handler->init_done){
-        configure_spi_module(device_config->spi_handler, false, device_config->device_csn);
+    if(!gpio_csn->spi_handler->init_done){
+        configure_spi_module(gpio_csn->spi_handler, false);
     } 
 
     // --- Defining buffer values
@@ -45,36 +45,36 @@ bool ad5141_spi_control_shutdown(ad5141_spi_t *device_config, bool enable_rdac0,
         buffer[1] = (enable_rdac0 && enable_rdac1) ? 0x00 : 0x01;
     }
 
-    spi_write_blocking(device_config->spi_handler->spi_mod, buffer, 2);
+    spi_write_blocking(gpio_csn->spi_handler->spi_mod, buffer, 2);
     return true;
 }
 
 
-bool ad5141_spi_init(ad5141_spi_t *device_config)
+bool ad5141_spi_init(ad5141_spi_t *gpio_csn)
 {
-    if(!device_config->spi_handler->init_done){
-        configure_spi_module(device_config->spi_handler, false);
+    if(!gpio_csn->spi_handler->init_done){
+        configure_spi_module(gpio_csn->spi_handler, false);
     } 
 	
-	gpio_init(device_config->device_config);
-    gpio_set_dir(device_config->device_config, GPIO_OUT);
-    gpio_set_drive_strength(device_config->device_config, GPIO_DRIVE_STRENGTH_2MA);
-    gpio_put(device_config->device_config, true);
+	gpio_init(gpio_csn->gpio_csn);
+    gpio_set_dir(gpio_csn->gpio_csn, GPIO_OUT);
+    gpio_set_drive_strength(gpio_csn->gpio_csn, GPIO_DRIVE_STRENGTH_2MA);
+    gpio_put(gpio_csn->gpio_csn, true);
 
-    ad5141_spi_reset_software(device_config);
-    ad5141_spi_control_shutdown(device_config, true, true);    
+    ad5141_spi_reset_software(gpio_csn);
+    ad5141_spi_control_shutdown(gpio_csn, true, true);    
 
-    device_config->init_done = true;
+    gpio_csn->init_done = true;
     return true;
 }
 
 
-bool ad5141_spi_define_level(ad5141_spi_t *device_config, uint8_t rdac_sel, uint8_t pot_position){
-    if(device_config->init_done){
+bool ad5141_spi_define_level(ad5141_spi_t *gpio_csn, uint8_t rdac_sel, uint8_t pot_position){
+    if(gpio_csn->init_done){
         uint8_t  buffer[2] = {0};
         buffer[0] = 0x10 | (rdac_sel & 0x0F);
         buffer[1] = pot_position;
-        spi_write_blocking(device_config->spi_handler->spi_mod, buffer, 2);
+        spi_write_blocking(gpio_csn->spi_handler->spi_mod, buffer, 2);
 
         return true;
     } else {

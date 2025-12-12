@@ -2,8 +2,7 @@
 #define AD528X_H_
 
 
-#include <stdio.h>
-#include "hal/i2c.h"
+#include "hal/i2c/i2c.h"
 
 
 // More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/AD5280_5282.pdf

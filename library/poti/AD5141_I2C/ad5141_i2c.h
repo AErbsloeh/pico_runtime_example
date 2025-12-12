@@ -3,7 +3,7 @@
 
 
 #include <stdio.h>
-#include "hal/i2c.h"
+#include "hal/i2c/i2c.h"
 
 
 // ========================================================== DEFINITIONS ==========================================================
@@ -31,13 +31,13 @@ static ad5141_i2c_t DEVICE_AD5141_DEFAULT = {
 *   \param mode_adr         Mode for configuring the I2C bus adresse of device (ADDR0, ADDR1) [0= 0x20 (V_L, V_L), 1= 0x22 (NC, V_L), 2= 0x23 (GND, V_L), 3= 0x28 (V_L, NC), 4= 0x2A (NC, NC), 5= 0x2B (GND, NC), 6= 0x2C V_L, GND), 7= 0x2E (NC, GND), 8= 0x2F (GND, GND)]
 *   \return                 bool with init_done
 */
-bool ad5141_i2c_init(ad5141_i2c_t *device_config, uint8_t mode_adr);
+bool ad5141_i2c_init(ad5141_i2c_t *devicconfige_config, uint8_t mode_adr);
 
 
 /*! \brief Function for Software Reset of Digital Potentiometer AD5141
 *   \param device_config    Predefined I2C device handler
 */
-bool ad5141_i2c_reset_software(ad5141_i2c_t *device_config);
+bool ad5141_i2c_reset_software(ad5141_i2c_t *config);
 
 
 /*! \brief Function for Controling the Shutdown Register of Digital Potentiometer AD5141
@@ -45,7 +45,7 @@ bool ad5141_i2c_reset_software(ad5141_i2c_t *device_config);
 *   \param enable_rdac0     Boolean for enabling the RDAC0
 *   \param enable_rdac1     Boolean for enabling the RDAC1
 */
-bool ad5141_i2c_control_shutdown(ad5141_i2c_t *device_config, bool enable_rdac0, bool enable_rdac1);
+bool ad5141_i2c_control_shutdown(ad5141_i2c_t *config, bool enable_rdac0, bool enable_rdac1);
 
 
 /*! \brief Function for Defining the Wiper Position of selected Channel from Digital Potentiometer AD5141
@@ -53,6 +53,6 @@ bool ad5141_i2c_control_shutdown(ad5141_i2c_t *device_config, bool enable_rdac0,
 *   \param rdac_sel         Number for selecting the wiper (RDAC0, RDAC1)
 *   \param pot_position     Potentiometer Position (8-bit)
 */
-bool ad5141_i2c_define_level(ad5141_i2c_t *device_config, uint8_t rdac_sel, uint8_t pot_position);
+bool ad5141_i2c_define_level(ad5141_i2c_t *config, uint8_t rdac_sel, uint8_t pot_position);
 
 #endif

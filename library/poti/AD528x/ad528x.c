@@ -1,6 +1,6 @@
-#include "sens/ad528x.h"
-#include "hardware/spi.h"
+#include "poti/ad528x/ad528x.h"
 #include "hardware/gpio.h"
+
 
 // ======================================== INTERNAL READ/WRITE COMMANDS ===============================================
 uint8_t AD528x_get_adress(ad528x_t *handler){

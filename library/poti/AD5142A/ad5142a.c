@@ -1,5 +1,4 @@
-#include "sens/ad5142a.h"
-#include <stdio.h>
+#include "poti/ad5142a/ad5142a.h"
 #include "hardware/gpio.h"
 
 

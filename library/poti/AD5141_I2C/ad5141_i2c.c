@@ -1,5 +1,4 @@
-#include "sens/ad5141_i2c.h"
-#include "hardware/i2c.h"
+#include "poti/ad5141_i2c/ad5141_i2c.h"
 #include "hardware/gpio.h"
 
 
@@ -41,26 +40,26 @@ uint8_t ad5141_i2c_get_device_adr(uint8_t mode_adr)
     return adr;
 }
 
-void ad5141_i2c_reset_handler_params(ad5141_i2c_t *device_config)
+void ad5141_i2c_reset_handler_params(ad5141_i2c_t *config)
 {
-    device_config->init_done = false;
+    config->init_done = false;
 }
 
 
-bool ad5141_i2c_reset_software(ad5141_i2c_t *device_config)
+bool ad5141_i2c_reset_software(ad5141_i2c_t *config)
 {
-    ad5141_i2c_reset_handler_params(device_config);
+    ad5141_i2c_reset_handler_params(config);
 
     uint8_t  buffer[2] = {0};
     buffer[0] = 0xB0;
     buffer[1] = 0x00;
-    int8_t ret = i2c_write_blocking(device_config->i2c_handler->i2c_mod, device_config->adr, buffer, 2, false);
+    int8_t ret = i2c_write_blocking(config->i2c_handler->i2c_mod, config->adr, buffer, 2, false);
 
     return ret != PICO_ERROR_GENERIC;
 }
 
 
-bool ad5141_i2c_control_shutdown(ad5141_i2c_t *device_config, bool enable_rdac0, bool enable_rdac1)
+bool ad5141_i2c_control_shutdown(ad5141_i2c_t *config, bool enable_rdac0, bool enable_rdac1)
 {
     uint8_t  buffer[2] = {0};
     if (enable_rdac0 && !enable_rdac1){
@@ -74,34 +73,34 @@ bool ad5141_i2c_control_shutdown(ad5141_i2c_t *device_config, bool enable_rdac0,
         buffer[1] = (enable_rdac0 && enable_rdac1) ? 0x00 : 0x01;
     }
 
-    i2c_write_blocking(device_config->i2c_handler->i2c_mod, device_config->adr, buffer, 2, false);
+    i2c_write_blocking(config->i2c_handler->i2c_mod, config->adr, buffer, 2, false);
     return true;
 }
 
 
-bool ad5141_i2c_init(ad5141_i2c_t *device_config, uint8_t mode_adr)
+bool ad5141_i2c_init(ad5141_i2c_t *config, uint8_t mode_adr)
 {
-    device_config->adr = ad5141_i2c_get_device_adr(mode_adr);
+    config->adr = ad5141_i2c_get_device_adr(mode_adr);
 
-    if(check_i2c_bus_for_device_specific(device_config->i2c_handler, device_config->adr)){
-        ad5141_i2c_reset_handler_params(device_config);
+    if(check_i2c_bus_for_device_specific(config->i2c_handler, config->adr)){
+        ad5141_i2c_reset_handler_params(config);
 
-        ad5141_i2c_reset_software(device_config);
-        ad5141_i2c_control_shutdown(device_config, true, true);    
-        device_config->init_done = true;
+        ad5141_i2c_reset_software(config);
+        ad5141_i2c_control_shutdown(config, true, true);    
+        config->init_done = true;
     } else {
-        device_config->init_done = false;
+        config->init_done = false;
     }
-    return device_config->init_done;
+    return config->init_done;
 }
 
 
-bool ad5141_i2c_define_level(ad5141_i2c_t *device_config, uint8_t rdac_sel, uint8_t pot_position){
-    if(device_config->init_done){
+bool ad5141_i2c_define_level(ad5141_i2c_t *config, uint8_t rdac_sel, uint8_t pot_position){
+    if(config->init_done){
         uint8_t  buffer[2] = {0};
         buffer[0] = 0x10 | (rdac_sel & 0x0F);
         buffer[1] = pot_position;
-        i2c_write_blocking(device_config->i2c_handler->i2c_mod, device_config->adr, buffer, 2, false);
+        i2c_write_blocking(config->i2c_handler->i2c_mod, config->adr, buffer, 2, false);
 
         return true;
     } else {
