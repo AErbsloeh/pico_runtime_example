@@ -1,7 +1,5 @@
-#include "sens/sht21.h"
-#include "pico/stdlib.h"
+#include "sens/sht21/sht21.h"
 #include "hardware/gpio.h"
-#include "hardware/i2c.h"
 
 
 // ======================================== FUNCTIONS ===============================================

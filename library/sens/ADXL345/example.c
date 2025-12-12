@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sens/adxl345_i2c.h"
+#include "sens/adxl345/adxl345_i2c.h"
 
 
 int main(){ 

@@ -1,11 +1,11 @@
-#include "sens/bmi270_i2c.h"
-#include "sens/bmi270_config.h"
-#include "pico/stdlib.h"
+#include "sens/bmi270/bmi270_i2c.h"
+#include "sens/bmi270/bmi270_config.h"
 #include "hardware/gpio.h"
+#include <stdio.h>
 
 
 // ======================================== INTERNAL READ/WRITE FUNCTIONS ===============================================
-bool BMI270_i2c_write_byte(bmi270_t *handler, uint8_t command, uint8_t data){
+bool BMI270_i2c_write_byte(bmi270_i2c_t *handler, uint8_t command, uint8_t data){
     uint8_t buffer_tx[2] = {command};
     buffer_tx[1] = data;
 
@@ -15,13 +15,13 @@ bool BMI270_i2c_write_byte(bmi270_t *handler, uint8_t command, uint8_t data){
 }
 
 
-bool BMI270_i2c_write_block(bmi270_t *handler, uint8_t data[], uint8_t size){
+bool BMI270_i2c_write_block(bmi270_i2c_t *handler, uint8_t data[], uint8_t size){
     i2c_write_blocking(handler->i2c_mod->i2c_mod, BMI270_I2C_ADR, data, size, false);
     return true;
 }
 
 
-uint64_t BMI270_i2c_read_data(bmi270_t *handler, uint8_t command, uint8_t buffer_rx[], uint8_t size){
+uint64_t BMI270_i2c_read_data(bmi270_i2c_t *handler, uint8_t command, uint8_t buffer_rx[], uint8_t size){
     uint8_t buffer_tx[1] = {command};
 
     i2c_write_blocking(handler->i2c_mod->i2c_mod, BMI270_I2C_ADR, buffer_tx, sizeof(buffer_tx), true);
@@ -39,7 +39,7 @@ uint64_t BMI270_i2c_read_data(bmi270_t *handler, uint8_t command, uint8_t buffer
 
 
 // ======================================== FUNCTIONS ===============================================
-bool BMI270_i2c_read_id(bmi270_t *handler, bool print_id){
+bool BMI270_i2c_read_id(bmi270_i2c_t *handler, bool print_id){
     uint8_t data[1] = {0x00};
     uint8_t id = BMI270_i2c_read_data(handler, 0x00, data, 1);
     if(print_id){
@@ -49,7 +49,7 @@ bool BMI270_i2c_read_id(bmi270_t *handler, bool print_id){
 };
 
 
-bool BMI270_i2c_soft_reset(bmi270_t *handler){
+bool BMI270_i2c_soft_reset(bmi270_i2c_t *handler){
     uint8_t data = 0xB6;
     BMI270_i2c_write_byte(handler, 0x7E, data);
     handler->init_done = false;
@@ -57,16 +57,13 @@ bool BMI270_i2c_soft_reset(bmi270_t *handler){
 }
 
 
-bool BMI270_i2c_init(bmi270_t *handler){
+bool BMI270_i2c_init(bmi270_i2c_t *handler){
     init_i2c_module(handler->i2c_mod);
     
     if(!BMI270_i2c_read_id(handler, false)){
-		printf("BMI270 not found on bus");
 		handler->init_done = false; 
 	} else {		
-		if(BMI270_i2c_get_status_internal_register(handler, false) == 0x01){
-			printf("BMI270 is initialized\n");
-		} else {
+		if(BMI270_i2c_get_status_internal_register(handler, false) != 0x01){
 			// --- Step #1: Soft reset
 			BMI270_i2c_soft_reset(handler);
 			sleep_ms(2);
@@ -116,7 +113,7 @@ bool BMI270_i2c_init(bmi270_t *handler){
 }
 
 
-bool BMI270_i2c_set_gyroscope_settings(bmi270_t *handler){
+bool BMI270_i2c_set_gyroscope_settings(bmi270_i2c_t *handler){
     // GYRO CONF
     uint8_t data = (handler->do_noise_performance_opt << 6) | (handler->gyro_odr & 0x0F);
     BMI270_i2c_write_byte(handler, 0x42, data);
@@ -131,7 +128,7 @@ bool BMI270_i2c_set_gyroscope_settings(bmi270_t *handler){
 }
 
 
-bool BMI270_i2c_set_accelerator_settings(bmi270_t *handler){
+bool BMI270_i2c_set_accelerator_settings(bmi270_i2c_t *handler){
     // ACC CONF
     uint8_t data = (handler->acc_odr & 0x0F);
     BMI270_i2c_write_byte(handler, 0x44, data);
@@ -146,19 +143,19 @@ bool BMI270_i2c_set_accelerator_settings(bmi270_t *handler){
 }
 
 
-uint8_t BMI270_i2c_get_error_register(bmi270_t *handler){
+uint8_t BMI270_i2c_get_error_register(bmi270_i2c_t *handler){
     uint8_t data[1] = {0x02};
     return BMI270_i2c_read_data(handler, 0x02, data, 1);
 }
 
 
-uint8_t BMI270_i2c_get_status_register(bmi270_t *handler){
+uint8_t BMI270_i2c_get_status_register(bmi270_i2c_t *handler){
     uint8_t data[1] = {0x03};
     return BMI270_i2c_read_data(handler, 0x03, data, 1);
 }
 
 
-uint8_t BMI270_i2c_get_status_internal_register(bmi270_t *handler, bool print_status){
+uint8_t BMI270_i2c_get_status_internal_register(bmi270_i2c_t *handler, bool print_status){
     uint8_t data[1] = {0x21};
     uint8_t status = BMI270_i2c_read_data(handler, 0x21, data, 1) & 0x0F;
     if(print_status){
@@ -174,13 +171,13 @@ uint8_t BMI270_i2c_get_status_internal_register(bmi270_t *handler, bool print_st
 }
 
 
-uint8_t BMI270_i2c_get_power_register(bmi270_t *handler){
+uint8_t BMI270_i2c_get_power_register(bmi270_i2c_t *handler){
     uint8_t data[1] = {0x7D};
     return BMI270_i2c_read_data(handler, 0x7D, data, 1);
 }
 
 
-double BMI270_i2c_get_temperature(bmi270_t *handler){
+double BMI270_i2c_get_temperature(bmi270_i2c_t *handler){
     if(handler->en_temp_sensor){
         uint8_t data[2] = {0x22};
         int16_t temp_raw = BMI270_i2c_read_data(handler, 0x22, data, 2);
@@ -191,14 +188,14 @@ double BMI270_i2c_get_temperature(bmi270_t *handler){
 }
 
 
-double BMI270_i2c_get_sensor_time(bmi270_t *handler){
+double BMI270_i2c_get_sensor_time(bmi270_i2c_t *handler){
     uint8_t data[3] = {0x18};
     double time_raw = BMI270_i2c_read_data(handler, 0x18, data, 3) * 39.0625e-6;
     return time_raw;
 }
 
 
-double BMI270_get_scale_gyroscope(bmi270_t *handler){
+double BMI270_get_scale_gyroscope(bmi270_i2c_t *handler){
     double value = 0.0;
     switch(handler->acc_range){
         case(BMI270_GYRO_RANGE_2000):   value = 2000.0; break;
@@ -211,7 +208,7 @@ double BMI270_get_scale_gyroscope(bmi270_t *handler){
 }
 
 
-bmi270_data_t BMI270_i2c_get_gyroscope_data(bmi270_t *handler){
+bmi270_data_t BMI270_i2c_get_gyroscope_data(bmi270_i2c_t *handler){
     if(handler->en_gyro_sensor && handler->init_done){
         uint8_t data[6] = {0x12};
         BMI270_i2c_read_data(handler, 0x12, data, 6);
@@ -237,7 +234,7 @@ bmi270_data_t BMI270_i2c_get_gyroscope_data(bmi270_t *handler){
 }    
 
 
-double BMI270_get_scale_accelerator(bmi270_t *handler){
+double BMI270_get_scale_accelerator(bmi270_i2c_t *handler){
     double value = 0.0;
     switch(handler->acc_range){
         case(BMI270_ACC_RANGE_16G):     value = 16.0;   break;
@@ -249,7 +246,7 @@ double BMI270_get_scale_accelerator(bmi270_t *handler){
 }
 
 
-bmi270_data_t BMI270_i2c_get_accelerator_data(bmi270_t *handler){
+bmi270_data_t BMI270_i2c_get_accelerator_data(bmi270_i2c_t *handler){
     if(handler->en_acc_sensor && handler->init_done){
         uint8_t data[6] = {0x0C};
         BMI270_i2c_read_data(handler, 0x0C, data, 6);
@@ -275,7 +272,7 @@ bmi270_data_t BMI270_i2c_get_accelerator_data(bmi270_t *handler){
 }
 
 
-bmi270_data_t BMI270_i2c_get_all_data(bmi270_t *handler){
+bmi270_data_t BMI270_i2c_get_all_data(bmi270_i2c_t *handler){
     if(handler->en_acc_sensor && handler->en_gyro_sensor && handler->init_done){
         uint8_t data[15] = {0x0C};
         BMI270_i2c_read_data(handler, 0x0C, data, 15);

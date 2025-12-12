@@ -2,9 +2,7 @@
 #define BMI270_I2C_H_
 
 
-#include <stdlib.h>
-#include "hardware/i2c.h"
-#include "hal/i2c.h"
+#include "hal/i2c/i2c.h"
 
 
 // More Informations from sensor: https://content.arduino.cc/assets/bmi270-ds000.pdf
@@ -49,10 +47,10 @@ typedef struct {
     uint8_t acc_range;
     bool    do_noise_performance_opt;
     bool    init_done;
-} bmi270_t;
+} bmi270_i2c_t;
 
 
-static bmi270_t BMI270_I2C_DEFAULT_CONFIG = {
+static bmi270_i2c_t BMI270_I2C_DEFAULT_CONFIG = {
     .i2c_mod = &DEVICE_I2C_DEFAULT,
     .en_adv_pwr_mode = false,
     .en_temp_sensor = false,
@@ -96,49 +94,49 @@ static bmi270_data_t BMI270_DATA_DEFAULT = {
 *   \param  print_id    Boolean to print the sensor ID
 *   \return             Boolean if right Chip ID of sensor is available (0x24)
 */
-bool BMI270_i2c_read_id(bmi270_t *handler, bool print_id);
+bool BMI270_i2c_read_id(bmi270_i2c_t *handler, bool print_id);
 
 
 /*! \brief Function for software-based reset of accelerator sensor BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             Boolean if right Chip ID of sensor is available (0x24)
 */
-bool BMI270_i2c_soft_reset(bmi270_t *handler);
+bool BMI270_i2c_soft_reset(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for initialisation of accelerator sensor BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             Boolean if init is done
 */
-bool BMI270_i2c_init(bmi270_t *handler);
+bool BMI270_i2c_init(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for setting the gyroscope configuration of BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             Boolean if setting is done
 */
-bool BMI270_i2c_set_gyroscope_settings(bmi270_t *handler);
+bool BMI270_i2c_set_gyroscope_settings(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for setting the accelerator configuration of BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             Boolean if setting is done
 */
-bool BMI270_i2c_set_accelerator_settings(bmi270_t *handler);
+bool BMI270_i2c_set_accelerator_settings(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for getting the content of the error registration of BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             Data from register (bit 0: Fatal error, 1..4: Internal error, contact Bosch, 6: fifo error, 7: aux error) 
 */
-uint8_t BMI270_i2c_get_error_register(bmi270_t *handler);
+uint8_t BMI270_i2c_get_error_register(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for getting the content of status register of BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             Data from register 
 */
-uint8_t BMI270_i2c_get_status_register(bmi270_t *handler);
+uint8_t BMI270_i2c_get_status_register(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for getting the content of internal status register of BMI270 from Bosch
@@ -146,49 +144,49 @@ uint8_t BMI270_i2c_get_status_register(bmi270_t *handler);
 *   \param  print_status Boolean for printing the status into terminal
 *   \return             Data from register
 */
-uint8_t BMI270_i2c_get_status_internal_register(bmi270_t *handler, bool print_status);
+uint8_t BMI270_i2c_get_status_internal_register(bmi270_i2c_t *handler, bool print_status);
 
 
 /*! \brief Function for getting the content of power register of BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             Data from register (bit 0: aux_en, 1: gyr_en, 2: acc_en, 3: temp_en)
 */
-uint8_t BMI270_i2c_get_power_register(bmi270_t *handler);
+uint8_t BMI270_i2c_get_power_register(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for getting the temperatur value from BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             Temperature data sensor in °C
 */
-double BMI270_i2c_get_temperature(bmi270_t *handler);
+double BMI270_i2c_get_temperature(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for getting the active sensor time from BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             Actual runtime in s (with overflow)
 */
-double BMI270_i2c_get_sensor_time(bmi270_t *handler);
+double BMI270_i2c_get_sensor_time(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for getting the accelerator sensor data from BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             x-, y-, z-axis data in struct
 */
-bmi270_data_t BMI270_i2c_get_accelerator_data(bmi270_t *handler);
+bmi270_data_t BMI270_i2c_get_accelerator_data(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for getting the gyroscope sensor data from BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             x-, y-, z-axis data in struct
 */
-bmi270_data_t BMI270_i2c_get_gyroscope_data(bmi270_t *handler);
+bmi270_data_t BMI270_i2c_get_gyroscope_data(bmi270_i2c_t *handler);
 
 
 /*! \brief Function for getting all sensor data from BMI270 from Bosch
 *   \param  handler     Handler for setting the device
 *   \return             x-, y-, z-axis data in struct
 */
-bmi270_data_t BMI270_i2c_get_all_data(bmi270_t *handler);
+bmi270_data_t BMI270_i2c_get_all_data(bmi270_i2c_t *handler);
 
 
 #endif

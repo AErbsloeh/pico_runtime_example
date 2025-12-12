@@ -2,9 +2,7 @@
 #define ADXL345_I2C_H_
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "hal/i2c.h"
+#include "hal/i2c/i2c.h"
 
 
 // Handler for configuring and controlling the device configuration

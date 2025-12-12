@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sens/sht21.h"
+#include "sens/sht21/sht21.h"
 
 
 int main(){ 

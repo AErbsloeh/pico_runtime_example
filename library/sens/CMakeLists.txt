@@ -1,0 +1,5 @@
+add_subdirectory(adxl345)
+add_subdirectory(bmi270)
+add_subdirectory(sht21)
+add_subdirectory(veml7700)
+add_subdirectory(vl6180)

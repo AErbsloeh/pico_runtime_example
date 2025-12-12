@@ -1,18 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sens/bmi270_i2c.h"
+#include "sens/bmi270/bmi270_i2c.h"
 
 
 int main(){ 
-    static i2c_device_handler_t I2C_USED = {
+    static i2c_t I2C_USED = {
         .pin_sda = 14,
         .pin_scl = 15,
         .i2c_mod = i2c1,
         .fi2c_khz = 400,
         .init_done = false
     };
-    static bmi270_t sens_device = {
+    static bmi270_i2c_t sens_device = {
         .i2c_mod = &I2C_USED,
         .en_adv_pwr_mode = false,
         .en_temp_sensor = true,

@@ -1,4 +1,4 @@
-#include "sens/adxl345_i2c.h"
+#include "sens/adxl345/adxl345_i2c.h"
 #include "hardware/gpio.h"
 
 
@@ -26,14 +26,12 @@ uint64_t ADXL345_i2c_read_data(adxl345_i2c_t *handler, uint8_t command, uint8_t 
     int ret = i2c_write_blocking(handler->i2c_mod->i2c_mod, ADXL345_I2C_ADR, buffer_tx, 1, true); 
 
     if (ret != 1) { 
-        printf("I2C Write Fehler: %d\n", ret); 
         return 0; 
     } 
 
     ret = i2c_read_blocking(handler->i2c_mod->i2c_mod, ADXL345_I2C_ADR, buffer_rx, size, false); 
 
     if (ret != size) { 
-        printf("I2C Read Fehler: %d (erwartet %d)\n", ret, size); 
         return 0; 
     } 
 

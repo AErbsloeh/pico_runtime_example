@@ -1,4 +1,5 @@
-#include "sens/veml7700.h"
+#include "sens/veml7700/veml7700.h"
+#include <stdio.h>
 
 
 // ======================================== FUNCTIONS ===============================================
@@ -24,8 +25,7 @@ uint16_t VEML7700_get_als_value(veml7700_t *handler){
     if(handler->init_done){
         return VEML7700_read_data(handler, 0x04); 
     } else {
-        printf("VEML7700 not initialized!");
-        return 65535;
+        return 0;
     }
 }
 
@@ -34,8 +34,7 @@ uint16_t VEML7700_get_white(veml7700_t *handler){
     if(handler->init_done){
         return VEML7700_read_data(handler, 0x05); 
     } else {
-        printf("VEML7700 not initialized!");
-        return 65535;
+        return 0;
     }
     
 }
@@ -45,7 +44,6 @@ bool VEML7700_init(veml7700_t *handler){
     init_i2c_module(handler->i2c_mod);
       
     if(!VEML7700_read_id(handler, false)){
-        printf("Wrong sensor on bus!");
         return false;
     } else {
         uint8_t buffer[3] = {0x00};

@@ -2,7 +2,7 @@
 #define VL6180_H_
 
 
-#include "hal/i2c.h"
+#include "hal/i2c/i2c.h"
 
 
 // More Informations from sensor: https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.st.com/resource/en/datasheet/vl6180.pdf&ved=2ahUKEwjL9YiCrZSLAxUDSvEDHYZQFuwQFnoECBAQAQ&usg=AOvVaw0EYhww0GCbs05jcovK_Ly2
@@ -96,7 +96,6 @@ bool VL6180_stop_cont_measurement(vl6180_t *handler);
 *   \return             uint8_t value of distance in mm (0...255 mm)
 */
 uint8_t VL6180_get_range_value(vl6180_t *handler);
-
 
 
 #endif
