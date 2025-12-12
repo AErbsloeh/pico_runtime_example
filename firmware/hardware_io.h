@@ -1,17 +1,15 @@
-#ifndef HARDWARE_IO_H
-#define HARDWARE_IO_H
+#ifndef HARDWARE_IO_H_
+#define HARDWARE_IO_H_
 
 
-#include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/clocks.h"
-#include "hal/led.h"
-#include "hal/tmr.h"
+#include "hal/led/led.h"
+#include "hal/tmr/tmr.h"
+#include "hal/usb/usb.h"
 
 #include "src/init_system.h"
 #include "src/testbench.h"
-#include "src/gpio_callbacks.h"
-#include "src/usb_callbacks.h"
 #include "src/daq_sample.h"
 
 

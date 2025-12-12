@@ -23,7 +23,7 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico2 CACHE STRING "Board type")
+set(PICO_BOARD pico2_w CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -33,18 +33,18 @@ project(main C CXX ASM)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
+# Adding custom device/HAL library
+add_subdirectory(../library custom-lib)
+
+
 # Add executable. Default name is the project name, version 0.1
-add_executable(main main.c 
-    hal/i2c.c
-    hal/led.c
-    hal/spi.c
-    hal/tmr.c  
-    hal/usb.c
-    src/gpio_callbacks.c
+add_executable(main 
+    main.c 
+    src/daq_sample.c
     src/init_system.c
     src/testbench.c
-    src/usb_callbacks.c
-    src/daq_sample.c
+    src/gpio_callbacks.c
+    src/rpc_callbacks.c
     hardware_io.c
 )
 
@@ -61,19 +61,28 @@ target_link_libraries(main
     pico_bootsel_via_double_reset
     hardware_watchdog
     hardware_clocks
+    hardware_gpio
     hardware_pio
-    hardware_spi
     hardware_i2c
+    hardware_spi
+    hal_usb
+    hal_led
+    hal_tmr
+    #fatfs_noos
+    #wiznet_pico_c
 )
 add_definitions(-DPICO_BOARD="${PICO_BOARD}")
+
+message(STATUS "Hallo aus der Firmware!")
 
 # Extract if wireless board is available
 string(FIND "${PICO_BOARD}" "_w" POSITION)
 if(POSITION GREATER -1)
     target_link_libraries(main
-        pico_btstack_classic
-        pico_btstack_cyw43
         pico_cyw43_arch_none
+        #pico_cyw43_arch_lwip_poll
+        #hal_wudp
+        #hal_btspp
     )
     add_definitions(-DPICO_CYW43_SUPPORTED)
 endif()
@@ -81,7 +90,8 @@ endif()
 
 # Add the standard include files to the build
 target_include_directories(main PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/.. 
 )
 
 pico_add_extra_outputs(main)

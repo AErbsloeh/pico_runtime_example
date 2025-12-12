@@ -59,17 +59,12 @@ bool init_system(void){
     };
 
     // --- Blocking Routine if init is not completed
+    sleep_ms(10);
     if(num_init_done == 1){
-        sleep_ms(10);
         set_system_state(STATE_IDLE);
         return true;
     } else {
-        while(true){
-            printf("... Init System not done yet\n");
-            set_system_state(STATE_ERROR);
-            sleep_ms(1000);
-            set_default_led(!get_default_led());
-        }
+        set_system_state(STATE_ERROR);
         return false;
     }
 }
@@ -89,7 +84,7 @@ system_state_t get_system_state(void){
 bool set_system_state(system_state_t new_state){
     bool valid_state = false;
     
-    if(system_state != new_state){
+    if((system_state != new_state) && (system_state != STATE_ERROR)){
         system_state = new_state;
         switch(new_state){
             case STATE_INIT:

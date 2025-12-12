@@ -1,0 +1,8 @@
+#add_subdirectory(bt_spp)
+add_subdirectory(i2c)
+add_subdirectory(led)
+add_subdirectory(pwr)
+add_subdirectory(spi)
+add_subdirectory(tmr)
+add_subdirectory(usb)
+#add_subdirectory(wlan_udp)

@@ -1,4 +1,5 @@
 #include "hardware_io.h"
+#include "src/rpc_callbacks.h"
 
 
 int main(){   
@@ -9,6 +10,7 @@ int main(){
 
     // Main Loop
     while (true) {  
-        apply_usb_callback(&usb_buffer);
+        usb_handling_fifo_buffer(&usb_buffer);
+        apply_rpc_callback(*usb_buffer.data, usb_buffer.length, usb_buffer.ready);
     };
 }
