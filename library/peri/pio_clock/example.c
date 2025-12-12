@@ -3,7 +3,7 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/pio.h"
-#include "lib/blink_pio.h"
+#include "peri/pio_clock/blink.pio.h"
 
 
 #define CLK_PIO_PIN 2
@@ -13,10 +13,10 @@
 int main(){   
     // Init Phase
     PIO pio = pio0;
-    clk_generation_pio_init(pio, CLK_PIO_PIN, CLK_FRQ_VAL);
+    clk_generation_pio_init(pio, CLK_PIO_PIN, CLK_FRQ_VAL, 125000000);
 	
 	// Infinity Loop
     while (true){
-		sleep_ms(1000);
+		  sleep_ms(1000);
     }
 }

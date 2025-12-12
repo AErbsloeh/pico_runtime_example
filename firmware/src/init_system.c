@@ -37,14 +37,10 @@ bool init_gpio_pico(bool block_usb){
     gpio_set_irq_enabled_with_callback(BUTTON_BOARD, GPIO_IRQ_EDGE_FALL, true, &irq_gpio_callbacks);*/
 
     // --- Init of Serial COM-Port
-    stdio_init_all();
-    stdio_set_translate_crlf(&stdio_usb, false);
-    if (block_usb){
-        // Wait until USB is connected
-        while(!stdio_usb_connected()){
-            sleep_ms(1);
-        };
-    };
+    usb_init();
+    if(block_usb){
+        usb_wait_until_connected();
+    }
     return true;
 }
 

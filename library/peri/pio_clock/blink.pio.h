@@ -50,19 +50,20 @@ static inline pio_sm_config blink_program_get_default_config(uint offset) {
 
 
 /*! \brief Funciton for initialising and starting a PIO function for generaing a CLK signal on defined PIN
-    \param pio  PIO functionality
-    \param pin  GPIO number for CLK generation
-    \param freq Frequency value of generated CLK signal
+    \param pio          PIO module
+    \param pin          GPIO number for CLK generation
+    \param freq         Frequency value of generated CLK signal in Hz
+    \param mcu_clk_hz   MCU system clock frequency in Hz
 */
-void clk_generation_pio_init(PIO pio, uint pin, uint freq) {
-    uint sm = 0
+void clk_generation_pio_init(PIO pio, uint pin, uint freq_hz, uint mcu_clk_hz){
+    uint sm = 0;
     uint offset = pio_add_program(pio, &blink_program);
 
     // --- Init Phase
-    gpio_init(CLK_PIO_PIN);
-    gpio_set_dir(CLK_PIO_PIN);
-    gpio_pull_down(CLK_PIO_PIN);
-    gpio_put(CLK_PIO_PIN, false);
+    gpio_init(pin);
+    gpio_set_dir(pin, GPIO_OUT);
+    gpio_pull_down(pin);
+    gpio_put(pin, false);
 
     // --- Defining PIO module
     pio_gpio_init(pio, pin);
@@ -75,7 +76,7 @@ void clk_generation_pio_init(PIO pio, uint pin, uint freq) {
     pio_sm_set_enabled(pio, sm, true);
     // PIO counter program takes 3 more cycles in total than we pass as
     // input (wait for n + 1; mov; jmp)
-    pio->txf[sm] = (MCU_CLK / (2 * freq)) - 3;
+    pio->txf[sm] = (mcu_clk_hz / (2 * freq_hz)) - 3;
 }
 
 #endif
