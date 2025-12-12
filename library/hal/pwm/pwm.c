@@ -14,7 +14,7 @@ static void pwm_init_irq_alarm(void) {
 }
 
 
-bool init_pwm_irq(pwm_config_t *handler) {
+bool init_pwm_irq(pwm_t *handler) {
     if(handler->enable_state && !irq_is_enabled(handler->irq_number)) {
         gpio_set_function(handler->gpio, GPIO_FUNC_PWM);
         handler->slice = pwm_gpio_to_slice_num(handler->gpio);
@@ -44,7 +44,7 @@ bool init_pwm_irq(pwm_config_t *handler) {
 }
 
 
-bool enable_pwm(pwm_config_t *handler){
+bool enable_pwm(pwm_t *handler){
     if(!handler->init_done)
         init_pwm_irq(handler);
 
@@ -56,7 +56,7 @@ bool enable_pwm(pwm_config_t *handler){
 }
 
 
-bool disable_pwm(pwm_config_t *handler){
+bool disable_pwm(pwm_t *handler){
     if(!handler->init_done)
         init_pwm_irq(handler);
 
@@ -67,7 +67,7 @@ bool disable_pwm(pwm_config_t *handler){
 }
 
 
-bool pwm_set_level(pwm_config_t *handler, uint16_t level){
+bool pwm_set_level(pwm_t *handler, uint16_t level){
     if(!handler->init_done)
         init_pwm_irq(handler);
 
@@ -77,7 +77,7 @@ bool pwm_set_level(pwm_config_t *handler, uint16_t level){
 }
 
 
-bool pwm_update_duty_cycle(pwm_config_t *handler, uint16_t duty_cycle) {
+bool pwm_update_duty_cycle(pwm_t *handler, uint16_t duty_cycle) {
     if (!handler->init_done)
         init_pwm_irq(handler);
 

@@ -9,7 +9,7 @@ uint32_t convert_one_drqst_into_value(uint8_t *data, bool invert){
 }
 
 
-int ads8881_three_wire_wo_busy(ads8881_handler_t *handler, uint8_t *buffer_rx, uint8_t len){
+int ads8881_three_wire_wo_busy(ads8881_t *handler, uint8_t *buffer_rx, uint8_t len){
     // --- DIN should be tied to VDDD and DOUT is used without pullup (normal DOUT is tri-state)
     // Conversion Phase
     gpio_put(handler->gpio_num_cnv, true);
@@ -21,7 +21,7 @@ int ads8881_three_wire_wo_busy(ads8881_handler_t *handler, uint8_t *buffer_rx, u
 }
 
 
-int ads8881_three_wire_with_busy(ads8881_handler_t *handler, uint8_t *buffer_rx, uint8_t len){
+int ads8881_three_wire_with_busy(ads8881_t *handler, uint8_t *buffer_rx, uint8_t len){
     // --- DIN should be tied to VDDD and DOUT is used with pullup
     // Conversion Phase
     gpio_put(handler->gpio_num_cnv, true);
@@ -34,7 +34,7 @@ int ads8881_three_wire_with_busy(ads8881_handler_t *handler, uint8_t *buffer_rx,
 }
 
 
-int ads8881_four_wire_wo_busy(ads8881_handler_t *handler, uint8_t *buffer_rx, uint8_t len){
+int ads8881_four_wire_wo_busy(ads8881_t *handler, uint8_t *buffer_rx, uint8_t len){
     // --- CS goes to DIN and DOUT is used without pullup (normal DOUT is tri-state)
     // Conversion Phase
     gpio_put(handler->gpio_num_cnv, true);
@@ -52,7 +52,7 @@ int ads8881_four_wire_wo_busy(ads8881_handler_t *handler, uint8_t *buffer_rx, ui
 }
 
 
-int ads8881_four_wire_with_busy(ads8881_handler_t *handler, uint8_t *buffer_rx, uint8_t len){
+int ads8881_four_wire_with_busy(ads8881_t *handler, uint8_t *buffer_rx, uint8_t len){
     // --- CS goes to DIN and DOUT is used with pullup
     // Conversion Phase
     gpio_put(handler->gpio_num_cnv, true);
@@ -70,7 +70,7 @@ int ads8881_four_wire_with_busy(ads8881_handler_t *handler, uint8_t *buffer_rx, 
 
 
 // ================================= CALLABLE FUNCTIONS =================================
-bool ads8881_init(ads8881_handler_t *handler){
+bool ads8881_init(ads8881_t *handler){
     if(!handler->spi_handler->init_done){
         configure_spi_module(handler->spi_handler, false);
     };
@@ -97,7 +97,7 @@ bool ads8881_init(ads8881_handler_t *handler){
 }
 
 
-int ads8881_rqst_data_mode(ads8881_handler_t *handler, uint8_t *data, uint8_t len){
+int ads8881_rqst_data_mode(ads8881_t *handler, uint8_t *data, uint8_t len){
     if(!handler->init_done){
         ads8881_init(handler);
     } else {
@@ -117,7 +117,7 @@ int ads8881_rqst_data_mode(ads8881_handler_t *handler, uint8_t *data, uint8_t le
 }
 
 
-uint32_t ads8881_rqst_data(ads8881_handler_t *handler){
+uint32_t ads8881_rqst_data(ads8881_t *handler){
     if(!handler->init_done){
         ads8881_init(handler);
     } else {

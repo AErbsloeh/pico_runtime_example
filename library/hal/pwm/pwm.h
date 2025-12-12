@@ -18,7 +18,7 @@
  * ============================================================ */
 
 /**
- * @struct pwm_config_t
+ * @struct pwm_t
  * @brief Enthält alle Konfigurationsparameter und Statuswerte für ein PWM-Modul.
  * \param gpio            GPIO-Pin für die PWM-Ausgabe
  * \param slice           PWM-Slice-Nummer (wird automatisch gesetzt)
@@ -42,7 +42,7 @@ typedef struct {
     bool enable_state;
     bool init_done;
     bool alarm_done;
-} pwm_config_t;
+} pwm_t;
 
 
 /* ============================================================
@@ -54,10 +54,10 @@ typedef struct {
  * Legt GPIO-Funktion, Slice, clk_div und wrap fest.
  * Optional wird ein IRQ eingerichet (wenn handler->use_irq = true).
  *
- * @param handler Pointer auf pwm_config_t Struktur
+ * @param handler Pointer auf pwm_t Struktur
  * @return true bei erfolgreicher Initialisierung
  */
-bool init_pwm_irq(pwm_config_t *handler);
+bool init_pwm_irq(pwm_t *handler);
 
 
 /**
@@ -65,19 +65,19 @@ bool init_pwm_irq(pwm_config_t *handler);
  *
  * Setzt den Duty-Cycle und aktiviert das entsprechende PWM-Slice.
  *
- * @param handler Pointer auf pwm_config_t
+ * @param handler Pointer auf pwm_t
  * @return true wenn PWM erfolgreich aktiviert wurde
  */
-bool enable_pwm(pwm_config_t *handler);
+bool enable_pwm(pwm_t *handler);
 
 
 /**
  * @brief Deaktiviert die PWM-Ausgabe.
  *
- * @param handler Pointer auf pwm_config_t
+ * @param handler Pointer auf pwm_t
  * @return true wenn PWM erfolgreich deaktiviert wurde
  */
-bool disable_pwm(pwm_config_t *handler);
+bool disable_pwm(pwm_t *handler);
 
 
 /**
@@ -85,19 +85,19 @@ bool disable_pwm(pwm_config_t *handler);
  *
  * Wichtig: level muss <= wrap sein.
  *
- * @param handler Pointer auf pwm_config_t
+ * @param handler Pointer auf pwm_t
  * @param level PWM Level (0..wrap)
  * @return true wenn erfolgreich
  */
-bool pwm_set_level(pwm_config_t *handler, uint16_t level);
+bool pwm_set_level(pwm_t *handler, uint16_t level);
 
 
 /**
  * @brief Aktualisiert den Duty-Cycle direkt als 16-bit Wert.
- * @param handler       Pointer auf pwm_config_t
+ * @param handler       Pointer auf pwm_t
  * @param duty_cycle    Duty Cycle (0..wrap)
  * @return              true wenn erfolgreich
  */
-bool pwm_update_duty_cycle(pwm_config_t *handler, uint16_t duty_cycle);
+bool pwm_update_duty_cycle(pwm_t *handler, uint16_t duty_cycle);
 
 #endif

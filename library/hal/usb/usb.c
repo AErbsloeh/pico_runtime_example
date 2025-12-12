@@ -10,7 +10,7 @@ bool usb_init(void){
 }
 
 
-void usb_handling_fifo_buffer(usb_fifo_t* fifo_buffer){
+void usb_handling_fifo_buffer(usb_t* fifo_buffer){
     char* buffer = *fifo_buffer->data;
     buffer[fifo_buffer->position] = getchar();
 

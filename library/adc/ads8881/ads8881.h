@@ -22,16 +22,16 @@
 * \param init_done      Boolean if device configuration is done        
 */
 typedef struct{
-    spi_pico_t *spi_handler;
+    spi_t *spi_handler;
     uint8_t gpio_num_din;
     uint8_t gpio_num_cnv;
     uint8_t adc_mode;
     bool invert_out;
     bool init_done;
-} ads8881_handler_t;
+} ads8881_t;
 
 
-static ads8881_handler_t ADS8881_DEFAULT_CONFIG = {
+static ads8881_t ADS8881_DEFAULT_CONFIG = {
     .spi_handler = &DEVICE_SPI_DEFAULT,
     .gpio_num_din = 1,
     .gpio_num_cnv = 0,
@@ -46,14 +46,14 @@ static ads8881_handler_t ADS8881_DEFAULT_CONFIG = {
 * \param handler    Device handler for using device
 * \return           Boolean if initialization is done completely
 */
-bool ads8881_init(ads8881_handler_t *handler);
+bool ads8881_init(ads8881_t *handler);
 
 
 /*! \brief Function for requesting data (on the cheesy way) from Analog-Digital-Converter ADS8881
 * \param handler    Device handler for using device
 * \return           ADC data (includes integer 18-bit values from ADC)
 */
-uint32_t ads8881_rqst_data(ads8881_handler_t *handler);
+uint32_t ads8881_rqst_data(ads8881_t *handler);
 
 
 /*! \brief Function for requesting data from Analog-Digital-Converter ADS8881 (described in datasheet)
@@ -62,7 +62,7 @@ uint32_t ads8881_rqst_data(ads8881_handler_t *handler);
 * \param len        Length of bytes in data array (uint8_t)
 * \return           Number of transferred SPI bytes
 */
-int ads8881_rqst_data_mode(ads8881_handler_t *handler, uint8_t *data, uint8_t len);
+int ads8881_rqst_data_mode(ads8881_t *handler, uint8_t *data, uint8_t len);
 
 
 #endif

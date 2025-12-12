@@ -3,7 +3,7 @@
 
 
 // ========================================= DEFINITION FOR NORMAL SPI ===============================================
-bool configure_spi_module(spi_pico_t *handler, bool use_spi_slave){
+bool configure_spi_module(spi_t *handler, bool use_spi_slave){
     // --- Init of GPIOs
     // GPIO: MOSI, SCLK, MISO
     gpio_set_function(handler->pin_sclk, GPIO_FUNC_SPI);
@@ -26,7 +26,7 @@ bool configure_spi_module(spi_pico_t *handler, bool use_spi_slave){
 }
 
 
-int8_t send_data_spi_module(spi_pico_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], size_t length){
+int8_t send_data_spi_module(spi_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], size_t length){
     gpio_put(gpio_num_csn, false);
     int8_t status = spi_write_blocking(handler->spi_mod, data_tx, length);
     gpio_put(gpio_num_csn, true);
@@ -34,7 +34,7 @@ int8_t send_data_spi_module(spi_pico_t *handler, uint8_t gpio_num_csn, uint8_t d
 }
 
 
-int8_t receive_data_spi_module(spi_pico_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], uint8_t data_rx[], size_t length){
+int8_t receive_data_spi_module(spi_t *handler, uint8_t gpio_num_csn, uint8_t data_tx[], uint8_t data_rx[], size_t length){
     gpio_put(gpio_num_csn, false);
     int8_t status = spi_write_read_blocking(handler->spi_mod, data_tx, data_rx, length);
     gpio_put(gpio_num_csn, true);
@@ -43,7 +43,7 @@ int8_t receive_data_spi_module(spi_pico_t *handler, uint8_t gpio_num_csn, uint8_
 
 
 // ========================================= DEFINITION FOR SOFT SPI ===============================================
-bool configure_spi_module_soft(spi_pico_t *handler){
+bool configure_spi_module_soft(spi_t *handler){
     // GPIO: SCLK
     gpio_init(handler->pin_sclk);
     gpio_set_dir(handler->pin_sclk, GPIO_OUT);
@@ -67,7 +67,7 @@ bool configure_spi_module_soft(spi_pico_t *handler){
 }
 
 
-uint16_t send_data_spi_module_soft(spi_pico_t *handler, uint8_t gpio_num_csn, uint16_t data){
+uint16_t send_data_spi_module_soft(spi_t *handler, uint8_t gpio_num_csn, uint16_t data){
     uint16_t data_returned = 0;
     uint8_t position_send = (handler->msb_first) ? (uint8_t)handler->bits_per_transfer-1 : 0;
     bool cpol = (handler->mode == 2) || (handler->mode == 3);

@@ -37,7 +37,7 @@
 * \param bitwidth   Used data bitwidth of device
 */
 typedef struct {
-    spi_pico_t *spi_mod;
+    spi_t *spi_mod;
     uint8_t gpio_num_csn;
     bool use_gpio_ldac;
     uint8_t gpio_num_ldac;
