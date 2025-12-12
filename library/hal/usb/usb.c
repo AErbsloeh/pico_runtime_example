@@ -10,6 +10,14 @@ bool usb_init(void){
 }
 
 
+bool usb_wait_until_connected(void){
+    while (!stdio_usb_connected()){
+        sleep_ms(1);
+    };
+    return true;
+}
+
+
 void usb_handling_fifo_buffer(usb_t* fifo_buffer){
     char* buffer = *fifo_buffer->data;
     buffer[fifo_buffer->position] = getchar();

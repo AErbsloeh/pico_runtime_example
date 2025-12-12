@@ -20,11 +20,17 @@ typedef struct{
 } usb_t;
 
 
-// ============================== FUNCTIONS FOR PROCESSING ==============================
+// ========================= FUNCTIONS FOR PROCESSING ===========================
 /*! \brief Function to initialize the USB interface
 * \return Boolean for initialiation is successful
 */
 bool usb_init(void);
+
+
+/*! \brief Function to wait until USB is connected
+* \return Boolean for USB is connected
+*/
+bool usb_wait_until_connected(void);
 
 
 /*! \brief Function for handling the FIFO buffer
