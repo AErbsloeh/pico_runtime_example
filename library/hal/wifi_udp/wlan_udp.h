@@ -1,5 +1,5 @@
-#ifndef WLAN_UDP_H_
-#define WLAN_UDP_H_
+#ifndef WIFI_UDP_H_
+#define WIFI_UDP_H_
 
 
 #include "pico/stdlib.h"

@@ -1,4 +1,4 @@
-#include "hal/wlan_udp/wlan_udp.h"
+#include "hal/wifi_udp/wlan_udp.h"
 #ifdef PICO_CYW43_SUPPORTED
     #include "pico/cyw43_arch.h"
     #include "lwip/udp.h"
