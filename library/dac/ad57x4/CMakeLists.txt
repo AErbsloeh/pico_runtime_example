@@ -1,3 +1,4 @@
+message(STATUS "dac_ad57x4 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(dac_ad57x4
     STATIC ad57x4.c
 )

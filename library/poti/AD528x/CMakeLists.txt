@@ -1,3 +1,4 @@
+message(STATUS "poti_ad528x available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(poti_ad528x
     STATIC ad528x.c
 )

@@ -1,5 +1,5 @@
+message(STATUS "pio_clock available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(pio_clock
-
 )
 
 target_link_libraries(pio_clock

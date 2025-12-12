@@ -1,3 +1,4 @@
+message(STATUS "peri_w5500 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(peri_w5500
 )
 

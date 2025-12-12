@@ -1,3 +1,4 @@
+message(STATUS "mux_adg1408 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(mux_adg1408
     STATIC adg1408.c
 )

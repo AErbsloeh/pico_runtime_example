@@ -1,3 +1,4 @@
+message(STATUS "pio_ws2812 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(pio_ws2812
     STATIC ws2812.c
 )

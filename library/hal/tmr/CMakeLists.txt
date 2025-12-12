@@ -1,3 +1,4 @@
+message(STATUS "hal_tmr available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(hal_tmr
     STATIC tmr.c
 )

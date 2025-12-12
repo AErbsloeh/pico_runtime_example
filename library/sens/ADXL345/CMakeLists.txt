@@ -1,3 +1,4 @@
+message(STATUS "sens_adxl345 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(sens_adxl345_i2c
     STATIC adxl345_i2c.c
 )

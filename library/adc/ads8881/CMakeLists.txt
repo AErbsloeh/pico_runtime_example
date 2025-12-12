@@ -1,3 +1,4 @@
+message(STATUS "adc_ads8881 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(adc_ads8881
     STATIC ads8881.c
 )

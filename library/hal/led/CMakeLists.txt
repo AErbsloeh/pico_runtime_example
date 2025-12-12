@@ -1,3 +1,4 @@
+message(STATUS "hal_led available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(hal_led
     STATIC led.c
 )

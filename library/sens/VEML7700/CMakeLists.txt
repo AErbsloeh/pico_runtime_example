@@ -1,3 +1,4 @@
+message(STATUS "sens_veml7700 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(sens_veml7700
     STATIC veml7700.c
 )

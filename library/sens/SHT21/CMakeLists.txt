@@ -1,3 +1,4 @@
+message(STATUS "sens_sht21 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(sens_sht21
     STATIC sht21.c
 )

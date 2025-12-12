@@ -1,3 +1,4 @@
+message(STATUS "sens_vl6180 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(sens_vl6180
     STATIC vl6180.c
 )

@@ -1,3 +1,4 @@
+message(STATUS "dac_ltc2668 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(dac_ltc2668
     STATIC ltc2668.c
 )

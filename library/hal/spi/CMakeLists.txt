@@ -1,3 +1,4 @@
+message(STATUS "hal_spi available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(hal_spi
     STATIC spi.c
 )

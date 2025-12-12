@@ -1,5 +1,7 @@
-add_subdirectory(adxl345)
-add_subdirectory(bmi270)
-add_subdirectory(sht21)
-add_subdirectory(veml7700)
-add_subdirectory(vl6180)
+file(GLOB CHILD_FOLDERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*)
+
+foreach(folder ${CHILD_FOLDERS})
+    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${folder})
+        add_subdirectory(${folder})
+    endif()
+endforeach()

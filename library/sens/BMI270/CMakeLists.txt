@@ -1,3 +1,4 @@
+message(STATUS "sens_bmi270 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(sens_bmi270_i2c
     STATIC bmi270_i2c.c
 )

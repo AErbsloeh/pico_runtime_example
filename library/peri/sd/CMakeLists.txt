@@ -1,3 +1,4 @@
+message(STATUS "peri_sd available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(peri_sd
 )
 

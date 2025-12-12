@@ -1,3 +1,4 @@
+message(STATUS "poti_ad5141 available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(poti_ad5141_i2c
     STATIC ad5141_i2c.c
 )

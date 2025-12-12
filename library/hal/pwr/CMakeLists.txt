@@ -1,3 +1,4 @@
+message(STATUS "hal_pwr available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(hal_pwr
     STATIC pwr_watch.c
 )

@@ -1,3 +1,4 @@
+message(STATUS "hal_pwm available at: ${CMAKE_CURRENT_LIST_FILE}")
 add_library(hal_pwm
     STATIC pwm.c
 )

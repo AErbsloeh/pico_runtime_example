@@ -1,4 +1,7 @@
-add_subdirectory(pio_clock)
-add_subdirectory(pio_ws2812)
-add_subdirectory(sd)
-add_subdirectory(w5500)
+file(GLOB CHILD_FOLDERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*)
+
+foreach(folder ${CHILD_FOLDERS})
+    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${folder})
+        add_subdirectory(${folder})
+    endif()
+endforeach()
