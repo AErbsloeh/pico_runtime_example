@@ -5,6 +5,7 @@ add_subdirectory(pwr)
 add_subdirectory(pwm)
 add_subdirectory(spi)
 add_subdirectory(tmr)
+add_subdirectory(uart)
 add_subdirectory(usb)
 #add_subdirectory(wlan_udp)
 
