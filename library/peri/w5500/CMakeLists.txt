@@ -1,5 +1,4 @@
 add_library(peri_w5500
-    usb.c
 )
 
 target_link_libraries(peri_w5500

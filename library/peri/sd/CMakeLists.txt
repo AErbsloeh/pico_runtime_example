@@ -1,5 +1,4 @@
 add_library(peri_sd
-    usb.c
 )
 
 target_link_libraries(peri_sd
