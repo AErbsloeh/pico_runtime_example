@@ -2,8 +2,7 @@
 #define AD526X_H_
 
 
-#include <stdio.h>
-#include "hal/spi.h"
+#include "hal/spi/spi.h"
 
 
 // More informations on: https://www.analog.com/media/en/technical-documentation/data-sheets/AD5260_5262.pdf
