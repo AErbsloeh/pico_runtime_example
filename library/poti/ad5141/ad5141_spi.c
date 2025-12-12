@@ -1,4 +1,4 @@
-#include "poti/ad5141_spi/ad5141_spi.h"
+#include "poti/ad5141/ad5141_spi.h"
 #include <stdio.h>
 #include "hardware/spi.h"
 #include "hardware/gpio.h"

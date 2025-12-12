@@ -1,4 +1,4 @@
-#include "poti/ad5141_i2c/ad5141_i2c.h"
+#include "poti/ad5141/ad5141_i2c.h"
 #include "hardware/gpio.h"
 
 
