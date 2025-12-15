@@ -1,31 +1,36 @@
-message(STATUS "poti_ad5141 available at: ${CMAKE_CURRENT_LIST_FILE}")
-add_library(poti_ad5141_i2c
-    STATIC ad5141_i2c.c
+message(STATUS "poti_ad5141_i2 available at: ${CMAKE_CURRENT_LIST_FILE}")
+add_library(poti_ad5141_i2c INTERFACE)
+
+target_sources(poti_ad5141_i2c INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/ad5141_i2c.c
 )
 
-target_link_libraries(poti_ad5141_i2c
-	PUBLIC pico_stdlib
-	PUBLIC hardware_gpio
-    PUBLIC hardware_i2c
-    PRIVATE hal_i2c
+target_link_libraries(poti_ad5141_i2c INTERFACE
+	pico_stdlib
+	hardware_gpio
+    hardware_i2c
+    hal_i2c
 )
 
-target_include_directories(poti_ad5141_i2c
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..
+target_include_directories(poti_ad5141_i2c INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../..
 )
 
 
-add_library(poti_ad5141_spi
-    STATIC ad5141_spi.c
+message(STATUS "poti_ad5141_spi available at: ${CMAKE_CURRENT_LIST_FILE}")
+add_library(poti_ad5141_spi INTERFACE)
+
+target_sources(poti_ad5141_spi INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/ad5141_spi.c
 )
 
-target_link_libraries(poti_ad5141_spi
-	PUBLIC pico_stdlib
-	PUBLIC hardware_gpio
-    PUBLIC hardware_spi
-    PRIVATE hal_spi
+target_link_libraries(poti_ad5141_spi INTERFACE
+	pico_stdlib
+	hardware_gpio
+    hardware_spi
+    hal_spi
 )
 
-target_include_directories(poti_ad5141_spi
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../..
+target_include_directories(poti_ad5141_spi INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../..
 )

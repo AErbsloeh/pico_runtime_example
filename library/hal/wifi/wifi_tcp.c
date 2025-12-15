@@ -1,9 +1,7 @@
-#include <stdio.h>
+#include "hal/wifi/wifi_tcp.h"
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
-#include "wrapper/wifi_handler.h"
 #include "secrets.h"
-#include "lwip/tcp.h"
 #include "src/daq.h"
 
 #define MAX_CLIENTS 4

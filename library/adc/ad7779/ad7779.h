@@ -5,6 +5,9 @@
 #include "hal/spi/spi.h"
 
 
+// TODO: Add hal_clk for clock generation
+
+
 // More Informations from sensor: https://www.analog.com/media/en/technical-documentation/data-sheets/ad7779.pdf
 
 // ========================= AD7779 DEFINITIONS =========================

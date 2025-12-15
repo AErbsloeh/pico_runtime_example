@@ -1,23 +1,27 @@
 message(STATUS "hal_btspp available at: ${CMAKE_CURRENT_LIST_FILE}")
-add_library(hal_btspp
-    STATIC bl_spp.c
+add_library(hal_btspp INTERFACE)
+
+target_sources(hal_btspp INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/bl_spp.c
 )
 
-target_link_libraries(hal_btspp
-	PUBLIC pico_stdlib
-	PUBLIC hardware_i2c
+target_link_libraries(hal_btspp INTERFACE
+	pico_stdlib
+	hardware_i2c
 )
 if(PICO_CYW43_SUPPORTED)
-    target_link_libraries(hal_btspp
-        PUBLIC pico_btstack_classic
-		PUBLIC pico_btstack_cyw43
-		PUBLIC pico_cyw43_arch_none
+    file(COPY 
+        ${CMAKE_CURRENT_SOURCE_DIR}/btstack_config.h 
+        DESTINATION ${CMAKE_BINARY_DIR}/..
     )
-else()
-    message(FATAL_ERROR "PICO_CYW43_SUPPORTED is required for hal_btspp")
+    target_link_libraries(hal_btspp INTERFACE
+        pico_btstack_classic
+		pico_btstack_cyw43
+		pico_cyw43_arch_none
+    )
 endif()
 
-target_include_directories(hal_btspp PUBLIC 
+target_include_directories(hal_btspp INTERFACE 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../..
 )

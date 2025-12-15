@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "pico/stdlib.h"
-#include "peri/pio_clock/pio_clock.h"
+#include "hal/clk/pio_clock.h"
 
 
 #define CLK_PIO_PIN 2
