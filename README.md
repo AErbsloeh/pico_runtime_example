@@ -3,28 +3,11 @@ This repo contains a simple firmware template (folder structure, basic functiona
 You can use this template for building your new projects. If you have generated the template, you can move the necessary files from the library into the firmware and adapt it and also the Python API.
 
 Enjoy. If you have questions and suggestions, please create an issue or contact the authors.
+Further sensors, devices are used from [here](https://github.com/AErbsloeh/pico_runtime_library).
 
-## Hardware Abstraction Layer (hal)
-- SPI handler
-- I2C handler
-- USB handler
-- Timer interrupt
-- LED control
-- GPIO interrupt via Button
-- Basic functions for using a USB FIFO buffer and sending data hex to/from device from/to host
+## Template of a Firmware
+This template provides a basic structure with timer IRQ, USB handling, and state machine. The sensors will be automatic downloaded and included.
 
 ## Template of a Python API
 This Python API is usable for communicating with Pico MCU using the firmware template. 
 
-## Sensor Libraries (loading via library)
-- LED control of WS2812b (using PIO)
-- Environmeont Sensor: SHT21
-- Accelerator and Gyroscope: BMI270
-- Light: VEML7700
-- DAC: LTC2668, AD57x4
-- ADC: ADS8881
-- Digital Potentiometer: AD526x, AD528x, AD5141, AD5142
-- Digital Multiplexer: ADG1408, ADGS1208
-- PIO examples: WS2812, Blink LED
-- Distance Estimuation: VL6180x
-- Further examples can be found in this [repo](https://github.com/analogdevicesinc/no-OS/tree/main)
