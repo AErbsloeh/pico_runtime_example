@@ -1,5 +1,5 @@
 #include "src/daq_sample.h"
-#include "hal/usb.h"
+#include "hal/usb/usb.h"
 
 
 //==================== CALLABLE FUNCS ====================//
@@ -33,7 +33,7 @@ bool stop_daq_sampling(tmr_repeat_irq_t* handler){
 };
 
 
-bool send_daq_data_usb(daq_data_t* data){
+void send_daq_data_usb(daq_data_t* data){
     char buffer[14] = {0};
 
     buffer[0] = data->packet_id;
@@ -48,6 +48,5 @@ bool send_daq_data_usb(daq_data_t* data){
     buffer[12] = (uint8_t)(data->value >> 8);
     buffer[13] = 0xFF;
 
-    send_bytes(buffer, sizeof(buffer));
-    return true;
+    usb_send_bytes(buffer, sizeof(buffer));
 };

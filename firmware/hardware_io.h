@@ -1,17 +1,15 @@
-#ifndef HARDWARE_IO_H
-#define HARDWARE_IO_H
+#ifndef HARDWARE_IO_H_
+#define HARDWARE_IO_H_
 
 
-#include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "hardware/clocks.h"
-#include "hal/led.h"
-#include "hal/tmr.h"
+#include "hal/led/led.h"
+#include "hal/tmr/tmr.h"
+#include "hal/usb/usb.h"
 
 #include "src/init_system.h"
 #include "src/testbench.h"
-#include "src/gpio_callbacks.h"
-#include "src/usb_callbacks.h"
 #include "src/daq_sample.h"
 
 
@@ -25,7 +23,7 @@ extern system_state_t system_state;
 // ----- USB Communication
 #define USB_FIFO_SIZE   3
 extern char data[USB_FIFO_SIZE];
-extern usb_fifo_t usb_buffer;
+extern usb_t usb_buffer;
 
 // --- DAQ Sampling
 extern daq_data_t daq_sample_data;

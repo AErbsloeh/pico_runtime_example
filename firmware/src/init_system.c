@@ -37,14 +37,10 @@ bool init_gpio_pico(bool block_usb){
     gpio_set_irq_enabled_with_callback(BUTTON_BOARD, GPIO_IRQ_EDGE_FALL, true, &irq_gpio_callbacks);*/
 
     // --- Init of Serial COM-Port
-    stdio_init_all();
-    stdio_set_translate_crlf(&stdio_usb, false);
-    if (block_usb){
-        // Wait until USB is connected
-        while(!stdio_usb_connected()){
-            sleep_ms(1);
-        };
-    };
+    usb_init();
+    if(block_usb){
+        usb_wait_until_connected();
+    }
     return true;
 }
 
@@ -59,17 +55,12 @@ bool init_system(void){
     };
 
     // --- Blocking Routine if init is not completed
+    sleep_ms(10);
     if(num_init_done == 1){
-        sleep_ms(10);
         set_system_state(STATE_IDLE);
         return true;
     } else {
-        while(true){
-            printf("... Init System not done yet\n");
-            set_system_state(STATE_ERROR);
-            sleep_ms(1000);
-            set_default_led(!get_default_led());
-        }
+        set_system_state(STATE_ERROR);
         return false;
     }
 }
@@ -89,7 +80,7 @@ system_state_t get_system_state(void){
 bool set_system_state(system_state_t new_state){
     bool valid_state = false;
     
-    if(system_state != new_state){
+    if((system_state != new_state)){
         system_state = new_state;
         switch(new_state){
             case STATE_INIT:

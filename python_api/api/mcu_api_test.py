@@ -75,14 +75,15 @@ def test_diable_led(dut: DeviceAPI):
 
 
 def test_control_daq(dut: DeviceAPI):
+    dut.update_daq_sampling_rate(2.)
     dut.start_daq()
     assert dut._get_system_state() == 'DAQ'
     sleep(0.5)
     while dut._get_pin_state() == 'LED_USER':
-        sleep(0.1)
+        sleep(0.05)
     sleep(0.5)
     while dut._get_pin_state() == 'NONE':
-        sleep(0.1)
+        sleep(0.05)
     sleep(0.5)
     dut.stop_daq()
     sleep(0.5)

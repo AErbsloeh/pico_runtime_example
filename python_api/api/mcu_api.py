@@ -161,7 +161,6 @@ class DeviceAPI:
     def _get_system_state(self) -> str:
         """Retuning the System State"""
         ret = self.__write_wfb(2, 0)[-1]
-        print(ret)
         return _convert_system_state(ret)
 
     def _get_pin_state(self) -> str:
