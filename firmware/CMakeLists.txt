@@ -37,7 +37,6 @@ FetchContent_Declare(
     GIT_TAG        main
 )
 FetchContent_MakeAvailable(custom_library)
-#add_subdirectory(${CMAKE_BINARY_DIR}/_deps/custom_library-src custom-libs)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
