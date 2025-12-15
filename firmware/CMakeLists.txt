@@ -29,11 +29,17 @@ set(PICO_BOARD pico2 CACHE STRING "Board type")
 include(pico_sdk_import.cmake)
 project(main C CXX ASM)
 
+# Adding custom device/HAL library
+include(FetchContent)
+FetchContent_Declare(
+    custom_library
+    GIT_REPOSITORY https://github.com/AErbsloeh/pico_runtime_library.git
+    GIT_TAG        main
+)
+FetchContent_MakeAvailable(custom_library)
+
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
-
-# Adding custom device/HAL library
-add_subdirectory(../library custom-lib)
 
 # Add executable. Default name is the project name, version 0.1
 add_executable(main 
