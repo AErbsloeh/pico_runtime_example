@@ -210,6 +210,7 @@ class DeviceAPI:
         return [1, -1]
 
     def _thread_prepare_daq_for_lsl(self) -> list:
+        """Entpacken der Informationen aus dem USB Protokoll (siehe C-Datei: src/daq_sample.c in der Firmware)"""
         data = self.__device.read(14)
         if not len(data):
             return list()

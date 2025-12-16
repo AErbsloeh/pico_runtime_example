@@ -2,6 +2,15 @@
 
 
 system_state_t system_state = STATE_ERROR;
+
+// ==================== I2C DEFINITION =====================
+//spi_t spi_mod = {};
+
+
+// ==================== SPI DEFINITION =====================
+//i2c_t i2c_mod = {};
+
+
 // ==================== PICO/SYSTEM DEFINITION =====================
 // --- USB PROTOCOL
 char data_usb[USB_FIFO_SIZE] = {0};
@@ -40,11 +49,3 @@ tmr_repeat_irq_t tmr_daq0_hndl = {
     .init_done = false,
     .func_irq = irq_tmr_daq0
 };
-
-
-// ==================== I2C DEFINITION =====================
-
-
-
-// ==================== SPI DEFINITION =====================
-

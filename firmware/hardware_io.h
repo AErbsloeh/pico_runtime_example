@@ -18,9 +18,16 @@ extern system_state_t system_state;
 #define BUTTON_BOARD        11
 #define LED_TEST_DEFAULT    25
 
+// ==================== I2C DEFINITION =====================
+//extern i2c_t i2c_mod;
+
+
+// ==================== SPI DEFINITION =====================
+//extern spi_t spi_mod;
+
 
 // ================ PICO/SYSTEM DEFINITION =================
-// ----- USB Communication
+// --- USB Communication
 #define USB_FIFO_SIZE   3
 extern char data[USB_FIFO_SIZE];
 extern usb_t usb_buffer;
@@ -30,12 +37,7 @@ extern daq_data_t daq_sample_data;
 extern tmr_repeat_irq_t tmr_daq0_hndl;
 
 
-// ==================== I2C DEFINITION =====================
-//extern i2c_pico_t i2c_mod;
 
-
-// ==================== SPI DEFINITION =====================
-//extern spi_pico_t spi_mod;
 
 
 #endif

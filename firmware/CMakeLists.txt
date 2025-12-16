@@ -74,7 +74,8 @@ target_link_libraries(main
     #hal_irq
     hal_led
     #hal_pwm
-    #hal_pwr
+    #hal_pwr_single
+    #hal_pwr_dual
     #hal_spi
     hal_tmr
     #hal_uart

@@ -1,8 +1,6 @@
 #include "hardware_io.h"
 #include "callbacks/rpc_callbacks.h"
 
-#include "peri/ch9121/eth_ch9121.h"
-
 
 int main(){   
     // Init Phase 
