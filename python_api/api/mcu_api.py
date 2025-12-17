@@ -207,6 +207,7 @@ class DeviceAPI:
 
     @property
     def _thread_process_sample_in_lsl(self) -> list:
+        """Indicating the indices from the daq sample list for further processing/saving"""
         return [1, -1]
 
     def _thread_prepare_daq_for_lsl(self) -> list:

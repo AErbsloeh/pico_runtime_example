@@ -6,7 +6,7 @@ int main(){
     // Init Phase 
     init_gpio_pico(false);
     init_system();
-    run_testbench(TB_NONE);
+    run_testbench(TB_NONE);    
 
     // Main Loop
     while (true) {  

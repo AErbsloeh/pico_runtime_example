@@ -4,17 +4,17 @@
 system_state_t system_state = STATE_ERROR;
 
 // ==================== I2C DEFINITION =====================
-//spi_t spi_mod = {};
+//spi_rp2_t spi_mod = {};
 
 
 // ==================== SPI DEFINITION =====================
-//i2c_t i2c_mod = {};
+//i2c_rp2_t i2c_mod = {};
 
 
 // ==================== PICO/SYSTEM DEFINITION =====================
 // --- USB PROTOCOL
 char data_usb[USB_FIFO_SIZE] = {0};
-usb_t usb_buffer = {
+usb_rp2_t usb_buffer = {
 	.ready = false,
 	.length = USB_FIFO_SIZE,
 	.position = USB_FIFO_SIZE-1,

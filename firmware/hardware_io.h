@@ -19,25 +19,21 @@ extern system_state_t system_state;
 #define LED_TEST_DEFAULT    25
 
 // ==================== I2C DEFINITION =====================
-//extern i2c_t i2c_mod;
+//extern i2c_rp2_t i2c_mod;
 
 
 // ==================== SPI DEFINITION =====================
-//extern spi_t spi_mod;
+//extern spi_rp2_t spi_mod;
 
 
 // ================ PICO/SYSTEM DEFINITION =================
 // --- USB Communication
-#define USB_FIFO_SIZE   3
+#define USB_FIFO_SIZE 3
 extern char data[USB_FIFO_SIZE];
-extern usb_t usb_buffer;
+extern usb_rp2_t usb_buffer;
 
 // --- DAQ Sampling
 extern daq_data_t daq_sample_data;
 extern tmr_repeat_irq_t tmr_daq0_hndl;
-
-
-
-
 
 #endif
