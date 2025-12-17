@@ -29,6 +29,9 @@ set(PICO_BOARD pico2 CACHE STRING "Board type")
 include(pico_sdk_import.cmake)
 project(main C CXX ASM)
 
+# Initialise the Raspberry Pi Pico SDK
+pico_sdk_init()
+
 # Adding custom device/HAL library
 include(FetchContent)
 FetchContent_Declare(
@@ -37,9 +40,6 @@ FetchContent_Declare(
     GIT_TAG        main
 )
 FetchContent_MakeAvailable(custom_library)
-
-# Initialise the Raspberry Pi Pico SDK
-pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 add_executable(main 
@@ -69,8 +69,8 @@ target_link_libraries(main
     hardware_gpio
     # ---- Include Hardware Abstraction Layer (HAL) libraries
     #hal_btspp
-    hal_clk
-    hal_i2c
+    #hal_clk
+    #hal_i2c
     #hal_irq
     hal_led
     #hal_pwm
@@ -127,10 +127,8 @@ if(POSITION GREATER -1)
     add_definitions(-DDOWNLOAD_W5500)
 endif()
 
-
 # Add the standard include files to the build
 target_include_directories(main PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
-    ${CMAKE_CURRENT_LIST_DIR}/.. 
 )
 pico_add_extra_outputs(main)

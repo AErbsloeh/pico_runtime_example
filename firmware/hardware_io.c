@@ -2,7 +2,6 @@
 
 
 system_state_t system_state = STATE_ERROR;
-
 // ==================== I2C DEFINITION =====================
 //spi_rp2_t spi_mod = {};
 
