@@ -73,6 +73,7 @@ target_link_libraries(main
     #hal_i2c
     #hal_irq
     hal_led
+    #hal_osc
     #hal_pwm
     #hal_pwr_single
     #hal_pwr_dual

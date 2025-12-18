@@ -6,6 +6,7 @@
 typedef enum {
     ECHO,
     RESET,
+    CLOCK_SYS,
     STATE_SYS,
     STATE_PIN,
     RUNTIME,
@@ -31,6 +32,14 @@ void system_reset(void){
 
 void get_state_system(char* buffer, size_t length){
     buffer[2] = system_state;
+    usb_send_bytes(buffer, length);
+}
+
+
+void get_clock_system(char* buffer, size_t length){
+    uint16_t clk_val = (uint16_t)(clock_get_hz(clk_sys) / 10000);
+    buffer[1] = (uint8_t)(clk_val >> 0);
+    buffer[2] = (uint8_t)(clk_val >> 8);
     usb_send_bytes(buffer, length);
 }
 
@@ -92,6 +101,7 @@ bool apply_rpc_callback(char* buffer, size_t length, bool ready){
         switch(buffer[0]){
             case ECHO:          echo(buffer, length);               break;
             case RESET:         system_reset();                     break;
+            case CLOCK_SYS:     get_clock_system(buffer, length);   break;
             case STATE_SYS:     get_state_system(buffer, length);   break;
             case STATE_PIN:     get_state_pin(buffer, length);      break; 
             case RUNTIME:       get_runtime(buffer);                break;
