@@ -6,11 +6,15 @@ if __name__ == '__main__':
     DeviceAPI().do_reset()
 
     dut = DeviceAPI()
-    dut.update_daq_sampling_rate(100.)
+    dut.update_daq_sampling_rate(50.)
 
     print("START")
-    dut.start_daq(track_util=True)
-    sleep(1000.)
+    dut.start_daq(
+        do_plot=True,
+        window_sec=20.,
+        track_util=False
+    )
+    sleep(1200.)
 
     print("STOP")
     dut.stop_daq()
