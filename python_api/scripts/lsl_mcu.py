@@ -12,7 +12,7 @@ if __name__ == '__main__':
     dut.start_daq(
         do_plot=True,
         window_sec=20.,
-        track_util=False
+        track_util=True
     )
     sleep(1200.)
 

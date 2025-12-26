@@ -124,12 +124,11 @@ def record_stream(name: str, path2save: Path | str, event_func: Event, take_samp
             f.flush()
 
 
-def start_live_plotting(name: str, event_func: Event, take_samples: list=(), window_length: float=10., subtract_channel:int=0, update_rate: float=2.,) -> None:
+def start_live_plotting(name: str, event_func: Event, take_samples: list=(), window_length: float=10., subtract_channel:int=0) -> None:
     """Function for LSL to enable live plotting of the incoming results
     :param name:            String with name of the LSL stream to get data
     :param event_func:      Event manager from Threading package for controlling while loop
     :param take_samples:    List with taking idx from LSL pulling event
-    :param update_rate:     Floating value for updating the plot results
     :param window_length:   Floating value with length of time window for plotting in seconds
     :param subtract_channel:Integer with number of channels to subtract from data stream
     :return:                None
@@ -191,7 +190,7 @@ def start_live_plotting(name: str, event_func: Event, take_samples: list=(), win
         )
     # --- Starting the process
     app.Timer(
-        interval=float(1.0 / update_rate),
+        interval='auto',
         connect=update,
         start=True
     )

@@ -55,7 +55,7 @@ def test_lsl_util(path: Path) -> None:
     process = [
         Thread(target=start_stream_utilization, args=("util", lsl_events, 2.)),
         Thread(target=record_stream, args=("util", path, lsl_events)),
-        Thread(target=start_live_plotting, args=("util",))
+        Thread(target=start_live_plotting, args=("util", lsl_events, ())),
     ]
 
     lsl_events.set()
@@ -72,24 +72,4 @@ def test_lsl_util(path: Path) -> None:
 
 
 if __name__ == "__main__":
-    #pytest.main([__file__])
-
-    path = Path(get_path_to_project("test_data"))
-    lsl_events = Event()
-    process = [
-        Thread(target=start_stream_utilization, args=("util", lsl_events, 2.)),
-        Thread(target=record_stream, args=("util", path, lsl_events)),
-        Thread(target=start_live_plotting, args=("util", lsl_events, (), 30.))
-    ]
-
-    lsl_events.set()
-    for p in process:
-        p.start()
-
-    sleep(600.)
-    lsl_events.clear()
-    for p in process:
-        p.join(timeout=1.)
-
-    data_overview = [str(file) for file in path.glob("*.h5") if 'util' in str(file)]
-    assert len(data_overview) > 0
+    pytest.main([__file__])
