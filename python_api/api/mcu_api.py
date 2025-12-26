@@ -41,11 +41,13 @@ class SystemState:
         system:     String with actual system state
         runtime:    Float with actual execution runtime after last reset [sec.]
         clock:      Integer with System Clock [kHz]
+        firmware:   String with firmware version on board
     """
     pins: str
     system: str
     runtime: float
     clock: int
+    firmware: str
 
 
 class DeviceAPI:
@@ -186,6 +188,15 @@ class DeviceAPI:
             raise ValueError
         return 1e-6 * int.from_bytes(ret[1:], byteorder='little', signed=False)
 
+    def _get_firmware_version(self) -> str:
+        """Returning the firmware version of the device
+        :return:    String with firmware version
+        """
+        ret = self.__write_wfb(6, 0)
+        if ret[0] != 0x06:
+            raise ValueError
+        return f"{ret[1]}.{ret[2]}"
+
     def get_state(self) -> SystemState:
         """Returning the state of the system
         :return:    Class SystemState with information about pin state, system state and actual runtime of the system
@@ -194,26 +205,27 @@ class DeviceAPI:
             pins=self._get_pin_state(),
             system=self._get_system_state(),
             runtime=self._get_runtime_sec(),
-            clock=self._get_system_clock_khz()
+            clock=self._get_system_clock_khz(),
+            firmware=self._get_firmware_version(),
         )
 
     def enable_led(self) -> None:
         """Changing the state of the LED with enabling it
         :return:        None
         """
-        self.__write_wofb(6, 0)
+        self.__write_wofb(7, 0)
 
     def disable_led(self) -> None:
         """Changing the state of the LED with disabling it
         :return:        None
         """
-        self.__write_wofb(7, 0)
+        self.__write_wofb(8, 0)
 
     def toggle_led(self) -> None:
         """Changing the state of the LED with toggling it
         :return:        None
         """
-        self.__write_wofb(8, 0)
+        self.__write_wofb(9, 0)
 
     @property
     def _thread_process_sample_in_lsl(self) -> list:
@@ -253,7 +265,7 @@ class DeviceAPI:
         for p in self.__lsl_threads:
             p.start()
 
-        self.__write_wofb(9, 0)
+        self.__write_wofb(10, 0)
 
     def stop_daq(self) -> None:
         """Changing the state of the DAQ with stopping it"""
@@ -261,7 +273,7 @@ class DeviceAPI:
         for p in self.__lsl_threads:
             p.join(timeout=1.)
 
-        self.__write_wofb(10, 0)
+        self.__write_wofb(11, 0)
 
     def update_daq_sampling_rate(self, sampling_rate: float) -> None:
         """Updating the sampling rate of the DAQ
@@ -275,4 +287,4 @@ class DeviceAPI:
             raise ValueError(f"Sampling rate cannot be greater than {sampling_limits[1]}")
 
         digit_rate = int(1e6 / 256 / sampling_rate)
-        self.__write_wofb(11, digit_rate)
+        self.__write_wofb(12, digit_rate)

@@ -51,12 +51,18 @@ def test_check_runtime(dut: DeviceAPI):
     assert 0.8 * wait_time_sec < time1 - time0 < 1.25 * wait_time_sec
 
 
+def test_firmware_version(dut: DeviceAPI):
+    rslt = dut._get_firmware_version()
+    assert rslt == "0.1"
+
+
 def test_check_system_state_class(dut: DeviceAPI):
     rslt = dut.get_state()
     assert rslt.system == "IDLE"
     assert rslt.pins == "LED_USER"
     assert rslt.runtime > 0
     assert rslt.clock in [125000, 150000]
+    assert rslt.firmware == "0.1"
 
 
 def test_toggle_led(dut: DeviceAPI):

@@ -10,6 +10,7 @@ typedef enum {
     STATE_SYS,
     STATE_PIN,
     RUNTIME,
+    FIRMWARE,
     ENABLE_LED,
     DISABLE_LED,
     TOGGLE_LED,
@@ -61,6 +62,12 @@ void get_runtime(char* buffer){
     usb_send_bytes(buffer_send, sizeof(buffer_send));
 }
 
+void get_firmware_version(char* buffer, size_t length){
+    buffer[1] = (char)FIRMWARE_VERSION_MAJOR;
+    buffer[2] = (char)FIRMWARE_VERSION_MINOR;
+    usb_send_bytes(buffer, length);
+}
+
 
 void enable_led(void){
     set_default_led(true);
@@ -99,19 +106,20 @@ void update_daq(char* buffer){
 bool apply_rpc_callback(char* buffer, size_t length, bool ready){    
     if(ready){
         switch(buffer[0]){
-            case ECHO:          echo(buffer, length);               break;
-            case RESET:         system_reset();                     break;
-            case CLOCK_SYS:     get_clock_system(buffer, length);   break;
-            case STATE_SYS:     get_state_system(buffer, length);   break;
-            case STATE_PIN:     get_state_pin(buffer, length);      break; 
-            case RUNTIME:       get_runtime(buffer);                break;
-            case ENABLE_LED:    enable_led();                       break;
-            case DISABLE_LED:   disable_led();                      break;
-            case TOGGLE_LED:    toogle_led();                       break;
-            case START_DAQ:     start_daq();                        break;
-            case STOP_DAQ:      stop_daq();                         break;
-            case UPDATE_DAQ:    update_daq(buffer);                 break;
-            default:            sleep_us(10);                       break;        
+            case ECHO:          echo(buffer, length);                   break;
+            case RESET:         system_reset();                         break;
+            case CLOCK_SYS:     get_clock_system(buffer, length);       break;
+            case STATE_SYS:     get_state_system(buffer, length);       break;
+            case STATE_PIN:     get_state_pin(buffer, length);          break; 
+            case RUNTIME:       get_runtime(buffer);                    break;
+            case FIRMWARE:      get_firmware_version(buffer, length);   break;
+            case ENABLE_LED:    enable_led();                           break;
+            case DISABLE_LED:   disable_led();                          break;
+            case TOGGLE_LED:    toogle_led();                           break;
+            case START_DAQ:     start_daq();                            break;
+            case STOP_DAQ:      stop_daq();                             break;
+            case UPDATE_DAQ:    update_daq(buffer);                     break;
+            default:            sleep_us(10);                           break;        
         }  
     }
     return true;

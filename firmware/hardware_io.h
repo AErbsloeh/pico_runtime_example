@@ -12,7 +12,8 @@
 #include "src/testbench.h"
 #include "src/daq_sample.h"
 
-
+#define FIRMWARE_VERSION_MAJOR 0
+#define FIRMWARE_VERSION_MINOR 1
 extern system_state_t system_state;
 // ==================== PIN DEFINITION =====================
 #define BUTTON_BOARD        11
