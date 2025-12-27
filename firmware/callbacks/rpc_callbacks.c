@@ -97,8 +97,9 @@ void stop_daq(void){
 
 
 void update_daq(char* buffer){
-    uint64_t new_rate_us = (buffer[1] << 16) | (buffer[2] << 8);
-    update_daq_sampling_rate(&tmr_daq0_hndl, (int64_t)(-1)*new_rate_us);
+    float new_sampling_rate_hz = (buffer[1] << 8) | (buffer[2] << 0);
+    int64_t new_rate_us = (float)-1000000 / new_sampling_rate_hz;
+    update_daq_sampling_rate(&tmr_daq0_hndl, new_rate_us);
 }
 
 

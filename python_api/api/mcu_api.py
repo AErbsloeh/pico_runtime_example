@@ -284,13 +284,11 @@ class DeviceAPI:
         """Updating the sampling rate of the DAQ
         :param sampling_rate:   Float with sampling rate [Hz]
         """
-        # TODO: Update func
-        sampling_limits = [1e0, 10e3]
+        sampling_limits = [0, 2**16-1]
         if sampling_rate < sampling_limits[0]:
             raise ValueError(f"Sampling rate cannot be smaller than {sampling_limits[0]}")
         if sampling_rate > 10e3:
             raise ValueError(f"Sampling rate cannot be greater than {sampling_limits[1]}")
 
         self.__sampling_rate = sampling_rate
-        digit_rate = int(1e6 / 256 / sampling_rate)
-        self.__write_wofb(12, digit_rate)
+        self.__write_wofb(12, int(sampling_rate))
