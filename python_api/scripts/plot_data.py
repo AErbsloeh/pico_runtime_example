@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
+from logging import basicConfig, DEBUG, INFO
 from api import DataAPI, RawRecording, get_path_to_project
 
 
@@ -46,11 +47,17 @@ def plot_transient_util(packet: RawRecording, show_plot: bool=True) -> None:
 
 
 if __name__ == "__main__":
+    basicConfig(level=INFO)
+
     path2data = Path(get_path_to_project()) / "data"
     use_case = 0
 
-    data = DataAPI(path2data).read_data_file(use_case)
-    util = DataAPI(path2data).read_utilization_file(use_case)
+    dut = DataAPI(path2data)
+    data = dut.read_data_file(use_case)
+    util = dut.read_utilization_file(use_case)
+    print(np.argmax(data.time), data.time.max())
+    print(np.argmax(data.time), data.time[np.argmax(data.time)+1])
+    print(np.argmin(data.time), data.time.min())
 
     plot_transient_data(data, show_plot=False)
     plot_transient_util(util, show_plot=False)
