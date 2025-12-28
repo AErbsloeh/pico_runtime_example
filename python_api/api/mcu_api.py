@@ -5,8 +5,16 @@ from serial import Serial, STOPBITS_ONE, EIGHTBITS, PARITY_NONE
 from serial.tools import list_ports
 from threading import Thread, Event
 
-from api.lsl import start_stream_data, start_stream_utilization, record_stream, start_live_plotting
-from api.mcu_conv import _convert_pin_state, _convert_system_state
+from api.lsl import (
+    start_stream_data,
+    start_stream_utilization,
+    record_stream,
+    start_live_plotting
+)
+from api.mcu_conv import (
+    _convert_pin_state,
+    _convert_system_state
+)
 from api.interface import InterfaceSerialUSB
 
 
@@ -93,13 +101,13 @@ class DeviceAPI:
     def __read_usb_properties(self) -> list:
         return [{"com": ps.device, "pid": ps.pid, "vid": ps.vid} for ps in list_ports.comports()]
 
-    def __write_wfb(self, head: int, data: int, size: int=0) -> bytes:
+    def __write_with_feedback(self, head: int, data: int, size: int=0) -> bytes:
         return self.__device.write_wfb(
             data=self.__device.convert(head, data),
             size=size
         )
 
-    def __write_wofb(self, head: int, data: int, size: int=0) -> None:
+    def __write_without_feedback(self, head: int, data: int) -> None:
         self.__device.write_wofb(
             data=self.__device.convert(head, data),
         )
@@ -109,8 +117,8 @@ class DeviceAPI:
         """Returning the COM Port name of the addressable devices
         :return: List of COM Port names with matched VIP und PID properties of the USB-COMs
         """
-        available_coms = list_ports.comports()
-        list_right_com = [port.device for port in available_coms if
+        available_ports = list_ports.comports()
+        list_right_com = [port.device for port in available_ports if
                           port.vid == self.__usb_vid and port.pid == self.__usb_pid]
         if len(list_right_com) == 0:
             raise ConnectionError(f"No COM Port with right USB found - Please adapt the VID and PID values from "
@@ -129,9 +137,14 @@ class DeviceAPI:
         return self.__device.is_open()
 
     @property
-    def is_daq_active(self) -> bool:
+    def is_daq_running(self) -> bool:
         """Returning if DAQ is still running"""
         return self._get_system_state() == "DAQ" and self.__lsl_events.is_set()
+
+    @property
+    def is_daq_active(self) -> bool:
+        """Returning if all running threads are alive"""
+        return all([thread.is_alive() for thread in self.__lsl_threads])
 
     def open(self) -> None:
         """Opening the serial communication between API and device"""
@@ -146,7 +159,7 @@ class DeviceAPI:
         if len(self.__lsl_threads):
             self.stop_daq()
 
-        self.__write_wofb(1, 0)
+        self.__write_without_feedback(1, 0)
         sleep(4)
 
     def echo(self, data: str) -> str:
@@ -157,7 +170,7 @@ class DeviceAPI:
         do_padding = len(data) % self.__device.num_bytes == 1
         val = bytes()
         for chunk in self.__device.serialize_string(data, do_padding):
-            ret = self.__write_wfb(0, chunk)
+            ret = self.__write_with_feedback(0, chunk)
             val += ret[1:]
             if ret[0] != 0x00:
                 raise ValueError
@@ -165,26 +178,26 @@ class DeviceAPI:
 
     def _get_system_clock_khz(self) -> int:
         """Returning the system clock of the device in kHz"""
-        ret = self.__write_wfb(2, 0)
+        ret = self.__write_with_feedback(2, 0)
         if ret[0] != 0x02:
             raise ValueError
         return 10 * int.from_bytes(ret[1:], byteorder='little', signed=False)
 
     def _get_system_state(self) -> str:
         """Retuning the System State"""
-        ret = self.__write_wfb(3, 0)[-1]
+        ret = self.__write_with_feedback(3, 0)[-1]
         return _convert_system_state(ret)
 
     def _get_pin_state(self) -> str:
         """Retuning the Pin States"""
-        ret = self.__write_wfb(4, 0)[-1]
+        ret = self.__write_with_feedback(4, 0)[-1]
         return _convert_pin_state(ret)
 
     def _get_runtime_sec(self) -> float:
         """Returning the execution runtime of the device after last reset
         :return:    Float value with runtime in seconds
         """
-        ret = self.__write_wfb(5, 0, size=9)
+        ret = self.__write_with_feedback(5, 0, size=9)
         if ret[0] != 0x05:
             raise ValueError
         return 1e-6 * int.from_bytes(ret[1:], byteorder='little', signed=False)
@@ -193,7 +206,7 @@ class DeviceAPI:
         """Returning the firmware version of the device
         :return:    String with firmware version
         """
-        ret = self.__write_wfb(6, 0)
+        ret = self.__write_with_feedback(6, 0)
         if ret[0] != 0x06:
             raise ValueError
         return f"{ret[1]}.{ret[2]}"
@@ -214,19 +227,19 @@ class DeviceAPI:
         """Changing the state of the LED with enabling it
         :return:        None
         """
-        self.__write_wofb(7, 0)
+        self.__write_without_feedback(7, 0)
 
     def disable_led(self) -> None:
         """Changing the state of the LED with disabling it
         :return:        None
         """
-        self.__write_wofb(8, 0)
+        self.__write_without_feedback(8, 0)
 
     def toggle_led(self) -> None:
         """Changing the state of the LED with toggling it
         :return:        None
         """
-        self.__write_wofb(9, 0)
+        self.__write_without_feedback(9, 0)
 
     @property
     def _thread_process_sample_in_lsl(self) -> list:
@@ -258,19 +271,19 @@ class DeviceAPI:
         :return: None
         """
         path2data = get_path_to_project(new_folder=folder_name)
-        self.__lsl_threads = [Thread(target=start_stream_data, args=("data", 4, self._thread_prepare_daq_for_lsl, self.__lsl_events, self.__sampling_rate), daemon=True)]
-        self.__lsl_threads.append(Thread(target=record_stream, args=("data", path2data, self.__lsl_events, self._thread_process_sample_in_lsl, 2)))
+        self.__lsl_threads = [Thread(target=start_stream_data, args=("data", 4, self._thread_prepare_daq_for_lsl, self.__lsl_events, self.__sampling_rate))]
+        self.__lsl_threads.append(Thread(target=record_stream, args=("data", path2data, self.__lsl_events, self._thread_process_sample_in_lsl, 2), daemon=True))
         if do_plot:
-            self.__lsl_threads.append(Thread(target=start_live_plotting, args=("data", self.__lsl_events, self._thread_process_sample_in_lsl, window_sec, 2)))
+            self.__lsl_threads.append(Thread(target=start_live_plotting, args=("data", self.__lsl_events, self._thread_process_sample_in_lsl, window_sec, 2), daemon=True))
         if track_util:
-            self.__lsl_threads.append(Thread(target=start_stream_utilization, args=("util", self.__lsl_events, 2.)))
-            self.__lsl_threads.append(Thread(target=record_stream, args=("util", path2data, self.__lsl_events)))
+            self.__lsl_threads.append(Thread(target=start_stream_utilization, args=("util", self.__lsl_events, 2.), daemon=True))
+            self.__lsl_threads.append(Thread(target=record_stream, args=("util", path2data, self.__lsl_events), daemon=True))
 
         self.__lsl_events.set()
         for p in self.__lsl_threads:
             p.start()
 
-        self.__write_wofb(10, 0)
+        self.__write_without_feedback(10, 0)
 
     def stop_daq(self) -> None:
         """Changing the state of the DAQ with stopping it"""
@@ -278,7 +291,7 @@ class DeviceAPI:
         for p in self.__lsl_threads:
             p.join(timeout=1.)
 
-        self.__write_wofb(11, 0)
+        self.__write_without_feedback(11, 0)
 
     def update_daq_sampling_rate(self, sampling_rate: float) -> None:
         """Updating the sampling rate of the DAQ
@@ -291,4 +304,4 @@ class DeviceAPI:
             raise ValueError(f"Sampling rate cannot be greater than {sampling_limits[1]}")
 
         self.__sampling_rate = sampling_rate
-        self.__write_wofb(12, int(sampling_rate))
+        self.__write_without_feedback(12, int(sampling_rate))
