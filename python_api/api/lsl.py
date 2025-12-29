@@ -130,6 +130,12 @@ class RingBuffer:
         self._index = 0
         self._is_full = False
 
+    def _update_index(self) -> None:
+        self._index += 1
+        if self._index >= self._size:
+            self._index = 0
+            self._is_full = True
+
     def append(self, value: int) -> None:
         self._data0[self._index, 0] = self._index
         if self._is_full:
@@ -137,10 +143,7 @@ class RingBuffer:
             self._data0[-1, 1] = value
         else:
             self._data0[self._index, 1] = value
-
-        self._index = (self._index + 1) % self._size
-        if self._index == 0:
-            self._is_full = True
+        self._update_index()
 
     def append_with_timestamp(self, tb: float, value: int) -> None:
         if self._is_full:
@@ -151,13 +154,7 @@ class RingBuffer:
         else:
             self._data0[self._index, 0] = tb
             self._data0[self._index, 1] = value
-
-        self._index = (self._index + 1) % self._size
-        if self._index == 0:
-            self._is_full = True
-
-    def get_index(self) -> int:
-        return self._index
+        self._update_index()
 
     def get_data(self) -> np.ndarray:
         return self._data0
