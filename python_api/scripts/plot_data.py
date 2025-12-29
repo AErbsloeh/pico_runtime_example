@@ -55,9 +55,6 @@ if __name__ == "__main__":
     dut = DataAPI(path2data)
     data = dut.read_data_file(use_case)
     util = dut.read_utilization_file(use_case)
-    print(np.argmax(data.time), data.time.max())
-    print(np.argmax(data.time), data.time[np.argmax(data.time)+1])
-    print(np.argmin(data.time), data.time.min())
 
     plot_transient_data(data, show_plot=False)
     plot_transient_util(util, show_plot=False)

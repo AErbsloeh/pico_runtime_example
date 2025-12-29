@@ -1,10 +1,9 @@
 import numpy as np
 from h5py import File
-from collections import deque
 from datetime import datetime
 from pathlib import Path
 from time import sleep
-from threading import Event
+from threading import Event, Thread
 from psutil import (
     cpu_percent,
     virtual_memory
@@ -14,7 +13,6 @@ from pylsl import (
     StreamInlet,
     StreamOutlet,
     resolve_bypred,
-    FOREVER,
     cf_int32,
     cf_float32
 )
@@ -107,33 +105,72 @@ def record_stream(name: str, path2save: Path | str, event_func: Event, take_samp
         data_dset = f.create_dataset("data", (0, channels), maxshape=(None, channels), dtype="uint16")
         ts_dset.attrs["unit"] = ""
 
-        idx = 0
         process_list = take_sample if len(take_sample) > 0 else [i for i in range(channels)]
         while event_func.is_set():
             samples, ts = inlet.pull_chunk(
                 max_samples=int(sampling_rate),
-                timeout=0.0
+                timeout=100e-3
             )
             if samples is None:
                 continue
             else:
+                idx = len(ts_dset)
                 ts_dset.resize((idx+len(ts),))
                 data_dset.resize((idx + len(ts), channels))
                 for id0, (sample, tb) in enumerate(zip(samples, ts)):
                     ts_dset[idx+id0] = tb if mode_util else 1e-6 * sample[0]
                     data_dset[idx+id0] = [sample[i] for i in process_list]
-                idx += len(ts)
                 f.flush()
 
 
-def start_live_plotting(name: str, event_func: Event, take_samples: list=(), window_length: float=10., subtract_channel:int=0, update_rate: float=5.) -> None:
-    """Function for LSL to enable live plotting of the incoming results
+class RingBuffer:
+    def __init__(self, size) -> None:
+        self._size = size
+        self._data0 = np.zeros(shape=(size, 2), dtype=float)
+        self._index = 0
+        self._is_full = False
+
+    def append(self, value: int) -> None:
+        self._data0[self._index, 0] = self._index
+        if self._is_full:
+            self._data0[:-1, 1] = self._data0[1:, 1]
+            self._data0[-1, 1] = value
+        else:
+            self._data0[self._index, 1] = value
+
+        self._index = (self._index + 1) % self._size
+        if self._index == 0:
+            self._is_full = True
+
+    def append_with_timestamp(self, tb: float, value: int) -> None:
+        if self._is_full:
+            self._data0[:-1, 0] = self._data0[1:, 0]
+            self._data0[:-1, 1] = self._data0[1:, 1]
+            self._data0[-1, 0] = tb
+            self._data0[-1, 1] = value
+        else:
+            self._data0[self._index, 0] = tb
+            self._data0[self._index, 1] = value
+
+        self._index = (self._index + 1) % self._size
+        if self._index == 0:
+            self._is_full = True
+
+    def get_index(self) -> int:
+        return self._index
+
+    def get_data(self) -> np.ndarray:
+        return self._data0
+
+
+def start_live_plotting(name: str, event_func: Event, take_samples: list=(), window_length: float=10., subtract_channel:int=0, update_rate: float=20.) -> None:
+    """Function for LSL to enable live plotting of the incoming results using VisPy
     :param name:            String with name of the LSL stream to get data
     :param event_func:      Event manager from Threading package for controlling while loop
     :param take_samples:    List with taking idx from LSL pulling event
     :param window_length:   Floating value with length of time window for plotting in seconds
     :param subtract_channel:Integer with number of channels to subtract from data stream
-    :param update_rate:     Floating value with update rate of the plot
+    :param update_rate:     Floating value with update rate of the LSL datastream
     :return:                None
     """
     line_color = ['red', 'green', 'blue', 'lime']
@@ -142,9 +179,15 @@ def start_live_plotting(name: str, event_func: Event, take_samples: list=(), win
     # --- Extract meta
     channels = inlet.info().channel_count() - (subtract_channel if not mode_util else 0)
     sampling_rate = inlet.info().nominal_srate()
-    if sampling_rate > 2000.:
+    if sampling_rate > 2500.:
         raise AttributeError(f"Sampling rate {sampling_rate} is too high")
-
+    # --- Build ring buffer and update func
+    number_samples_pull =  int(sampling_rate / update_rate)-1
+    number_samples_window = int(window_length * sampling_rate)
+    buffer_lsl = [RingBuffer(number_samples_window) for _ in range(channels)]
+    buffer_gpu = buffer_lsl.copy()
+    if not take_samples:
+        take_samples = list(range(channels))
     # --- Build app
     canvas = scene.SceneCanvas(
         size=(800, 450),
@@ -155,73 +198,58 @@ def start_live_plotting(name: str, event_func: Event, take_samples: list=(), win
     )
     view = canvas.central_widget.add_view()
     view.camera = "panzoom"
+    status_text = scene.Text(
+        text="LSL: OK",
+        color='green',
+        parent=view.scene,
+        pos=(0.95*number_samples_window, 0),
+        font_size=8
+    )
     curves = list()
-    for idx in range(channels):
+    for idx, buffer in enumerate(buffer_gpu):
         curves.append(scene.Line(
+            pos=buffer.get_data(),
             width=2,
             color=line_color[idx % len(line_color)],
-            parent=view.scene
+            parent=view.scene,
+            antialias=True
         ))
-    del idx
-    # --- Build ring buffer and update func
-    number_samples_pull = int(sampling_rate / update_rate)
-    number_samples_window = int(window_length * sampling_rate)
-    buffer_time = deque(maxlen=number_samples_window)
-    buffer_sigs = [deque(maxlen=number_samples_window) for _ in range(channels)]
+    view.camera.set_range(
+        x=(0, number_samples_window-1),
+        y=(0, 65535) if not mode_util else (0, 100)
+    )
+    # --- Describe update functions for plotting
+    def lsl_reader_data():
+        nonlocal buffer_lsl
+        while event_func.is_set():
+            samples, _ = inlet.pull_chunk(
+                max_samples=number_samples_pull,
+                timeout=100e-3
+            )
+            if samples:
+                for sample in samples:
+                    for ch, idx in enumerate(take_samples):
+                        buffer_lsl[ch].append(sample[idx])
 
-    def update_util(event):
-        # Getting data
-        samples, tb = inlet.pull_sample(timeout=0.0)
-        if samples is None:
-            return
-        buffer_time.extend([tb])
-        for idx0 in range(channels):
-            buffer_sigs[idx0].extend([samples[idx0]])
+    lsl_thread = Thread(target=lsl_reader_data, daemon=True)
+    lsl_thread.start()
+    def update(event):
+        nonlocal buffer_lsl, buffer_gpu
+        # --- Abort condition
+        if not lsl_thread.is_alive():
+            status_text.text = "LSL: DEAD"
+            status_text.color = 'red'
         if not event_func.is_set():
-            canvas.close()
             app.quit()
-        if len(buffer_time) < 2:
-            return
-        # Process for data for plot
-        x = np.asarray(buffer_time, dtype=np.float32)
-        for idx1, curve in enumerate(curves):
-            y = np.asarray(buffer_sigs[idx1], dtype=np.float32)
-            curve.set_data(np.column_stack((x, y)))
-        view.camera.set_range(
-            x=(x.min(), x.max()),
-            y=(0, 100)
-        )
-    def update_data(event):
-        # Getting data
-        samples = inlet.pull_chunk(
-            max_samples=number_samples_pull,
-            timeout=0.0
-        )[0]
-        if samples is None:
-            return
-        for sample in samples:
-            buffer_time.extend([1e-6*sample[0]])
-            for idx0 in range(channels):
-                buffer_sigs[idx0].extend([sample[take_samples[idx0]]])
-        if not event_func.is_set():
-            canvas.close()
-            app.quit()
-        if len(buffer_time) < 2:
-            return
-        # Process for data for plot
-        x = np.asarray(buffer_time, dtype=np.float32)
-        for idx1, curve in enumerate(curves):
-            y = np.asarray(buffer_sigs[idx1], dtype=np.float32)
-            curve.set_data(np.column_stack((x, y)))
-        # TODO: Add dynamic y-axis scaling
-        view.camera.set_range(
-            x=(x.min(), x.max()),
-            y=(0, 65536)
-        )
+        # --- Data Handling
+        buffer_gpu = buffer_lsl
+        for curve, buffer0 in zip(curves, buffer_gpu):
+            curve.set_data(buffer0.get_data())
+
     # --- Starting the process
     app.Timer(
-        interval='auto',
-        connect=update_util if mode_util else update_data,
+        interval=1/update_rate,
+        connect=update,
         start=True
     )
     app.run()

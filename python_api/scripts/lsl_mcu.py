@@ -4,9 +4,8 @@ from time import sleep
 
 if __name__ == '__main__':
     DeviceAPI().do_reset()
-
     dut = DeviceAPI()
-    dut.update_daq_sampling_rate(1000.)
+    dut.update_daq_sampling_rate(500.)
 
     print("START")
     dut.start_daq(
@@ -14,7 +13,8 @@ if __name__ == '__main__':
         window_sec=40.,
         track_util=True
     )
-    sleep(10*60*60)
+
+    sleep(6*60*60)
 
     print("STOP")
     dut.stop_daq()

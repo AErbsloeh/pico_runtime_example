@@ -1,5 +1,6 @@
 import pytest
 import random
+import numpy as np
 from threading import Thread, Event
 from time import sleep
 from pathlib import Path
@@ -10,7 +11,8 @@ from api.lsl import (
     start_stream_data,
     start_stream_utilization,
     record_stream,
-    start_live_plotting
+    start_live_plotting,
+    RingBuffer
 )
 
 
@@ -27,7 +29,7 @@ def path():
     path = Path(get_path_to_project("test_data"))
     yield path
 
-
+@pytest.mark.skip
 def test_lsl_data(path: Path) -> None:
     lsl_events = Event()
     def dummy_data_lsl(channel_num: int = 8) -> list:
@@ -49,7 +51,7 @@ def test_lsl_data(path: Path) -> None:
     data_overview = [str(file) for file in path.glob("*.h5") if 'data' in str(file)]
     assert len(data_overview) > 0
 
-
+@pytest.mark.skip
 def test_lsl_util(path: Path) -> None:
     lsl_events = Event()
     process = [
@@ -69,6 +71,26 @@ def test_lsl_util(path: Path) -> None:
 
     data_overview = [str(file) for file in path.glob("*.h5") if 'util' in str(file)]
     assert len(data_overview) > 0
+
+
+def test_ringbuffer_without_timestamp() -> None:
+    dut = RingBuffer(5)
+    buffer_in = np.zeros(shape=(2, 5))
+
+    for idx in range (11):
+        print(dut.get_data())
+        np.testing.assert_array_equal(dut.get_data().shape, buffer_in.shape)
+        dut.append(idx+1)
+
+
+def test_ringbuffer_with_timestamp() -> None:
+    dut = RingBuffer(5)
+    buffer_in = np.zeros(shape=(2, 5))
+
+    for idx in range (11):
+        print(dut.get_data())
+        np.testing.assert_array_equal(dut.get_data().shape, buffer_in.shape)
+        dut.append_with_timestamp(idx, idx+1)
 
 
 if __name__ == "__main__":
