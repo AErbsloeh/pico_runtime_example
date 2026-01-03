@@ -62,7 +62,7 @@ def plot_transient_util(packet: RawRecording, show_plot: bool=True) -> None:
 if __name__ == "__main__":
     basicConfig(level=INFO)
 
-    path2data = Path(get_path_to_project()) / "temp_data"
+    path2data = Path(get_path_to_project()) / "data"
     use_case = 0
 
     dut = DataAPI(path2data, data_prefix='data')

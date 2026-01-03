@@ -25,14 +25,14 @@ daq_data_t daq_sample_data = {
     .packet_id = 0xA0,
     .iteration = 0,
     .runtime = 0,
-    .channel_id = 0,
-    .value = 0
+    .value_ch0 = 0,
+    .value_ch1 = 0
 };
 bool irq_tmr_daq0(repeating_timer_t *rt){
     daq_sample_data.iteration ++;
     daq_sample_data.runtime = get_runtime_ms();
-    daq_sample_data.channel_id = 1;
-    daq_sample_data.value += 4;
+    daq_sample_data.value_ch0 += 4;
+    daq_sample_data.value_ch1 -= 4;
     send_daq_data_usb(&daq_sample_data);
 
     gpio_put(LED_TEST_DEFAULT, !gpio_get(LED_TEST_DEFAULT));

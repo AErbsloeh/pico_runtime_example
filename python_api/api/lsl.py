@@ -14,7 +14,8 @@ from pylsl import (
     resolve_bypred,
     cf_int16,
     cf_int32,
-    cf_float32
+    cf_float32,
+    FOREVER
 )
 from queue import Queue, Empty
 from vispy import app, scene
@@ -197,6 +198,11 @@ class ThreadLSL:
         )
         outlet = StreamOutlet(info)
 
+        while not outlet.wait_for_consumers(timeout=30.0):
+            with self._lock:
+                self._thread_active[stim_idx] = True
+            sleep(0.25)
+
         idx = 0
         ite_num = 0
         offset = 2 ** 14 - 1
@@ -208,12 +214,13 @@ class ThreadLSL:
                 if ite_num >= int(0.5 * sampling_rate):
                     ite_num = 0
                     with self._lock:
-                        self._thread_active[stim_idx] = True
+                        self._thread_active[stim_idx] = outlet.have_consumers()
                 else:
                     ite_num += 1
                 # Process data
                 outlet.push_sample(
                     x=[int(offset + offset * np.sin(idx + ch)) for ch in channels],
+                    timestamp=0.0,
                     pushthrough=True
                 )
                 idx += signal_step
@@ -237,8 +244,12 @@ class ThreadLSL:
             source_id=f"{name}_uid"
         )
         outlet = StreamOutlet(info)
-        mode_mock = 'mock' in name
+        while not outlet.wait_for_consumers(timeout=30.0):
+            with self._lock:
+                self._thread_active[stim_idx] = True
+            sleep(0.25)
 
+        mode_mock = 'mock' in name
         ite_num = 0
         while self._event.is_set():
             try:
@@ -248,14 +259,13 @@ class ThreadLSL:
                     if ite_num >= int(0.5 * data.sampling_rate):
                         ite_num = 0
                         with self._lock:
-                            self._thread_active[stim_idx] = True
+                            self._thread_active[stim_idx] = outlet.have_consumers()
                     else:
                         ite_num += 1
 
-                    send = list() if mode_mock else [int(1e6 * stime)]
-                    send.extend(sdata)
                     outlet.push_sample(
-                        x=send,
+                        x=sdata.tolist(),
+                        timestamp=stime,
                         pushthrough=True
                     )
                     sleep(1 / data.sampling_rate)
@@ -282,6 +292,10 @@ class ThreadLSL:
             source_id=name + '_uid'
         )
         outlet = StreamOutlet(config)
+        while not outlet.wait_for_consumers(timeout=30.0):
+            with self._lock:
+                self._thread_active[stim_idx] = True
+            sleep(0.25)
 
         ite_num = 0
         while self._event.is_set():
@@ -290,21 +304,25 @@ class ThreadLSL:
                 if ite_num >= int(0.5 * sampling_rate):
                     ite_num = 0
                     with self._lock:
-                        self._thread_active[stim_idx] = True
+                        self._thread_active[stim_idx] = outlet.have_consumers()
                 else:
                     ite_num += 1
                 # Data Processing
                 data = daq_func()
                 if not len(data):
                     continue
-                outlet.push_sample(data)
+                outlet.push_sample(
+                    x=data[1:],
+                    timestamp=1e-6*data[0],
+                    pushthrough=True
+                )
             except Exception as e:
                 with self._lock:
                     self._exception.put(e)
 
-    def _thread_stream_util(self, stim_index: int, name: str, sampling_rate: float=2.) -> None:
+    def _thread_stream_util(self, stim_idx: int, name: str, sampling_rate: float=2.) -> None:
         """Process for starting a Lab Streaming Layer (LSL) to process the utilization of the host computer
-        :param stim_index:      Integer with array index to write into heartbeat feedback array
+        :param stim_idx:        Integer with array index to write into heartbeat feedback array
         :param name:            String with name of the LSL stream (must match with recording process)
         :param sampling_rate:   Float with sampling rate for determining the sampling rate
         :return:                None
@@ -321,12 +339,20 @@ class ThreadLSL:
             source_id=name + '_uid'
         )
         outlet = StreamOutlet(config)
+        while not outlet.wait_for_consumers(timeout=30.0):
+            with self._lock:
+                self._thread_active[stim_idx] = True
+            sleep(0.25)
 
         while self._event.is_set():
             try:
                 with self._lock:
-                    self._thread_active[stim_index] = True
-                outlet.push_sample([cpu_percent(interval=1 / sampling_rate), virtual_memory().percent])
+                    self._thread_active[stim_idx] = outlet.have_consumers()
+                outlet.push_sample(
+                    x=[cpu_percent(interval=1 / sampling_rate), virtual_memory().percent],
+                    timestamp=0.0,
+                    pushthrough=True
+                )
                 sleep(1 / sampling_rate)
             except Exception as e:
                 with self._lock:
@@ -365,7 +391,7 @@ class ThreadLSL:
             data_dset = f.create_dataset("data", (0, channels), maxshape=(None, channels), dtype="uint16")
             ts_dset.attrs["unit"] = ""
 
-            process_list = take_samples if len(take_samples) > 0 else [i for i in range(channels)]
+            process_list = take_samples if len(take_samples) else [i for i in range(channels)]
             while self._event.is_set():
                 try:
                     samples, ts = inlet.pull_chunk(
@@ -381,7 +407,7 @@ class ThreadLSL:
                         ts_dset.resize((idx + len(ts),))
                         data_dset.resize((idx + len(ts), channels))
                         for id0, (sample, tb) in enumerate(zip(samples, ts)):
-                            ts_dset[idx + id0] = tb if mode_util or mode_mock else 1e-6 * sample[0]
+                            ts_dset[idx + id0] = tb
                             data_dset[idx + id0] = [sample[i] for i in process_list]
                         f.flush()
                 except Exception as e:

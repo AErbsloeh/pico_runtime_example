@@ -34,7 +34,7 @@ bool stop_daq_sampling(tmr_repeat_irq_t* handler){
 
 
 void send_daq_data_usb(daq_data_t* data){
-    char buffer[14] = {0};
+    char buffer[15] = {0};
 
     buffer[0] = data->packet_id;
     buffer[1] = data->iteration;
@@ -43,10 +43,11 @@ void send_daq_data_usb(daq_data_t* data){
         buffer[idx+2] = (uint8_t)runtime;
         runtime >>= 8;
     };
-    buffer[10] = data->channel_id;
-    buffer[11] = (uint8_t)(data->value >> 0);
-    buffer[12] = (uint8_t)(data->value >> 8);
-    buffer[13] = 0xFF;
+    buffer[10] = (uint8_t)(data->value_ch0 >> 0);
+    buffer[11] = (uint8_t)(data->value_ch0 >> 8);
+    buffer[12] = (uint8_t)(data->value_ch1 >> 0);
+    buffer[13] = (uint8_t)(data->value_ch1 >> 8);
+    buffer[14] = 0xFF;
 
     usb_send_bytes(buffer, sizeof(buffer));
 };

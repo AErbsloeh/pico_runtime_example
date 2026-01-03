@@ -206,12 +206,12 @@ class DeviceAPI:
 
     @property
     def _thread_process_sample_in_lsl(self) -> list:
-        """Indicating the indices from the daq sample list for further processing/saving"""
-        return [1, -1]
+        """Indicating the indices from the daq sample list for further processing/saving (without timestamp)"""
+        return [0, 1, 2]
 
     def _thread_prepare_daq_for_lsl(self) -> list:
         """Entpacken der Informationen aus dem USB Protokoll (siehe C-Datei: src/daq_sample.c in der Firmware)"""
-        data = self.__device.read(14)
+        data = self.__device.read(15)
         if not len(data):
             return list()
         else:
@@ -219,10 +219,10 @@ class DeviceAPI:
                 return list()
             else:
                 return [
-                    int.from_bytes(data[2:10], byteorder='little', signed=False),   # Runtime MCU
+                    int.from_bytes(data[2:10], byteorder='little', signed=False),   # Runtime MCU --> Goes to Timestamp
                     int(data[1]),                                                   # Index
-                    int(data[10]),                                                  # Channel Number
-                    int.from_bytes(data[11:13], byteorder='little', signed=False)   # uint16_t Data
+                    int.from_bytes(data[10:12], byteorder='little', signed=False),  # uint16_t Data - CH0
+                    int.from_bytes(data[12:14], byteorder='little', signed=False)   # uint16_t Data - CH1
                 ]
 
     def start_daq(self, do_plot: bool=False, window_sec: float= 30., track_util: bool=False, folder_name: str="data") -> None:
@@ -234,13 +234,13 @@ class DeviceAPI:
         :return: None
         """
         path2data = get_path_to_project(new_folder=folder_name)
-        self.__threads.register(func=self.__threads._thread_stream_data, args=(0, 'data', self._thread_prepare_daq_for_lsl, 4, self.__sampling_rate))
+        self.__threads.register(func=self.__threads._thread_stream_data, args=(0, 'data', self._thread_prepare_daq_for_lsl, 3, self.__sampling_rate))
         self.__threads.register(func=self.__threads._thread_record_stream, args=(1, 'data', path2data, self._thread_process_sample_in_lsl))
         if track_util:
             self.__threads.register(func=self.__threads._thread_stream_util, args=(2, 'util', 2.))
             self.__threads.register(func=self.__threads._thread_record_stream, args=(3, 'util', path2data))
         if do_plot:
-            self.__threads.register(func=self.__threads._thread_plot_stream, args=(4 if track_util else 2, 'data', window_sec, self._thread_process_sample_in_lsl))
+            self.__threads.register(func=self.__threads._thread_plot_stream, args=(4 if track_util else 3, 'data', window_sec, self._thread_process_sample_in_lsl))
 
         self.__threads.start()
         self.__write_without_feedback(10, 0)

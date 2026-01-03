@@ -9,15 +9,15 @@
 * \param packet_id  Identifier for the data packet type
 * \param iteration  Iteration count of the sampling
 * \param runtime    Actual runtime in microseconds since system start
-* \param channel_id Identifier for the data channel
-* \param value      Sampled data value
+* \param value_ch0  Sampled data value from CH0
+* \param value_ch1  Sampled data value from CH1
 */
 typedef struct {
     uint8_t packet_id;
     uint8_t iteration;
     uint64_t runtime;
-    uint8_t channel_id;
-    uint16_t value;
+    uint16_t value_ch0;
+    uint16_t value_ch1;
 } daq_data_t;
 
 
