@@ -1,21 +1,16 @@
 from dataclasses import dataclass
 from logging import getLogger, Logger
 from time import sleep
-from serial import Serial, STOPBITS_ONE, EIGHTBITS, PARITY_NONE
-from serial.tools import list_ports
-from threading import Thread, Event
 
-from api.lsl import (
-    start_stream_data,
-    start_stream_utilization,
-    record_stream,
-    start_live_plotting
+from api.interface import (
+    get_comport_name,
+    InterfaceSerialUSB
 )
+from api.lsl import ThreadLSL
 from api.mcu_conv import (
     _convert_pin_state,
     _convert_system_state
 )
-from api.interface import InterfaceSerialUSB
 
 
 def get_path_to_project(new_folder: str='', max_levels: int=5) -> str:
@@ -67,39 +62,26 @@ class DeviceAPI:
     # Pico 2 specific USB characteristics
     __usb_vid: int = 0x2E8A
     __usb_pid: int = 0x0009
-    __lsl_events: Event = Event()
-    __lsl_threads: list[Thread] = list()
+    __threads: ThreadLSL
 
-    def __init__(self, com_name: str="AUTOCOM", timeout: float=1.0, baud: int=115200) -> None:
+    def __init__(self, com_name: str="AUTOCOM", timeout: float=1.0) -> None:
         """Init. of the device with name and baudrate of the device
         :param com_name:    String with the serial port name of the used device
         :param timeout:     Floating value with timeout for the communication
-        :param baud:        Baud rate of the communication between API and device [default: 115.200]
         """
         self.__logger = getLogger(__name__)
+        self.__threads = ThreadLSL()
         self.__device = InterfaceSerialUSB(
+            com_name=com_name if com_name != "AUTOCOM" else get_comport_name(usb_vid=self.__usb_vid, usb_pid=self.__usb_pid),
+            baud=115200,
             num_bytes_head=1,
             num_bytes_data=2,
-            device=Serial(
-                port=com_name if com_name != "AUTOCOM" else self.scan_com_name[0],
-                baudrate=baud,
-                parity=PARITY_NONE,
-                stopbits=STOPBITS_ONE,
-                bytesize=EIGHTBITS,
-                inter_byte_timeout=timeout,
-                xonxoff=False,
-                rtscts=False,
-                dsrdtr=False,
-                timeout=0.5
-            )
+            timeout=timeout,
         )
         if self.is_com_port_active:
             self.__device.close()
         self.__device.open()
 
-    @property
-    def __read_usb_properties(self) -> list:
-        return [{"com": ps.device, "pid": ps.pid, "vid": ps.vid} for ps in list_ports.comports()]
 
     def __write_with_feedback(self, head: int, data: int, size: int=0) -> bytes:
         return self.__device.write_wfb(
@@ -108,23 +90,9 @@ class DeviceAPI:
         )
 
     def __write_without_feedback(self, head: int, data: int) -> None:
-        self.__device.write_wofb(
+        self.__device.write(
             data=self.__device.convert(head, data),
         )
-
-    @property
-    def scan_com_name(self) -> list:
-        """Returning the COM Port name of the addressable devices
-        :return: List of COM Port names with matched VIP und PID properties of the USB-COMs
-        """
-        available_ports = list_ports.comports()
-        list_right_com = [port.device for port in available_ports if
-                          port.vid == self.__usb_vid and port.pid == self.__usb_pid]
-        if len(list_right_com) == 0:
-            raise ConnectionError(f"No COM Port with right USB found - Please adapt the VID and PID values from "
-                                  f"available COM ports: {self.__read_usb_properties}")
-        self.__logger.debug(f"Found {len(list_right_com)} COM ports available")
-        return list_right_com
 
     @property
     def total_num_bytes(self) -> int:
@@ -139,12 +107,7 @@ class DeviceAPI:
     @property
     def is_daq_running(self) -> bool:
         """Returning if DAQ is still running"""
-        return self._get_system_state() == "DAQ" and self.__lsl_events.is_set()
-
-    @property
-    def is_daq_active(self) -> bool:
-        """Returning if all running threads are alive"""
-        return all([thread.is_alive() for thread in self.__lsl_threads])
+        return self._get_system_state() == "DAQ" and self.__threads.is_alive
 
     def open(self) -> None:
         """Opening the serial communication between API and device"""
@@ -156,9 +119,9 @@ class DeviceAPI:
 
     def do_reset(self) -> None:
         """Performing a Software Reset on the Platform"""
-        if len(self.__lsl_threads):
+        if self.__threads.is_alive:
+            self.__threads.stop()
             self.stop_daq()
-
         self.__write_without_feedback(1, 0)
         sleep(4)
 
@@ -271,27 +234,25 @@ class DeviceAPI:
         :return: None
         """
         path2data = get_path_to_project(new_folder=folder_name)
-        self.__lsl_threads = [Thread(target=start_stream_data, args=("data", 4, self._thread_prepare_daq_for_lsl, self.__lsl_events, self.__sampling_rate))]
-        self.__lsl_threads.append(Thread(target=record_stream, args=("data", path2data, self.__lsl_events, self._thread_process_sample_in_lsl, 2), daemon=True))
-        if do_plot:
-            self.__lsl_threads.append(Thread(target=start_live_plotting, args=("data", self.__lsl_events, self._thread_process_sample_in_lsl, window_sec, 2), daemon=True))
+        self.__threads.register(func=self.__threads._thread_stream_data, args=(0, 'data', self._thread_prepare_daq_for_lsl, 4, self.__sampling_rate))
+        self.__threads.register(func=self.__threads._thread_record_stream, args=(1, 'data', path2data, self._thread_process_sample_in_lsl))
         if track_util:
-            self.__lsl_threads.append(Thread(target=start_stream_utilization, args=("util", self.__lsl_events, 2.), daemon=True))
-            self.__lsl_threads.append(Thread(target=record_stream, args=("util", path2data, self.__lsl_events), daemon=True))
+            self.__threads.register(func=self.__threads._thread_stream_util, args=(2, 'util', 2.))
+            self.__threads.register(func=self.__threads._thread_record_stream, args=(3, 'util', path2data))
+        if do_plot:
+            self.__threads.register(func=self.__threads._thread_plot_stream, args=(4 if track_util else 2, 'data', window_sec, self._thread_process_sample_in_lsl))
 
-        self.__lsl_events.set()
-        for p in self.__lsl_threads:
-            p.start()
-
+        self.__threads.start()
         self.__write_without_feedback(10, 0)
 
     def stop_daq(self) -> None:
         """Changing the state of the DAQ with stopping it"""
-        self.__lsl_events.clear()
-        for p in self.__lsl_threads:
-            p.join(timeout=1.)
-
+        self.__threads.stop()
         self.__write_without_feedback(11, 0)
+
+    def wait_daq(self, time_sec: float) -> None:
+        """Waiting Routine"""
+        self.__threads.wait_for_seconds(time_sec)
 
     def update_daq_sampling_rate(self, sampling_rate: float) -> None:
         """Updating the sampling rate of the DAQ

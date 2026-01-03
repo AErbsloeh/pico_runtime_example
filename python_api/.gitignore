@@ -3,6 +3,7 @@
 **/.pytest_cache
 **/data
 **/dist
+**/temp_data
 .venv
 .python-version
 uv.lock

@@ -1,5 +1,4 @@
 from api import DeviceAPI
-from time import sleep
 
 
 if __name__ == '__main__':
@@ -13,8 +12,6 @@ if __name__ == '__main__':
         window_sec=40.,
         track_util=True
     )
-
-    sleep(6*60*60)
-
-    print("STOP")
+    dut.wait_daq(6*60*60)
     dut.stop_daq()
+    print("STOP")

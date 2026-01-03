@@ -1,5 +1,24 @@
 from logging import Logger, getLogger
-from serial import Serial
+from serial import (
+    Serial,
+    PARITY_NONE,
+    STOPBITS_ONE,
+    EIGHTBITS
+)
+from serial.tools import list_ports
+
+
+def get_comport_name(usb_vid: int, usb_pid: int) -> str:
+    """Returning the COM Port name of the addressable devices
+    :param usb_vid: USB VID
+    :param usb_pid: USB PID
+    :return:        String with COM port name with matched VIP und PID properties
+    """
+    available_ports = list_ports.comports()
+    list_right_com = [port.device for port in available_ports if port.vid == usb_vid and port.pid == usb_pid]
+    if len(list_right_com) == 0:
+        raise ConnectionError(f"No COM Port with right USB found - Please adapt the VID and PID values")
+    return list_right_com[0]
 
 
 class InterfaceSerialUSB:
@@ -8,16 +27,28 @@ class InterfaceSerialUSB:
     __BYTES_HEAD: int
     __BYTES_DATA: int
 
-    def __init__(self, device: Serial, num_bytes_head: int=1, num_bytes_data: int=2) -> None:
+    def __init__(self, com_name: str, baud: int=115200, num_bytes_head: int=1, num_bytes_data: int=2, timeout: float=1.) -> None:
         """Class for interacting with the USB serial devices
-        :param device:  Class with properties of the Serial device
+        :param com_name:        String with name of the COM port to the device
+        :param baud:            Integer with BAUDRATE for the communication between host and device
         :param num_bytes_head: Number of bytes head, implemented on Pico
         :param num_bytes_data: Number of bytes data, implemented on Pico
         """
         self.__logger = getLogger(__name__)
         self.__BYTES_HEAD = num_bytes_head
         self.__BYTES_DATA = num_bytes_data
-        self.__device = device
+        self.__device = Serial(
+                port=com_name,
+                baudrate=baud,
+                parity=PARITY_NONE,
+                stopbits=STOPBITS_ONE,
+                bytesize=EIGHTBITS,
+                inter_byte_timeout=timeout,
+                xonxoff=False,
+                rtscts=False,
+                dsrdtr=False,
+                timeout=2*timeout
+            )
 
     @property
     def total_num_bytes(self) -> int:
@@ -43,7 +74,7 @@ class InterfaceSerialUSB:
         """Read content from device"""
         return self.__device.read(no_bytes)
 
-    def write_wofb(self, data: bytes) -> None:
+    def write(self, data: bytes) -> None:
         """Write content to device without feedback"""
         self.__device.write(data)
 

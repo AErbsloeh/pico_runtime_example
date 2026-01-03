@@ -3,11 +3,15 @@ def _convert_pin_state(state: int) -> str:
     :param state:   Integer with pin state from MCU
     :return:        String with pin state
     """
+    led_name = ['LED_USER']
     if state == 0:
         return 'NONE'
     else:
-        # TODO: Implement logic for several pins
-        return 'LED_USER'
+        ret_text = ''
+        for idx, led in enumerate(led_name):
+            if state and (1 << idx):
+                ret_text += f'{led}' if not len(ret_text) else f'+{led}'
+        return ret_text
 
 
 def _convert_system_state(state: int) -> str:

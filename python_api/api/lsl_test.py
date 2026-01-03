@@ -1,18 +1,13 @@
 import pytest
-import random
 import numpy as np
-from threading import Thread, Event
-from time import sleep
 from pathlib import Path
 from shutil import rmtree
+from time import sleep
 
 from api import get_path_to_project
 from api.lsl import (
-    start_stream_data,
-    start_stream_utilization,
-    record_stream,
-    start_live_plotting,
-    RingBuffer
+    RingBuffer,
+    ThreadLSL
 )
 
 
@@ -24,58 +19,9 @@ def before_all_tests():
     path.mkdir(parents=True, exist_ok=True)
 
 
-@pytest.fixture
-def path():
-    path = Path(get_path_to_project("test_data"))
-    yield path
-
-@pytest.mark.skip
-def test_lsl_data(path: Path) -> None:
-    lsl_events = Event()
-    def dummy_data_lsl(channel_num: int = 8) -> list:
-        return [int(2 ** 16 * random.random()) for _ in range(channel_num)]
-
-    process = [
-        Thread(target=start_stream_data, args=("data", 8, dummy_data_lsl, lsl_events)),
-        Thread(target=record_stream, args=("data", path, lsl_events))
-    ]
-    lsl_events.set()
-    for p in process:
-        p.start()
-
-    sleep(10.)
-    lsl_events.clear()
-    for p in process:
-        p.join(timeout=1.)
-
-    data_overview = [str(file) for file in path.glob("*.h5") if 'data' in str(file)]
-    assert len(data_overview) > 0
-
-@pytest.mark.skip
-def test_lsl_util(path: Path) -> None:
-    lsl_events = Event()
-    process = [
-        Thread(target=start_stream_utilization, args=("util", lsl_events, 2.)),
-        Thread(target=record_stream, args=("util", path, lsl_events)),
-        Thread(target=start_live_plotting, args=("util", lsl_events, ())),
-    ]
-
-    lsl_events.set()
-    for p in process:
-        p.start()
-
-    sleep(10.)
-    lsl_events.clear()
-    for p in process:
-        p.join(timeout=1.)
-
-    data_overview = [str(file) for file in path.glob("*.h5") if 'util' in str(file)]
-    assert len(data_overview) > 0
-
-
-def test_ringbuffer_without_timestamp() -> None:
+def test_ringbuffer_without_timestamp():
     dut = RingBuffer(5)
-    buffer_in = np.zeros(shape=(2, 5))
+    buffer_in = np.zeros(shape=(5, 2))
 
     for idx in range (11):
         print(dut.get_data())
@@ -83,14 +29,137 @@ def test_ringbuffer_without_timestamp() -> None:
         dut.append(idx+1)
 
 
-def test_ringbuffer_with_timestamp() -> None:
+def test_ringbuffer_with_timestamp():
     dut = RingBuffer(5)
-    buffer_in = np.zeros(shape=(2, 5))
+    buffer_in = np.zeros(shape=(5, 2))
 
     for idx in range (11):
         print(dut.get_data())
         np.testing.assert_array_equal(dut.get_data().shape, buffer_in.shape)
         dut.append_with_timestamp(idx, idx+1)
+
+def test_thread_init():
+    dut = ThreadLSL()
+    assert dut.is_alive == False
+    assert dut.is_running == False
+
+def test_thread_register_and_start():
+    dut = ThreadLSL()
+    assert len(dut._thread) == 0
+
+    dut.register(
+        func=dut._thread_dummy,
+        args=(0, )
+    )
+    assert len(dut._thread) == 2
+
+    assert dut.is_running == False
+    dut.start()
+    for ite in range(10):
+        sleep(0.5)
+        assert dut.is_running == True
+        print(ite, dut._is_active, dut._thread_active)
+        dut.check_exception()
+    dut.stop()
+    assert dut.is_running == False
+
+
+def test_thread_register_and_abort():
+    dut = ThreadLSL()
+    assert len(dut._thread) == 0
+
+    dut.register(
+        func=dut._thread_dummy,
+        args=(0, )
+    )
+    assert len(dut._thread) == 2
+
+    assert dut.is_running == False
+    try:
+        dut.start()
+        for ite in range(10):
+            sleep(0.5)
+            dut.check_exception()
+            print(ite, dut._is_active, dut._thread_active)
+            if ite > 5:
+                dut._thread[-1].join(timeout=0.1)
+                while dut._is_active:
+                    sleep(0.1)
+                raise RuntimeError
+        dut.stop()
+        assert dut.is_running == False
+    except RuntimeError:
+        assert True == True
+    else:
+        assert False == True
+
+
+def test_thread_register_and_start_multiple():
+    dut = ThreadLSL()
+    assert len(dut._thread) == 0
+
+    for idx in range(8):
+        dut.register(func=dut._thread_dummy, args=(idx, ))
+    assert len(dut._thread) == 9
+
+    assert dut.is_running == False
+    dut.start()
+    for ite in range(10):
+        sleep(0.5)
+        assert dut.is_running == True
+        print(ite, dut._is_active, dut._thread_active)
+        dut.check_exception()
+    dut.stop()
+    assert dut.is_running == False
+
+
+def test_thread_utilization():
+    dut = ThreadLSL()
+    path2data = get_path_to_project("temp_data")
+    dut.register(func=dut._thread_stream_util, args=(0, 'util', 2.))
+    dut.register(func=dut._thread_record_stream, args=(1, 'util', path2data))
+    assert len(dut._thread) == 3
+
+    dut.start()
+    dut.wait_for_seconds(10.)
+    dut.stop()
+    assert dut._is_active == False
+    assert dut.is_running == False
+
+
+def test_thread_mock_sinusoidal():
+    dut = ThreadLSL()
+    channel_num = 4
+    sample_rate = 200
+    path2data = get_path_to_project("temp_data")
+
+    dut.register(func=dut._thread_stream_util, args=(0, 'util', 2.))
+    dut.register(func=dut._thread_record_stream, args=(1, 'util', path2data))
+    dut.register(func=dut._thread_stream_mock, args=(2, 'data', channel_num, sample_rate))
+    dut.register(func=dut._thread_record_stream, args=(3, 'data', path2data))
+    assert len(dut._thread) == 5
+
+    dut.start()
+    dut.wait_for_seconds(10.)
+    dut.stop()
+    assert dut._is_active == False
+    assert dut.is_running == False
+
+
+def test_thread_mock_file():
+    dut = ThreadLSL()
+    path2save = get_path_to_project("temp_data")
+    path2data = get_path_to_project("test_data")
+
+    dut.register(func=dut._thread_stream_file, args=(0, 'mock', path2data, 0, 'mock'))
+    dut.register(func=dut._thread_record_stream, args=(1, 'mock', path2save))
+    assert len(dut._thread) == 3
+
+    dut.start()
+    dut.wait_for_seconds(10.)
+    dut.stop()
+    assert dut._is_active == False
+    assert dut.is_running == False
 
 
 if __name__ == "__main__":

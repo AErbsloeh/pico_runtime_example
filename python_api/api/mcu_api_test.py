@@ -88,8 +88,8 @@ def test_diable_led(dut: DeviceAPI):
 
 def test_control_daq(dut: DeviceAPI):
     dut.update_daq_sampling_rate(2.)
-    dut.start_daq()
-    assert dut._get_system_state() == 'DAQ'
+    assert dut._get_system_state() == 'IDLE'
+    dut.start_daq(folder_name="temp_data")
     sleep(0.5)
     while dut._get_pin_state() == 'LED_USER':
         sleep(0.05)

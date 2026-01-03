@@ -10,10 +10,10 @@ def path():
 
 
 def test_loader_data(path: Path):
-    dut = DataAPI(path)
+    dut = DataAPI(path, data_prefix='mock')
     data = dut.read_data_file(0)
     file = dut.get_file_name_data(0)
-    assert 'data' in file
+    assert 'mock' in file
     assert type(data) == RawRecording
 
 
