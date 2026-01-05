@@ -18,7 +18,7 @@ def plot_histogram_time(packet: RawRecording, show_density: bool=False, show_plo
         
 def plot_transient_time(packet: RawRecording, do_logy: bool=False, show_plot: bool=True) -> None:
     plt.figure()
-    plt.plot(packet.time[1:-1], np.diff(packet.time[:-1]), linewidth=1)
+    plt.plot(packet.time[1:-1], np.diff(packet.time[:-1]), linewidth=1, marker='.', markersize=2)
     plt.xlabel('Time (s)')
     plt.ylabel('Sampling time')
     plt.yscale('log' if do_logy else 'linear')
@@ -33,7 +33,7 @@ def plot_transient_data(packet: RawRecording, show_plot: bool=True) -> None:
     min_size = np.min([packet.time.size, packet.data.shape[1]])-1
 
     plt.figure()
-    plt.plot(packet.time[:min_size], packet.data[:,:min_size].T, linewidth=1)
+    plt.plot(packet.time[:min_size], packet.data[:,:min_size].T, linewidth=1, marker='.', markersize=2)
     plt.xlabel('Time (s)')
     plt.ylabel('Amplitude')
     plt.xlim(packet.time[0], packet.time[-1])
@@ -61,15 +61,18 @@ def plot_transient_util(packet: RawRecording, show_plot: bool=True) -> None:
 
 if __name__ == "__main__":
     basicConfig(level=INFO)
+    read_util = True
 
     path2data = Path(get_path_to_project()) / "data"
-    use_case = 0
+    use_case = -2
 
     dut = DataAPI(path2data, data_prefix='data')
     data = dut.read_data_file(use_case)
-    util = dut.read_utilization_file(use_case)
+
+    if read_util:
+        util = dut.read_utilization_file(use_case)
+        plot_transient_util(util, show_plot=False)
 
     plot_transient_data(data, show_plot=False)
-    plot_transient_util(util, show_plot=False)
     plot_histogram_time(data, show_plot=False)
     plot_transient_time(data, do_logy=False, show_plot=True)

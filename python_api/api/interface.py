@@ -21,7 +21,7 @@ def get_comport_name(usb_vid: int, usb_pid: int) -> str:
     return list_right_com[0]
 
 
-class InterfaceSerialUSB:
+class InterfaceSerial:
     __logger: Logger
     __device: Serial
     __BYTES_HEAD: int

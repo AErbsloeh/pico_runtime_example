@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from logging import getLogger, Logger
 from time import sleep
+from struct import unpack_from
+import numpy as np
 
 from api.interface import (
     get_comport_name,
-    InterfaceSerialUSB
+    InterfaceSerial
 )
 from api.lsl import ThreadLSL
 from api.mcu_conv import (
@@ -54,7 +56,7 @@ class SystemState:
 
 
 class DeviceAPI:
-    __device: InterfaceSerialUSB
+    __device: InterfaceSerial
     __logger: Logger
     __num_bytes_runtime: int = 9
     __num_bytes_data: int = 14
@@ -71,9 +73,9 @@ class DeviceAPI:
         """
         self.__logger = getLogger(__name__)
         self.__threads = ThreadLSL()
-        self.__device = InterfaceSerialUSB(
+        self.__device = InterfaceSerial(
             com_name=com_name if com_name != "AUTOCOM" else get_comport_name(usb_vid=self.__usb_vid, usb_pid=self.__usb_pid),
-            baud=115200,
+            baud=230400,
             num_bytes_head=1,
             num_bytes_data=2,
             timeout=timeout,
@@ -205,25 +207,49 @@ class DeviceAPI:
         self.__write_without_feedback(9, 0)
 
     @property
-    def _thread_process_sample_in_lsl(self) -> list:
+    def _thread_process_sample(self) -> list[int]:
         """Indicating the indices from the daq sample list for further processing/saving (without timestamp)"""
         return [0, 1, 2]
 
-    def _thread_prepare_daq_for_lsl(self) -> list:
+    @property
+    def _thread_frame_datatype(self) -> np.dtype:
+        return np.dtype([
+            ('head', 'u1'),  # 1 Byte unsigned
+            ('index', 'u1'),  # 1 Byte unsigned
+            ('timestamp', '<u8'),  # 8 Byte unsigned
+            ('c0', '<u2'),  # 2 Byte signed short
+            ('c1', '<u2'),  # 2 Byte signed short
+            ('tail', 'u1'),  # 1 Byte unsigned
+        ])
+
+    def _thread_read_frame(self) -> tuple[list, float]:
         """Entpacken der Informationen aus dem USB Protokoll (siehe C-Datei: src/daq_sample.c in der Firmware)"""
-        data = self.__device.read(15)
-        if not len(data):
-            return list()
+        frame = self.__device.read(15)
+        if not frame:
+            return [], 0.0
+
+        if not frame[0] == 0xA0 or not frame[-1] == 0xFF:
+            return [], 0.0
         else:
-            if not data[0] == 0xA0 or not data[-1] == 0xFF:
-                return list()
-            else:
-                return [
-                    int.from_bytes(data[2:10], byteorder='little', signed=False),   # Runtime MCU --> Goes to Timestamp
-                    int(data[1]),                                                   # Index
-                    int.from_bytes(data[10:12], byteorder='little', signed=False),  # uint16_t Data - CH0
-                    int.from_bytes(data[12:14], byteorder='little', signed=False)   # uint16_t Data - CH1
-                ]
+            frames = np.frombuffer(frame, dtype=self._thread_frame_datatype)
+            mask = (frames['head'] == 0xA0) | (frames['tail'] == 0xFF)
+            frames = frames[mask]
+            timestamps = float(frames['timestamp'] * 1e-6)
+            return [frames['index'], frames['c0'], frames['c1']], timestamps
+
+    def _thread_read_batch(self) -> tuple[list[list], list[float]]:
+        """Entpacken der Informationen aus dem USB Protokoll (siehe C-Datei: src/daq_sample.c in der Firmware)"""
+        batch = self.__device.read(8*15)
+        if not batch:
+            return [], []
+
+        frames = np.frombuffer(batch, dtype=self._thread_frame_datatype)
+        mask = (frames['head'] == 0xA0) | (frames['tail'] == 0xFF)
+        frames = frames[mask]
+
+        timestamps = (frames['timestamp'] * 1e-6).tolist()
+        data = np.stack([frames['index'], frames['c0'], frames['c1']], axis=1).tolist()
+        return data, timestamps
 
     def start_daq(self, do_plot: bool=False, window_sec: float= 30., track_util: bool=False, folder_name: str="data") -> None:
         """Changing the state of the DAQ with starting it
@@ -234,13 +260,13 @@ class DeviceAPI:
         :return: None
         """
         path2data = get_path_to_project(new_folder=folder_name)
-        self.__threads.register(func=self.__threads._thread_stream_data, args=(0, 'data', self._thread_prepare_daq_for_lsl, 3, self.__sampling_rate))
-        self.__threads.register(func=self.__threads._thread_record_stream, args=(1, 'data', path2data, self._thread_process_sample_in_lsl))
+        self.__threads.register(func=self.__threads._thread_stream_data, args=(0, 'data', self._thread_read_batch, 3, self.__sampling_rate))
+        self.__threads.register(func=self.__threads._thread_record_stream, args=(1, 'data', path2data, self._thread_process_sample))
         if track_util:
             self.__threads.register(func=self.__threads._thread_stream_util, args=(2, 'util', 2.))
             self.__threads.register(func=self.__threads._thread_record_stream, args=(3, 'util', path2data))
         if do_plot:
-            self.__threads.register(func=self.__threads._thread_plot_stream, args=(4 if track_util else 3, 'data', window_sec, self._thread_process_sample_in_lsl))
+            self.__threads.register(func=self.__threads._thread_plot_stream, args=(4 if track_util else 3, 'data', window_sec, self._thread_process_sample))
 
         self.__threads.start()
         self.__write_without_feedback(10, 0)

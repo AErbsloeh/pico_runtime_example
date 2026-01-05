@@ -14,8 +14,7 @@ from pylsl import (
     resolve_bypred,
     cf_int16,
     cf_int32,
-    cf_float32,
-    FOREVER
+    cf_float32
 )
 from queue import Queue, Empty
 from vispy import app, scene
@@ -152,6 +151,22 @@ class ThreadLSL:
             else:
                 raise RuntimeError(f"One thread is shutdown [{self._is_active}] - {self._thread_active}")
 
+    def _establish_lsl_outlet(self, idx: int, lsl_name: str, lsl_type: str,  sampling_rate: float, channel_num: int, channel_type: int=cf_int16) -> tuple[StreamOutlet, StreamInfo]:
+        info = StreamInfo(
+            name=lsl_name,
+            type=lsl_type,
+            channel_count=channel_num,
+            nominal_srate=sampling_rate,
+            channel_format=channel_type,
+            source_id=f"{lsl_name}_uid"
+        )
+        outlet = StreamOutlet(info)
+        while not outlet.wait_for_consumers(timeout=30.0):
+            with self._lock:
+                self._thread_active[idx] = True
+            sleep(0.25)
+        return outlet, info
+
     def _release_threads(self) -> None:
         self._logger.debug(f"Empty thread")
         self._thread = []
@@ -188,20 +203,14 @@ class ThreadLSL:
                     self._exception.put(e)
 
     def _thread_stream_mock(self, stim_idx: int, name: str, channel_num: int=2, sampling_rate: float=200.) -> None:
-        info = StreamInfo(
-            name=name,
-            type='mock_sinusoidal_daq',
-            channel_count=channel_num,
-            nominal_srate=sampling_rate,
-            channel_format=cf_int16,
-            source_id=f"{name}_uid"
-        )
-        outlet = StreamOutlet(info)
-
-        while not outlet.wait_for_consumers(timeout=30.0):
-            with self._lock:
-                self._thread_active[stim_idx] = True
-            sleep(0.25)
+        outlet = self._establish_lsl_outlet(
+            idx=stim_idx,
+            lsl_name=name,
+            lsl_type='mock_sinusoidal_daq',
+            sampling_rate=sampling_rate,
+            channel_num=channel_num,
+            channel_type=cf_int16
+        )[0]
 
         idx = 0
         ite_num = 0
@@ -235,21 +244,15 @@ class ThreadLSL:
             raise AttributeError("File is not available")
         data: RawRecording = DataAPI(path2data=path0, data_prefix=prefix).read_data_file(file_index)
 
-        info = StreamInfo(
-            name=name,
-            type='mock_file_daq',
-            channel_count=int(data.num_channels),
-            nominal_srate=float(data.sampling_rate),
-            channel_format=cf_int16,
-            source_id=f"{name}_uid"
-        )
-        outlet = StreamOutlet(info)
-        while not outlet.wait_for_consumers(timeout=30.0):
-            with self._lock:
-                self._thread_active[stim_idx] = True
-            sleep(0.25)
+        outlet = self._establish_lsl_outlet(
+            idx=stim_idx,
+            lsl_name=name,
+            lsl_type='mock_file_daq',
+            sampling_rate=float(data.sampling_rate),
+            channel_num=int(data.num_channels),
+            channel_type=cf_int16
+        )[0]
 
-        mode_mock = 'mock' in name
         ite_num = 0
         while self._event.is_set():
             try:
@@ -283,20 +286,16 @@ class ThreadLSL:
         :param sampling_rate:   Floating value with sampling rate in Hz
         :return:                None
         """
-        config = StreamInfo(
-            name=name,
-            type='custom_daq',
-            channel_count=channel_num,
-            nominal_srate=sampling_rate,
-            channel_format=cf_int32,
-            source_id=name + '_uid'
-        )
-        outlet = StreamOutlet(config)
-        while not outlet.wait_for_consumers(timeout=30.0):
-            with self._lock:
-                self._thread_active[stim_idx] = True
-            sleep(0.25)
+        outlet = self._establish_lsl_outlet(
+            idx=stim_idx,
+            lsl_name=name,
+            lsl_type='sensor_data',
+            sampling_rate=sampling_rate,
+            channel_num=channel_num,
+            channel_type=cf_int32
+        )[0]
 
+        use_batch_mode = 'batch' in daq_func.__name__
         ite_num = 0
         while self._event.is_set():
             try:
@@ -309,13 +308,21 @@ class ThreadLSL:
                     ite_num += 1
                 # Data Processing
                 data = daq_func()
-                if not len(data):
+                if not data:
                     continue
-                outlet.push_sample(
-                    x=data[1:],
-                    timestamp=1e-6*data[0],
-                    pushthrough=True
-                )
+                else:
+                    if use_batch_mode:
+                        outlet.push_chunk(
+                            x=data[0],
+                            timestamp=data[1],
+                            pushthrough=True
+                        )
+                    else:
+                        outlet.push_sample(
+                            x=data[0],
+                            timestamp=data[1],
+                            pushthrough=True
+                        )
             except Exception as e:
                 with self._lock:
                     self._exception.put(e)
@@ -330,26 +337,21 @@ class ThreadLSL:
         if sampling_rate > 2.:
             raise ValueError("Please reduce sampling rate lower than 2.0 Hz")
 
-        config = StreamInfo(
-            name=name,
-            type='utilization',
-            channel_count=2,
-            nominal_srate=sampling_rate,
-            channel_format=cf_float32,
-            source_id=name + '_uid'
-        )
-        outlet = StreamOutlet(config)
-        while not outlet.wait_for_consumers(timeout=30.0):
-            with self._lock:
-                self._thread_active[stim_idx] = True
-            sleep(0.25)
+        outlet = self._establish_lsl_outlet(
+            idx=stim_idx,
+            lsl_name=name,
+            lsl_type='utilization',
+            sampling_rate=sampling_rate,
+            channel_num=2,
+            channel_type=cf_float32
+        )[0]
 
         while self._event.is_set():
             try:
                 with self._lock:
                     self._thread_active[stim_idx] = outlet.have_consumers()
                 outlet.push_sample(
-                    x=[cpu_percent(interval=1 / sampling_rate), virtual_memory().percent],
+                    x=[cpu_percent(), virtual_memory().percent],
                     timestamp=0.0,
                     pushthrough=True
                 )
@@ -366,12 +368,10 @@ class ThreadLSL:
         :param take_samples:        List with indexes to take from LSL pull list for further processing
         :return: None
         """
-        mode_util = 'util' in name
-        mode_mock = 'mock' in name
         path = Path(path2save) if type(path2save) == str else path2save
         inlet = StreamInlet(resolve_bypred(f"name='{name}'")[0])
         # Extract meta
-        channels = inlet.info().channel_count() if mode_util or not len(take_samples) else len(take_samples)
+        channels = inlet.info().channel_count() if not len(take_samples) else len(take_samples)
         sampling_rate = inlet.info().nominal_srate()
         sys_type = inlet.info().type()
         data_format = inlet.info().channel_format()
@@ -385,31 +385,54 @@ class ThreadLSL:
             f.attrs["type"] = sys_type
             f.attrs["creation_date"] = datetime.today().strftime('%Y-%m-%d')
             f.attrs["data_format"] = data_format
-
-            ts_dset = f.create_dataset("time", (0,), maxshape=(None,), dtype="float32")
+            ts_dset = f.create_dataset("time", (0,), maxshape=(None,), dtype=float)
             ts_dset.attrs["unit"] = "s"
-            data_dset = f.create_dataset("data", (0, channels), maxshape=(None, channels), dtype="uint16")
+            match data_format:
+                case 1: #cf_float32
+                    format_h5 = "float32"
+                case 2: #cf_double64
+                    format_h5 = "float64"
+                case 3: #cf_string
+                    format_h5 = "string"
+                case 4:  # cf_int32
+                    format_h5 = "int32"
+                case 5:  # cf_int16
+                    format_h5 = "uint16"
+                case 6:  # cf_int8
+                    format_h5 = "uint8"
+                case 7:  # cf_int64
+                    format_h5 = "int64"
+                case _:
+                    raise ValueError(f"Unknown LSL datatype format")
+            data_dset = f.create_dataset("data", (0, channels), maxshape=(None, channels), dtype=format_h5)
             ts_dset.attrs["unit"] = ""
+            f.flush()
 
             process_list = take_samples if len(take_samples) else [i for i in range(channels)]
+            cnt_flush = 0
+            max_samples = int(0.25 * sampling_rate) if sampling_rate > 4. else 1
             while self._event.is_set():
                 try:
-                    samples, ts = inlet.pull_chunk(
-                        max_samples=int(sampling_rate),
-                        timeout=20e-3
+                    data_buf, ts_buf = inlet.pull_chunk(
+                        max_samples=max_samples,
+                        timeout=50e-3
                     )
-                    if samples is None:
+                    if not data_buf:
                         continue
                     else:
                         with self._lock:
                             self._thread_active[stim_idx] = True
                         idx = len(ts_dset)
-                        ts_dset.resize((idx + len(ts),))
-                        data_dset.resize((idx + len(ts), channels))
-                        for id0, (sample, tb) in enumerate(zip(samples, ts)):
-                            ts_dset[idx + id0] = tb
-                            data_dset[idx + id0] = [sample[i] for i in process_list]
-                        f.flush()
+                        new = len(ts_buf)
+                        ts_dset.resize((idx + new,))
+                        data_dset.resize((idx + new, channels))
+                        ts_dset[idx:idx + new] = ts_buf
+                        data_dset[idx:idx + new, :] = np.asarray(data_buf)[:, process_list]
+                        if cnt_flush == 3:
+                            f.flush()
+                            cnt_flush = 0
+                        else:
+                            cnt_flush += 1
                 except Exception as e:
                     self._exception.put(e)
             f.close()
@@ -488,7 +511,7 @@ class ThreadLSL:
                         max_samples=number_samples_pull,
                         timeout=20e-3
                     )
-                    if samples is None:
+                    if not samples:
                         continue
                     else:
                         # Heartbeat
