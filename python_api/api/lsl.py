@@ -14,7 +14,8 @@ from pylsl import (
     resolve_bypred,
     cf_int16,
     cf_int32,
-    cf_float32
+    cf_float32,
+    proc_threadsafe
 )
 from queue import Queue, Empty
 from vispy import app, scene
@@ -167,6 +168,24 @@ class ThreadLSL:
             sleep(0.25)
         return outlet, info
 
+    @staticmethod
+    def _establish_lsl_inlet(name: str) -> StreamInlet:
+        info = resolve_bypred(
+            predicate=f"name='{name}'",
+            minimum=1,
+            timeout=1.
+        )
+        if not info:
+            raise ValueError(f"LSL stream with {name} not found")
+        inlet = StreamInlet(
+            info=info[0],
+            max_buflen=60,
+            max_chunklen=1024,
+            recover=True,
+            processing_flags=proc_threadsafe
+        )
+        return inlet
+
     def _release_threads(self) -> None:
         self._logger.debug(f"Empty thread")
         self._thread = []
@@ -202,7 +221,14 @@ class ThreadLSL:
                 with self._lock:
                     self._exception.put(e)
 
-    def _thread_stream_mock(self, stim_idx: int, name: str, channel_num: int=2, sampling_rate: float=200.) -> None:
+    def lsl_stream_mock(self, stim_idx: int, name: str, channel_num: int=2, sampling_rate: float=200.) -> None:
+        """Process for starting a Lab Streaming Layer (LSL) to mock the DAQ hardware with random data
+        :param stim_idx:        Integer with array index to write into heartbeat feedback array
+        :param name:            String with name of the LSL stream (must match with recording process)
+        :param channel_num:     Channel number to start stream from
+        :param sampling_rate:   Floating value with sampling rate in Hz
+        :return:                None
+        """
         outlet = self._establish_lsl_outlet(
             idx=stim_idx,
             lsl_name=name,
@@ -212,15 +238,12 @@ class ThreadLSL:
             channel_type=cf_int16
         )[0]
 
-        idx = 0
         ite_num = 0
-        offset = 2 ** 14 - 1
-        signal_step = np.pi / 20
-        channels = [ch for ch in range(channel_num)]
+        chck_num = np.random.randint(low=10, high=int(0.5 * sampling_rate))
         while self._event.is_set():
             try:
                 # Heartbeat
-                if ite_num >= int(0.5 * sampling_rate):
+                if ite_num >= chck_num:
                     ite_num = 0
                     with self._lock:
                         self._thread_active[stim_idx] = outlet.have_consumers()
@@ -228,17 +251,24 @@ class ThreadLSL:
                     ite_num += 1
                 # Process data
                 outlet.push_sample(
-                    x=[int(offset + offset * np.sin(idx + ch)) for ch in channels],
+                    x=np.random.randint(low=-2**15, high=2**15, size=channel_num).tolist(),
                     timestamp=0.0,
                     pushthrough=True
                 )
-                idx += signal_step
                 sleep(1 / sampling_rate)
             except Exception as e:
                 with self._lock:
                     self._exception.put(e)
 
-    def _thread_stream_file(self, stim_idx: int, name: str, path2data: str, file_index: int=0, prefix: str='data') -> None:
+    def lsl_stream_file(self, stim_idx: int, name: str, path2data: str, file_index: int=0, prefix: str= 'data') -> None:
+        """Process for starting a Lab Streaming Layer (LSL) to stream the file content into the DAQ system by mocking the DAQ hardware
+        :param stim_idx:        Integer with array index to write into heartbeat feedback array
+        :param name:            String with name of the LSL stream (must match with recording process)
+        :param path2data:       Path to folder with pre-recorded data files
+        :param file_index:      Number of the file in the folder to process
+        :param prefix:          Prefix of the data file to find
+        :return:                None
+        """
         path0 = Path(path2data)
         if not path0.exists():
             raise AttributeError("File is not available")
@@ -253,33 +283,28 @@ class ThreadLSL:
             channel_type=cf_int16
         )[0]
 
-        ite_num = 0
         while self._event.is_set():
             try:
-                # Process data
                 for stime, sdata in zip(data.time, data.data.T):
+                    if not self._event.is_set():
+                        break
                     # Heartbeat
-                    if ite_num >= int(0.5 * data.sampling_rate):
-                        ite_num = 0
-                        with self._lock:
-                            self._thread_active[stim_idx] = outlet.have_consumers()
-                    else:
-                        ite_num += 1
-
+                    with self._lock:
+                        self._thread_active[stim_idx] = outlet.have_consumers()
+                    # Process data
                     outlet.push_sample(
                         x=sdata.tolist(),
                         timestamp=stime,
                         pushthrough=True
                     )
                     sleep(1 / data.sampling_rate)
-                    if not self._event.is_set():
-                        break
             except Exception as e:
                 with self._lock:
                     self._exception.put(e)
 
-    def _thread_stream_data(self, stim_idx: int, name: str, daq_func, channel_num: int, sampling_rate: float) -> None:
+    def lsl_stream_data(self, stim_idx: int, name: str, daq_func, channel_num: int, sampling_rate: float) -> None:
         """Process for starting a Lab Streaming Layer (LSL) to process the data stream from DAQ system
+        :param stim_idx:        Integer with array index to write into heartbeat feedback array
         :param name:            String with name of the LSL stream (must match with recording process)
         :param daq_func:        Function to get data from DAQ device (returned list)
         :param channel_num:     Channel number to start stream from
@@ -296,38 +321,33 @@ class ThreadLSL:
         )[0]
 
         use_batch_mode = 'batch' in daq_func.__name__
-        ite_num = 0
         while self._event.is_set():
             try:
-                # Heartbeat
-                if ite_num >= int(0.5 * sampling_rate):
-                    ite_num = 0
-                    with self._lock:
-                        self._thread_active[stim_idx] = outlet.have_consumers()
-                else:
-                    ite_num += 1
                 # Data Processing
-                data = daq_func()
+                data, tb = daq_func()
                 if not data:
                     continue
                 else:
+                    # Heartbeat
+                    with self._lock:
+                        self._thread_active[stim_idx] = outlet.have_consumers()
                     if use_batch_mode:
                         outlet.push_chunk(
-                            x=data[0],
-                            timestamp=data[1],
+                            x=data,
+                            timestamp=tb,
                             pushthrough=True
                         )
                     else:
                         outlet.push_sample(
-                            x=data[0],
-                            timestamp=data[1],
+                            x=data,
+                            timestamp=tb,
                             pushthrough=True
                         )
             except Exception as e:
                 with self._lock:
                     self._exception.put(e)
 
-    def _thread_stream_util(self, stim_idx: int, name: str, sampling_rate: float=2.) -> None:
+    def lsl_stream_util(self, stim_idx: int, name: str, sampling_rate: float=2.) -> None:
         """Process for starting a Lab Streaming Layer (LSL) to process the utilization of the host computer
         :param stim_idx:        Integer with array index to write into heartbeat feedback array
         :param name:            String with name of the LSL stream (must match with recording process)
@@ -360,18 +380,17 @@ class ThreadLSL:
                 with self._lock:
                     self._exception.put(e)
 
-    def _thread_record_stream(self, stim_idx: int, name: str, path2save: Path | str, take_samples: list = ()) -> None:
+    def lsl_record_stream(self, stim_idx: int, name: str, path2save: Path | str) -> None:
         """Function for recording and saving the data pushed on LSL stream
         :param stim_idx:            Integer with array index to write into heartbeat feedback array
         :param name:                String with name of the LSL stream in order to catch it
         :param path2save:           Path to save the data (if it is a string, it will be auto-converted)
-        :param take_samples:        List with indexes to take from LSL pull list for further processing
         :return: None
         """
         path = Path(path2save) if type(path2save) == str else path2save
-        inlet = StreamInlet(resolve_bypred(f"name='{name}'")[0])
+        inlet = self._establish_lsl_inlet(name)
         # Extract meta
-        channels = inlet.info().channel_count() if not len(take_samples) else len(take_samples)
+        channels = inlet.info().channel_count()
         sampling_rate = inlet.info().nominal_srate()
         sys_type = inlet.info().type()
         data_format = inlet.info().channel_format()
@@ -408,14 +427,14 @@ class ThreadLSL:
             ts_dset.attrs["unit"] = ""
             f.flush()
 
-            process_list = take_samples if len(take_samples) else [i for i in range(channels)]
+            process_list = [i for i in range(channels)]
             cnt_flush = 0
-            max_samples = int(0.25 * sampling_rate) if sampling_rate > 4. else 1
+            max_samples = int(sampling_rate / 50) if sampling_rate > 500. else 10
             while self._event.is_set():
                 try:
                     data_buf, ts_buf = inlet.pull_chunk(
                         max_samples=max_samples,
-                        timeout=50e-3
+                        timeout=10e-3
                     )
                     if not data_buf:
                         continue
@@ -437,33 +456,29 @@ class ThreadLSL:
                     self._exception.put(e)
             f.close()
 
-    def _thread_plot_stream(
-            self, stim_idx: int, name: str, window_length: float = 10.,
-            take_samples: list = (), update_rate: float = 12.
+    def lsl_plot_stream(
+            self, stim_idx: int, name: str, window_length: float = 10., update_rate: float = 12.
     ) -> None:
         """Function for LSL to enable live plotting of the incoming results using VisPy
         :param stim_idx:        Integer with array index to write into heartbeat feedback array
         :param name:            String with name of the LSL stream to get data
         :param window_length:   Floating value with length of time window for plotting in seconds
-        :param take_samples:    List with taking idx from LSL pulling event
         :param update_rate:     Floating value with update rate of the LSL datastream
         :return:                None
         """
         line_color = ['red', 'green', 'blue', 'lime']
         mode_util = 'util' in name
-        inlet = StreamInlet(resolve_bypred(f"name='{name}'")[0])
+        inlet = self._establish_lsl_inlet(name)
         # --- Extract meta
-        channels = inlet.info().channel_count() if mode_util or not len(take_samples) else len(take_samples)
+        channels = inlet.info().channel_count()
         sampling_rate = inlet.info().nominal_srate()
-        if sampling_rate > 2500.:
+        if sampling_rate > 4500.:
             raise AttributeError(f"Sampling rate {sampling_rate} is too high")
         # --- Build ring buffer and update func
-        number_samples_pull = int(sampling_rate / update_rate) - 1 if sampling_rate > update_rate else 1
+        max_samples = int(sampling_rate / 50) if sampling_rate > 500. else 10
         number_samples_window = int(window_length * sampling_rate)
         buffer_lsl = [RingBuffer(number_samples_window) for _ in range(channels)]
         buffer_gpu = buffer_lsl.copy()
-        if not take_samples:
-            take_samples = list(range(channels))
         # --- Build app
         canvas = scene.SceneCanvas(
             size=(800, 450),
@@ -506,28 +521,24 @@ class ThreadLSL:
             nonlocal buffer_lsl
             while self._event.is_set():
                 try:
-                    # Process data
                     samples, _ = inlet.pull_chunk(
-                        max_samples=number_samples_pull,
-                        timeout=20e-3
+                        max_samples=max_samples,
+                        timeout=10e-3
                     )
                     if not samples:
                         continue
                     else:
-                        # Heartbeat
                         with self._lock:
                             self._thread_active[stim_idx+1] = True
                         for sample in samples:
-                            for ch, idx in enumerate(take_samples):
-                                buffer_lsl[ch].append(sample[idx])
+                            for ch, value in enumerate(sample):
+                                buffer_lsl[ch].append(value)
                 except Exception as e:
                     with self._lock:
                         self._exception.put(e)
 
         def update_plot_canvas(events):
             nonlocal buffer_gpu
-
-            # Update plot properties
             if not self._event.is_set():
                 app.quit()
             if not self._is_active:
@@ -538,7 +549,6 @@ class ThreadLSL:
                 curve.set_data(buffer0.get_data())
 
         def update_on_fps(fps):
-            # Heartbeat func
             with self._lock:
                 self._thread_active[stim_idx] = fps > 0
             fps_text.text = f"FPS: {fps:.1f}"
@@ -548,7 +558,6 @@ class ThreadLSL:
         self._thread_active.extend([0])
         self._thread[-1].start()
         canvas.measure_fps(callback=update_on_fps)
-
         app.Timer(
             interval=1/update_rate,
             connect=update_plot_canvas,

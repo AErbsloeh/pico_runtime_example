@@ -7,3 +7,4 @@
 .venv
 .python-version
 uv.lock
+*.out

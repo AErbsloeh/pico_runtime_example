@@ -11,3 +11,11 @@ This template provides a basic structure with timer IRQ, USB handling, and state
 ## Template of a Python API
 This Python API is usable for communicating with Pico MCU using the firmware template. 
 
+## Installation Guide for libusb on Windows
+- Gehe auf die offizielle Libusb-Seite: https://libusb.info
+- Lade die passende Windows-Binärdatei herunter (meist ZIP).
+- Entpacke die Dateien z. B. nach C:\libusb.
+- Füge den Pfad zu bin deiner Systemumgebungsvariablen PATH hinzu, damit Programme die DLL finden:
+- Rechtsklick auf „Dieser PC“ → Eigenschaften → Erweiterte Systemeinstellungen → Umgebungsvariablen → PATH bearbeiten → Pfad zu C:\libusb\bin hinzufügen.
+Fertig! Programme sollten jetzt auf libusb zugreifen können.
+

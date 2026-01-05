@@ -38,4 +38,5 @@ dev = [
     "hatch",
     "pytest>=8.4.2",
     "matplotlib>=3.10.7",
+    "snakeviz>=2.2.2",
 ]

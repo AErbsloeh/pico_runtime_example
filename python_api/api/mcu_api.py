@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from logging import getLogger, Logger
 from time import sleep
-from struct import unpack_from
 import numpy as np
 
 from api.interface import (
@@ -57,28 +56,32 @@ class SystemState:
 
 class DeviceAPI:
     __device: InterfaceSerial
+    __threads: ThreadLSL
     __logger: Logger
-    __num_bytes_runtime: int = 9
-    __num_bytes_data: int = 14
+    __timeout_default: float
+    __num_batch_data: int = 20
+    __num_bytes_data: int = 15
     __sampling_rate: float = 4.
     # Pico 2 specific USB characteristics
     __usb_vid: int = 0x2E8A
     __usb_pid: int = 0x0009
-    __threads: ThreadLSL
 
-    def __init__(self, com_name: str="AUTOCOM", timeout: float=1.0) -> None:
+
+
+    def __init__(self, com_name: str="AUTOCOM", timeout: float=1.) -> None:
         """Init. of the device with name and baudrate of the device
         :param com_name:    String with the serial port name of the used device
-        :param timeout:     Floating value with timeout for the communication
+        :param timeout:     Floating value with timeout for the communication [Default, not during DAQ]
         """
         self.__logger = getLogger(__name__)
         self.__threads = ThreadLSL()
+        self.__timeout_default = timeout
         self.__device = InterfaceSerial(
             com_name=com_name if com_name != "AUTOCOM" else get_comport_name(usb_vid=self.__usb_vid, usb_pid=self.__usb_pid),
             baud=230400,
             num_bytes_head=1,
             num_bytes_data=2,
-            timeout=timeout,
+            timeout=self.__timeout_default
         )
         if self.is_com_port_active:
             self.__device.close()
@@ -207,11 +210,6 @@ class DeviceAPI:
         self.__write_without_feedback(9, 0)
 
     @property
-    def _thread_process_sample(self) -> list[int]:
-        """Indicating the indices from the daq sample list for further processing/saving (without timestamp)"""
-        return [0, 1, 2]
-
-    @property
     def _thread_frame_datatype(self) -> np.dtype:
         return np.dtype([
             ('head', 'u1'),  # 1 Byte unsigned
@@ -224,32 +222,33 @@ class DeviceAPI:
 
     def _thread_read_frame(self) -> tuple[list, float]:
         """Entpacken der Informationen aus dem USB Protokoll (siehe C-Datei: src/daq_sample.c in der Firmware)"""
-        frame = self.__device.read(15)
+        frame = self.__device.read(self.__num_bytes_data)
         if not frame:
             return [], 0.0
-
-        if not frame[0] == 0xA0 or not frame[-1] == 0xFF:
-            return [], 0.0
-        else:
+        try:
             frames = np.frombuffer(frame, dtype=self._thread_frame_datatype)
             mask = (frames['head'] == 0xA0) | (frames['tail'] == 0xFF)
             frames = frames[mask]
-            timestamps = float(frames['timestamp'] * 1e-6)
-            return [frames['index'], frames['c0'], frames['c1']], timestamps
+            timestamps = float(1e-6 * frames['timestamp'])
+            data = [int(frames['index']), int(frames['c0']), int(frames['c1'])]
+            return data, timestamps
+        except Exception:
+            return [], 0.0
 
     def _thread_read_batch(self) -> tuple[list[list], list[float]]:
         """Entpacken der Informationen aus dem USB Protokoll (siehe C-Datei: src/daq_sample.c in der Firmware)"""
-        batch = self.__device.read(8*15)
+        batch = self.__device.read(self.__num_batch_data)
         if not batch:
             return [], []
-
-        frames = np.frombuffer(batch, dtype=self._thread_frame_datatype)
-        mask = (frames['head'] == 0xA0) | (frames['tail'] == 0xFF)
-        frames = frames[mask]
-
-        timestamps = (frames['timestamp'] * 1e-6).tolist()
-        data = np.stack([frames['index'], frames['c0'], frames['c1']], axis=1).tolist()
-        return data, timestamps
+        try:
+            frames = np.frombuffer(batch, dtype=self._thread_frame_datatype)
+            mask = (frames['head'] == 0xA0) | (frames['tail'] == 0xFF)
+            frames = frames[mask]
+            timestamps = (frames['timestamp'] * 1e-6).tolist()
+            data = np.stack([frames['index'], frames['c0'], frames['c1']], axis=1).tolist()
+            return data, timestamps
+        except Exception:
+            return [], []
 
     def start_daq(self, do_plot: bool=False, window_sec: float= 30., track_util: bool=False, folder_name: str="data") -> None:
         """Changing the state of the DAQ with starting it
@@ -259,14 +258,18 @@ class DeviceAPI:
         :param folder_name: String with folder name to save data in project folder
         :return: None
         """
+        self.__device.timeout = 5 / self.__sampling_rate
+        self.__num_batch_data = self.__num_bytes_data * (int(self.__sampling_rate / 50) if self.__sampling_rate > 50 else 10)
         path2data = get_path_to_project(new_folder=folder_name)
-        self.__threads.register(func=self.__threads._thread_stream_data, args=(0, 'data', self._thread_read_batch, 3, self.__sampling_rate))
-        self.__threads.register(func=self.__threads._thread_record_stream, args=(1, 'data', path2data, self._thread_process_sample))
+
+        func = self._thread_read_batch if self.__sampling_rate > 500. else self._thread_read_frame
+        self.__threads.register(func=self.__threads.lsl_stream_data, args=(0, 'data', func, 3, self.__sampling_rate))
+        self.__threads.register(func=self.__threads.lsl_record_stream, args=(1, 'data', path2data))
         if track_util:
-            self.__threads.register(func=self.__threads._thread_stream_util, args=(2, 'util', 2.))
-            self.__threads.register(func=self.__threads._thread_record_stream, args=(3, 'util', path2data))
+            self.__threads.register(func=self.__threads.lsl_stream_util, args=(2, 'util', 2.))
+            self.__threads.register(func=self.__threads.lsl_record_stream, args=(3, 'util', path2data))
         if do_plot:
-            self.__threads.register(func=self.__threads._thread_plot_stream, args=(4 if track_util else 3, 'data', window_sec, self._thread_process_sample))
+            self.__threads.register(func=self.__threads.lsl_plot_stream, args=(4 if track_util else 2, 'data', window_sec))
 
         self.__threads.start()
         self.__write_without_feedback(10, 0)
@@ -275,6 +278,7 @@ class DeviceAPI:
         """Changing the state of the DAQ with stopping it"""
         self.__threads.stop()
         self.__write_without_feedback(11, 0)
+        self.__device.timeout = self.__timeout_default
 
     def wait_daq(self, time_sec: float) -> None:
         """Waiting Routine"""

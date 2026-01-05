@@ -116,8 +116,8 @@ def test_thread_register_and_start_multiple():
 def test_thread_utilization():
     dut = ThreadLSL()
     path2data = get_path_to_project("temp_data")
-    dut.register(func=dut._thread_stream_util, args=(0, 'util', 2.))
-    dut.register(func=dut._thread_record_stream, args=(1, 'util', path2data))
+    dut.register(func=dut.lsl_stream_util, args=(0, 'util', 2.))
+    dut.register(func=dut.lsl_record_stream, args=(1, 'util', path2data))
     assert len(dut._thread) == 3
 
     dut.start()
@@ -127,16 +127,16 @@ def test_thread_utilization():
     assert dut.is_running == False
 
 
-def test_thread_mock_sinusoidal():
+def test_thread_mock_random():
     dut = ThreadLSL()
     channel_num = 4
     sample_rate = 200
     path2data = get_path_to_project("temp_data")
 
-    dut.register(func=dut._thread_stream_util, args=(0, 'util', 2.))
-    dut.register(func=dut._thread_record_stream, args=(1, 'util', path2data))
-    dut.register(func=dut._thread_stream_mock, args=(2, 'data', channel_num, sample_rate))
-    dut.register(func=dut._thread_record_stream, args=(3, 'data', path2data))
+    dut.register(func=dut.lsl_stream_util, args=(0, 'util', 2.))
+    dut.register(func=dut.lsl_record_stream, args=(1, 'util', path2data))
+    dut.register(func=dut.lsl_stream_mock, args=(2, 'data', channel_num, sample_rate))
+    dut.register(func=dut.lsl_record_stream, args=(3, 'data', path2data))
     assert len(dut._thread) == 5
 
     dut.start()
@@ -151,8 +151,8 @@ def test_thread_mock_file():
     path2save = get_path_to_project("temp_data")
     path2data = get_path_to_project("test_data")
 
-    dut.register(func=dut._thread_stream_file, args=(0, 'mock', path2data, 0, 'mock'))
-    dut.register(func=dut._thread_record_stream, args=(1, 'mock', path2save))
+    dut.register(func=dut.lsl_stream_file, args=(0, 'mock', path2data, 0, 'mock'))
+    dut.register(func=dut.lsl_record_stream, args=(1, 'mock', path2save))
     assert len(dut._thread) == 3
 
     dut.start()
