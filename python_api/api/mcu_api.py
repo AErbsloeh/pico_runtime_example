@@ -222,31 +222,37 @@ class DeviceAPI:
 
     def _thread_read_frame(self) -> tuple[list, float]:
         """Entpacken der Informationen aus dem USB Protokoll (siehe C-Datei: src/daq_sample.c in der Firmware)"""
-        frame = self.__device.read(self.__num_bytes_data)
-        if not frame:
-            return [], 0.0
         try:
+            frame = self.__device.read(self.__num_bytes_data)
+            if not frame:
+                raise Exception
             frames = np.frombuffer(frame, dtype=self._thread_frame_datatype)
             mask = (frames['head'] == 0xA0) | (frames['tail'] == 0xFF)
             frames = frames[mask]
-            timestamps = float(1e-6 * frames['timestamp'])
-            data = [int(frames['index']), int(frames['c0']), int(frames['c1'])]
-            return data, timestamps
+            if frames.size > 0:
+                timestamps = float(1e-6 * frames['timestamp'])
+                data = [int(frames['index']), int(frames['c0']), int(frames['c1'])]
+                return data, timestamps
+            else:
+                raise Exception
         except Exception:
-            return [], 0.0
+            return [], None
 
     def _thread_read_batch(self) -> tuple[list[list], list[float]]:
         """Entpacken der Informationen aus dem USB Protokoll (siehe C-Datei: src/daq_sample.c in der Firmware)"""
-        batch = self.__device.read(self.__num_batch_data)
-        if not batch:
-            return [], []
         try:
+            batch = self.__device.read(self.__num_batch_data)
+            if not batch:
+                raise Exception
             frames = np.frombuffer(batch, dtype=self._thread_frame_datatype)
             mask = (frames['head'] == 0xA0) | (frames['tail'] == 0xFF)
             frames = frames[mask]
-            timestamps = (frames['timestamp'] * 1e-6).tolist()
-            data = np.stack([frames['index'], frames['c0'], frames['c1']], axis=1).tolist()
-            return data, timestamps
+            if frames.size > 0:
+                timestamps = (frames['timestamp'] * 1e-6).tolist()
+                data = np.stack([frames['index'], frames['c0'], frames['c1']], axis=1).tolist()
+                return data, timestamps
+            else:
+                raise Exception
         except Exception:
             return [], []
 
@@ -258,8 +264,7 @@ class DeviceAPI:
         :param folder_name: String with folder name to save data in project folder
         :return: None
         """
-        self.__device.timeout = 5 / self.__sampling_rate
-        self.__num_batch_data = self.__num_bytes_data * (int(self.__sampling_rate / 50) if self.__sampling_rate > 50 else 10)
+        self.__num_batch_data = self.__num_bytes_data * (int(self.__sampling_rate / 50) if self.__sampling_rate > 50. else 10)
         path2data = get_path_to_project(new_folder=folder_name)
 
         func = self._thread_read_batch if self.__sampling_rate > 500. else self._thread_read_frame
@@ -271,6 +276,7 @@ class DeviceAPI:
         if do_plot:
             self.__threads.register(func=self.__threads.lsl_plot_stream, args=(4 if track_util else 2, 'data', window_sec))
 
+        self.__device.timeout = 2 / self.__sampling_rate
         self.__threads.start()
         self.__write_without_feedback(10, 0)
 

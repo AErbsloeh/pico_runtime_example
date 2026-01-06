@@ -18,7 +18,7 @@ def test_loader_data(path: Path):
 
 
 def test_loader_util(path: Path):
-    dut = DataAPI(path)
+    dut = DataAPI(path, data_prefix='mock')
     data = dut.read_utilization_file(0)
     file = dut.get_file_name_util(0)
     assert 'util' in file

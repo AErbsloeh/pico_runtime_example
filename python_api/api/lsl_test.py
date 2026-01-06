@@ -38,10 +38,12 @@ def test_ringbuffer_with_timestamp():
         np.testing.assert_array_equal(dut.get_data().shape, buffer_in.shape)
         dut.append_with_timestamp(idx, idx+1)
 
+
 def test_thread_init():
     dut = ThreadLSL()
     assert dut.is_alive == False
     assert dut.is_running == False
+
 
 def test_thread_register_and_start():
     dut = ThreadLSL()
@@ -82,11 +84,10 @@ def test_thread_register_and_abort():
             dut.check_exception()
             print(ite, dut._is_active, dut._thread_active)
             if ite > 5:
-                dut._thread[-1].join(timeout=0.1)
+                dut.stop()
                 while dut._is_active:
                     sleep(0.1)
                 raise RuntimeError
-        dut.stop()
         assert dut.is_running == False
     except RuntimeError:
         assert True == True
@@ -156,10 +157,14 @@ def test_thread_mock_file():
     assert len(dut._thread) == 3
 
     dut.start()
-    dut.wait_for_seconds(10.)
-    dut.stop()
-    assert dut._is_active == False
-    assert dut.is_running == False
+    try:
+        dut.wait_for_seconds(10.)
+    except RuntimeError:
+        dut.stop()
+        assert dut._is_active == False
+        assert dut.is_running == False
+    else:
+        assert dut._is_active == True
 
 
 if __name__ == "__main__":

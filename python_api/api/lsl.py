@@ -321,31 +321,42 @@ class ThreadLSL:
         )[0]
 
         use_batch_mode = 'batch' in daq_func.__name__
-        while self._event.is_set():
-            try:
-                # Data Processing
-                data, tb = daq_func()
-                if not data:
-                    continue
-                else:
+        if use_batch_mode:
+            while self._event.is_set():
+                try:
+                    # Data Processing
+                    data, tb = daq_func()
+                    if len(data) != len(tb):
+                        continue
                     # Heartbeat
                     with self._lock:
                         self._thread_active[stim_idx] = outlet.have_consumers()
-                    if use_batch_mode:
-                        outlet.push_chunk(
-                            x=data,
-                            timestamp=tb,
-                            pushthrough=True
-                        )
-                    else:
-                        outlet.push_sample(
-                            x=data,
-                            timestamp=tb,
-                            pushthrough=True
-                        )
-            except Exception as e:
-                with self._lock:
-                    self._exception.put(e)
+                    outlet.push_chunk(
+                        x=data,
+                        timestamp=tb,
+                        pushthrough=True
+                    )
+                except Exception as e:
+                    with self._lock:
+                        self._exception.put(e)
+        else:
+            while self._event.is_set():
+                try:
+                    # Data Processing
+                    data, tb = daq_func()
+                    if not data or tb is None:
+                        continue
+                    # Heartbeat
+                    with self._lock:
+                        self._thread_active[stim_idx] = outlet.have_consumers()
+                    outlet.push_sample(
+                        x=data,
+                        timestamp=tb,
+                        pushthrough=True
+                    )
+                except Exception as e:
+                    with self._lock:
+                        self._exception.put(e)
 
     def lsl_stream_util(self, stim_idx: int, name: str, sampling_rate: float=2.) -> None:
         """Process for starting a Lab Streaming Layer (LSL) to process the utilization of the host computer
