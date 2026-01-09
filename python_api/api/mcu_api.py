@@ -66,8 +66,6 @@ class DeviceAPI:
     __usb_vid: int = 0x2E8A
     __usb_pid: int = 0x0009
 
-
-
     def __init__(self, com_name: str="AUTOCOM", timeout: float=1.) -> None:
         """Init. of the device with name and baudrate of the device
         :param com_name:    String with the serial port name of the used device
@@ -86,7 +84,6 @@ class DeviceAPI:
         if self.is_com_port_active:
             self.__device.close()
         self.__device.open()
-
 
     def __write_with_feedback(self, head: int, data: int, size: int=0) -> bytes:
         return self.__device.write_wfb(
@@ -281,18 +278,24 @@ class DeviceAPI:
         self.__write_without_feedback(10, 0)
 
     def stop_daq(self) -> None:
-        """Changing the state of the DAQ with stopping it"""
+        """Changing the state of the DAQ with stopping it
+        :return:            None
+        """
         self.__threads.stop()
         self.__write_without_feedback(11, 0)
         self.__device.timeout = self.__timeout_default
 
     def wait_daq(self, time_sec: float) -> None:
-        """Waiting Routine"""
+        """Waiting Routine incl. returning possible thread errors
+        :param time_sec:    Float with time value for waiting
+        :return:            None
+        """
         self.__threads.wait_for_seconds(time_sec)
 
     def update_daq_sampling_rate(self, sampling_rate: float) -> None:
         """Updating the sampling rate of the DAQ
         :param sampling_rate:   Float with sampling rate [Hz]
+        :return:                None
         """
         sampling_limits = [0, 2**16-1]
         if sampling_rate < sampling_limits[0]:
