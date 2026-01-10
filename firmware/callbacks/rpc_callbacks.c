@@ -1,5 +1,6 @@
 #include "callbacks/rpc_callbacks.h"
 #include "hardware_io.h"
+#include "version.h"
 
 
 // ============================= COMMANDS =============================
@@ -63,8 +64,8 @@ void get_runtime(char* buffer){
 }
 
 void get_firmware_version(char* buffer, size_t length){
-    buffer[1] = (char)FIRMWARE_VERSION_MAJOR;
-    buffer[2] = (char)FIRMWARE_VERSION_MINOR;
+    buffer[1] = PROGRAM_VERSION[0]-48;
+    buffer[2] = PROGRAM_VERSION[2]-48;
     usb_send_bytes(buffer, length);
 }
 

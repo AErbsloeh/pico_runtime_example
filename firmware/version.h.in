@@ -1,0 +1,2 @@
+#pragma once
+#define PROGRAM_VERSION "@PROGRAM_VERSION@"

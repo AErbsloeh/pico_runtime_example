@@ -23,7 +23,8 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico2 CACHE STRING "Board type")
+set(PICO_BOARD pico2_w CACHE STRING "Board type")
+set(PROGRAM_VERSION "0.1")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -32,16 +33,7 @@ project(main C CXX ASM)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# Adding custom device/HAL library
-include(FetchContent)
-FetchContent_Declare(
-    custom_library
-    GIT_REPOSITORY https://github.com/AErbsloeh/pico_runtime_library.git
-    GIT_TAG        main
-)
-FetchContent_MakeAvailable(custom_library)
-
-# Add executable. Default name is the project name, version 0.1
+# Add executable. Default name is the project name
 add_executable(main 
     main.c 
     callbacks/gpio_callbacks.c
@@ -53,14 +45,25 @@ add_executable(main
 )
 
 pico_set_program_name(main "main")
-pico_set_program_version(main "1.0")
+pico_set_program_version(main "${PROGRAM_VERSION}")
+configure_file(version.h.in version.h @ONLY)
+target_include_directories(main PRIVATE ${CMAKE_BINARY_DIR})
+
+# Adding custom device/HAL library
+include(FetchContent)
+FetchContent_Declare(
+    custom_library
+    GIT_REPOSITORY https://github.com/AErbsloeh/pico_runtime_library.git
+    GIT_TAG        main
+)
+FetchContent_MakeAvailable(custom_library)
+#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../pico_runtime_library custom_library)
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(main false)
 pico_enable_stdio_usb(main true)
 
 # Add the standard library to the build
-add_definitions(-DPICO_BOARD="${PICO_BOARD}")
 target_link_libraries(main
     pico_stdlib
     pico_bootsel_via_double_reset
@@ -69,7 +72,7 @@ target_link_libraries(main
     hardware_gpio
     # ---- Include Hardware Abstraction Layer (HAL) libraries
     #hal_btspp
-    #hal_clk
+    hal_clk
     #hal_i2c
     #hal_irq
     hal_led
@@ -109,10 +112,11 @@ target_link_libraries(main
     #sens_veml7700
     #sens_vl6180
 )
-# --- Extract if wireless board is available
-string(FIND "${PICO_BOARD}" "_w" POSITION)
-if(POSITION GREATER -1)
-    add_definitions(-DPICO_CYW43_SUPPORTED)
+
+# Define definition
+# --- Extract if board is one of the pico*_w 
+if(PICO_BOARD MATCHES "_w")
+     add_definitions(-DPICO_CYW43_SUPPORTED)
 endif()
 
 # --- Target download if link is linked
@@ -121,6 +125,17 @@ get_target_property(LINK_LIBS main LINK_LIBRARIES)
 string(FIND "${LINK_LIBS}" "peri_sd" POSITION)
 if(POSITION GREATER -1)
     add_definitions(-DDOWNLOAD_SD)
+endif()
+
+string(FIND "${LINK_LIBS}" "hal_btstack" POSITION)
+if(POSITION GREATER -1)
+    target_compile_definitions(main PUBLIC PICO_BTSTACK_SUPPORTED)
+    add_definitions(-DPICO_BTSTACK_SUPPORTED)
+endif()
+
+string(FIND "${LINK_LIBS}" "hal_wifi_tcp" POSITION)
+if(POSITION GREATER -1)
+    target_compile_definitions(main PUBLIC PICO_WIFI_SUPPORTED)
 endif()
 
 string(FIND "${LINK_LIBS}" "peri_w5500" POSITION)

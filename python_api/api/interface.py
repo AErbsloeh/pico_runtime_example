@@ -17,7 +17,7 @@ def get_comport_name(usb_vid: int, usb_pid: int) -> str:
     available_ports = list_ports.comports()
     list_right_com = [port.device for port in available_ports if port.vid == usb_vid and port.pid == usb_pid]
     if len(list_right_com) == 0:
-        raise ConnectionError(f"No COM Port with right USB found - Please adapt the VID and PID values")
+        raise ConnectionError(f"No COM Port with right USB found - Please adapt the VID and PID values {[[port.name, port.vid, port.pid] for port in list_ports.comports()]}")
     return list_right_com[0]
 
 

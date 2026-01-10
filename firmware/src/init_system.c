@@ -18,7 +18,7 @@ bool init_gpio_pico(bool block_usb){
     set_system_state(STATE_INIT);
     
     // --- Init of GPIOs
-    //set_gpio_default_led(LED_PIN_DEFAULT); // Only for custom boards
+    //set_gpio_default_led(LED_PIN_DEFAULT); // Activate only for custom boards (KB2040 -> WS2812, PICO1/2_W -> CYW43)
     init_default_led();
 
     // --- Init GPIO + IRQ (Low Level)
@@ -38,22 +38,24 @@ bool init_gpio_pico(bool block_usb){
 
 
 bool init_system(void){
-    set_system_state(STATE_IDLE);
     uint8_t num_init_done = 0;
 
     // --- Init of Timer
     if(init_daq_sampling(&tmr_daq0_hndl)){
         num_init_done++;
-        
     };
 
     // --- Blocking Routine if init is not completed
     sleep_ms(10);
-    if(num_init_done == 0){
+    if(num_init_done == 1){
         set_system_state(STATE_IDLE);
         return true;
     } else {
         set_system_state(STATE_ERROR);
+        while(true){
+            sleep_ms(50);
+            toggle_state_default_led();
+        }
         return false;
     }
 }
