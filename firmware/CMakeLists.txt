@@ -23,7 +23,7 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico2_w CACHE STRING "Board type")
+set(PICO_BOARD pico2 CACHE STRING "Board type")
 set(PROGRAM_VERSION "0.1")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
@@ -56,8 +56,8 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/AErbsloeh/pico_runtime_library.git
     GIT_TAG        main
 )
-FetchContent_MakeAvailable(custom_library)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../pico_runtime_library custom_library)
+#FetchContent_MakeAvailable(custom_library)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../pico_runtime_library custom_library)
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(main false)
@@ -73,7 +73,7 @@ target_link_libraries(main
     # ---- Include Hardware Abstraction Layer (HAL) libraries
     #hal_btspp
     hal_clk
-    #hal_i2c
+    hal_i2c
     #hal_irq
     hal_led
     #hal_osc
@@ -112,35 +112,39 @@ target_link_libraries(main
     #sens_veml7700
     #sens_vl6180
 )
-
-# Define definition
-# --- Extract if board is one of the pico*_w 
-if(PICO_BOARD MATCHES "_w")
-     add_definitions(-DPICO_CYW43_SUPPORTED)
-endif()
-
-# --- Target download if link is linked
 get_target_property(LINK_LIBS main LINK_LIBRARIES)
 
-string(FIND "${LINK_LIBS}" "peri_sd" POSITION)
-if(POSITION GREATER -1)
-    add_definitions(-DDOWNLOAD_SD)
+# Define definition and set flags if used (necessary for external file handling)
+if("hal_btspp" IN_LIST LINK_LIBS)
+    message(STATUS "si")
+    set(PICO_BTSTACK_ENABLED ON CACHE BOOL "Enable Bluetooth SPP HAL library" FORCE)
+else()
+    set(PICO_BTSTACK_ENABLED OFF CACHE BOOL "Disable Bluetooth SPP HAL library" FORCE)
 endif()
 
-string(FIND "${LINK_LIBS}" "hal_btstack" POSITION)
-if(POSITION GREATER -1)
-    target_compile_definitions(main PUBLIC PICO_BTSTACK_SUPPORTED)
-    add_definitions(-DPICO_BTSTACK_SUPPORTED)
+if("hal_wifi_tcp" IN_LIST LINK_LIBS)
+    message(STATUS "si 0")
+    set(PICO_WIFI_TCP_ENABLED ON CACHE BOOL "Enable Wifi TCP HAL library" FORCE)
+else()
+    set(PICO_WIFI_TCP_ENABLED OFF CACHE BOOL "Disable Wifi TCP HAL library" FORCE)
 endif()
 
-string(FIND "${LINK_LIBS}" "hal_wifi_tcp" POSITION)
-if(POSITION GREATER -1)
-    target_compile_definitions(main PUBLIC PICO_WIFI_SUPPORTED)
+if("hal_wifi_udp" IN_LIST LINK_LIBS)
+    set(PICO_WIFI_UDP_ENABLED ON CACHE BOOL "Enable Wifi UDP HAL library" FORCE)
+else()
+    set(PICO_WIFI_UDP_ENABLED OFF CACHE BOOL "Disable Wifi UDP HAL library" FORCE)
 endif()
 
-string(FIND "${LINK_LIBS}" "peri_w5500" POSITION)
-if(POSITION GREATER -1)
-    add_definitions(-DDOWNLOAD_W5500)
+if("peri_sd" IN_LIST LINK_LIBS)
+    set(PICO_SD_ENABLED ON CACHE BOOL "Enable SD card library" FORCE)
+else()
+    set(PICO_SD_ENABLED OFF CACHE BOOL "Disable SD card library" FORCE)
+endif()
+
+if("peri_w5500" IN_LIST LINK_LIBS)
+    set(PICO_W5500_ENABLED ON CACHE BOOL "Enable Ethernet W5500 library" FORCE)
+else()
+    set(PICO_W5500_ENABLED OFF CACHE BOOL "Disable Ethernet W5500 library")
 endif()
 
 # Add the standard include files to the build
