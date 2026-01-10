@@ -46,7 +46,7 @@ void get_clock_system(char* buffer, size_t length){
 
 
 void get_state_pin(char* buffer, size_t length){
-    buffer[2] = get_default_led();
+    buffer[2] = get_state_default_led();
     usb_send_bytes(buffer, length);
 }
 
@@ -70,17 +70,17 @@ void get_firmware_version(char* buffer, size_t length){
 
 
 void enable_led(void){
-    set_default_led(true);
+    set_state_default_led(true);
 }
 
 
 void disable_led(void){
-    set_default_led(false);
+    set_state_default_led(false);
 }
 
 
 void toogle_led(void){
-    toggle_default_led();
+    toggle_state_default_led();
 }
 
 

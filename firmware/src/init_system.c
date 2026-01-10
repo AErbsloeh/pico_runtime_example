@@ -1,7 +1,4 @@
 #include "src/init_system.h"
-#ifdef PICO_CYW43_SUPPORTED
-    #include "pico/cyw43_arch.h"
-#endif
 #include "hardware_io.h"
 #include "hardware/watchdog.h"
 
@@ -19,15 +16,10 @@ void reset_pico_mcu(bool wait_until_done){
 
 bool init_gpio_pico(bool block_usb){
     set_system_state(STATE_INIT);
-    // --- Init of Wireless Module (if used)
-    #ifdef PICO_CYW43_SUPPORTED 
-        if (cyw43_arch_init()) {
-            return false;
-        }
-    #endif
     
     // --- Init of GPIOs
-    init_default_led(LED_TEST_DEFAULT);
+    //set_gpio_default_led(LED_PIN_DEFAULT); // Only for custom boards
+    init_default_led();
 
     // --- Init GPIO + IRQ (Low Level)
     /*gpio_init(BUTTON_BOARD);
@@ -52,11 +44,12 @@ bool init_system(void){
     // --- Init of Timer
     if(init_daq_sampling(&tmr_daq0_hndl)){
         num_init_done++;
+        
     };
 
     // --- Blocking Routine if init is not completed
     sleep_ms(10);
-    if(num_init_done == 1){
+    if(num_init_done == 0){
         set_system_state(STATE_IDLE);
         return true;
     } else {
@@ -84,19 +77,19 @@ bool set_system_state(system_state_t new_state){
         system_state = new_state;
         switch(new_state){
             case STATE_INIT:
-                set_default_led(false);
+                set_state_default_led(false);
                 valid_state = true;
                 break;
             case STATE_IDLE:
-                set_default_led(true);
+                set_state_default_led(true);
                 valid_state = true;
                 break;
             case STATE_ERROR:
-                set_default_led(true);
+                set_state_default_led(true);
                 valid_state = false;
                 break;
             default:
-                set_default_led(false);
+                set_state_default_led(false);
                 valid_state = false;
                 break;
         }
