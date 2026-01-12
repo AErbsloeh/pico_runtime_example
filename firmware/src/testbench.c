@@ -14,7 +14,7 @@ bool run_testbench(testbench_mode_t mode){
     switch(mode){
         case TB_NONE:   sleep_us(1);                                break;
         case TB_MUX:    mode_tb_switch();             			    break;
-        default:        printf("... Testmode not available\n");     break;
+        default:        set_system_state(STATE_ERROR);              break;
     }
     set_system_state(STATE_IDLE);
     return true;

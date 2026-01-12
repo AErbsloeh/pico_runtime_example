@@ -95,7 +95,6 @@ target_link_libraries(main
     #dac_ad5765
     #dac_ltc2668
     # ---- Include peripherie libraries
-    #eth_ch9121
     #peri_sd
     #peri_w5500
     #peri_ws2812
