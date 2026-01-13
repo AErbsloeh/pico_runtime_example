@@ -5,7 +5,7 @@
 
 // ============================= COMMANDS =============================
 typedef enum {
-    ECHO,
+    ECHO = 0,
     RESET,
     CLOCK_SYS,
     STATE_SYS,
@@ -32,29 +32,39 @@ void system_reset(void){
 }
 
 
-void get_state_system(char* buffer, size_t length){
-    buffer[2] = system_state;
-    usb_send_bytes(buffer, length);
+void get_state_system(void){
+    char buffer_send[3] = {0};
+    buffer_send[0] = STATE_SYS;
+    buffer_send[1] = 0x00;
+    buffer_send[2] = system_state;
+
+    usb_send_bytes(buffer_send, sizeof(buffer_send));
 }
 
 
-void get_clock_system(char* buffer, size_t length){
+void get_clock_system(void){
     uint16_t clk_val = (uint16_t)(clock_get_hz(clk_sys) / 10000);
-    buffer[1] = (uint8_t)(clk_val >> 0);
-    buffer[2] = (uint8_t)(clk_val >> 8);
-    usb_send_bytes(buffer, length);
+
+    char buffer_send[3] = {0};
+    buffer_send[0] = CLOCK_SYS;
+    buffer_send[1] = (uint8_t)(clk_val >> 0);
+    buffer_send[2] = (uint8_t)(clk_val >> 8);
+    usb_send_bytes(buffer_send, sizeof(buffer_send));
 }
 
 
-void get_state_pin(char* buffer, size_t length){
-    buffer[2] = get_state_default_led();
-    usb_send_bytes(buffer, length);
+void get_state_pin(void){
+    char buffer_send[3] = {0};
+    buffer_send[0] = STATE_PIN;
+    buffer_send[1] = 0x02;
+    buffer_send[2] = (get_state_default_led() << 0x00);
+    usb_send_bytes(buffer_send, sizeof(buffer_send));
 }
 
 
-void get_runtime(char* buffer){
+void get_runtime(void){
     char buffer_send[9] = {0};
-    buffer_send[0] = buffer[0];
+    buffer_send[0] = RUNTIME;
     uint64_t runtime = get_runtime_ms();
     for(uint8_t idx = 0; idx < 8; idx++){
         buffer_send[idx+1] = (uint8_t)runtime;
@@ -63,10 +73,13 @@ void get_runtime(char* buffer){
     usb_send_bytes(buffer_send, sizeof(buffer_send));
 }
 
-void get_firmware_version(char* buffer, size_t length){
-    buffer[1] = PROGRAM_VERSION[0]-48;
-    buffer[2] = PROGRAM_VERSION[2]-48;
-    usb_send_bytes(buffer, length);
+
+void get_firmware_version(void){
+    char buffer_send[3] = {0};
+    buffer_send[0] = FIRMWARE;
+    buffer_send[1] = PROGRAM_VERSION[0]-48;
+    buffer_send[2] = PROGRAM_VERSION[2]-48;
+    usb_send_bytes(buffer_send, sizeof(buffer_send));
 }
 
 
@@ -110,11 +123,11 @@ bool apply_rpc_callback(char* buffer, size_t length, bool ready){
         switch(buffer[0]){
             case ECHO:          echo(buffer, length);                   break;
             case RESET:         system_reset();                         break;
-            case CLOCK_SYS:     get_clock_system(buffer, length);       break;
-            case STATE_SYS:     get_state_system(buffer, length);       break;
-            case STATE_PIN:     get_state_pin(buffer, length);          break; 
-            case RUNTIME:       get_runtime(buffer);                    break;
-            case FIRMWARE:      get_firmware_version(buffer, length);   break;
+            case CLOCK_SYS:     get_clock_system();                     break;
+            case STATE_SYS:     get_state_system();                     break;
+            case STATE_PIN:     get_state_pin();                        break; 
+            case RUNTIME:       get_runtime();                          break;
+            case FIRMWARE:      get_firmware_version();                 break;
             case ENABLE_LED:    enable_led();                           break;
             case DISABLE_LED:   disable_led();                          break;
             case TOGGLE_LED:    toogle_led();                           break;

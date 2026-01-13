@@ -8,14 +8,13 @@ from serial import (
 from serial.tools import list_ports
 
 
-def get_comport_name(usb_vid: int, usb_pid: int) -> str:
+def get_comport_name(usb_vid: int) -> str:
     """Returning the COM Port name of the addressable devices
     :param usb_vid: USB VID
-    :param usb_pid: USB PID
     :return:        String with COM port name with matched VIP und PID properties
     """
     available_ports = list_ports.comports()
-    list_right_com = [port.device for port in available_ports if port.vid == usb_vid and port.pid == usb_pid]
+    list_right_com = [port.device for port in available_ports if port.vid == usb_vid and (port.pid == 0x000A or port.pid == 0x0009)]
     if len(list_right_com) == 0:
         raise ConnectionError(f"No COM Port with right USB found - Please adapt the VID and PID values {[[port.name, port.vid, port.pid] for port in list_ports.comports()]}")
     return list_right_com[0]

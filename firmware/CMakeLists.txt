@@ -56,8 +56,8 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/AErbsloeh/pico_runtime_library.git
     GIT_TAG        main
 )
-FetchContent_MakeAvailable(custom_library)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../pico_runtime_library custom_library)
+#FetchContent_MakeAvailable(custom_library)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../pico_runtime_library custom_library)
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(main false)
@@ -114,15 +114,17 @@ target_link_libraries(main
 get_target_property(LINK_LIBS main LINK_LIBRARIES)
 
 # Define definition and set flags if used (necessary for external file handling)
+if(PICO_BOARD MATCHES "_w")
+    target_compile_definitions(main PUBLIC ADD_CYW43_SUPPORT)
+endif()
+
 if("hal_btspp" IN_LIST LINK_LIBS)
-    message(STATUS "si")
     set(PICO_BTSTACK_ENABLED ON CACHE BOOL "Enable Bluetooth SPP HAL library" FORCE)
 else()
     set(PICO_BTSTACK_ENABLED OFF CACHE BOOL "Disable Bluetooth SPP HAL library" FORCE)
 endif()
 
 if("hal_wifi_tcp" IN_LIST LINK_LIBS)
-    message(STATUS "si 0")
     set(PICO_WIFI_TCP_ENABLED ON CACHE BOOL "Enable Wifi TCP HAL library" FORCE)
 else()
     set(PICO_WIFI_TCP_ENABLED OFF CACHE BOOL "Disable Wifi TCP HAL library" FORCE)

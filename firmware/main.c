@@ -1,8 +1,16 @@
 #include "hardware_io.h"
 #include "callbacks/rpc_callbacks.h"
-
+#ifdef ADD_CYW43_SUPPORT
+    #include "pico/cyw43_arch.h"
+#endif
 
 int main(){   
+    #ifdef ADD_CYW43_SUPPORT
+        if (cyw43_arch_init()) {
+            return -1;
+        }
+    #endif
+
     // Init Phase 
     init_gpio_pico(false);
     init_system();

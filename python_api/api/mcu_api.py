@@ -58,13 +58,12 @@ class DeviceAPI:
     __device: InterfaceSerial
     __threads: ThreadLSL
     __logger: Logger
-    __timeout_default: float
+    __timeout_default: float = 10.
     __num_batch_data: int = 20
     __num_bytes_data: int = 15
     __sampling_rate: float = 4.
-    # Pico 2 specific USB characteristics
     __usb_vid: int = 0x2E8A
-    __usb_pid: int = 0x0009
+    # PID of RP2350 = 0x0009 and RP2040 = 0x000A
 
     def __init__(self, com_name: str="AUTOCOM", timeout: float=1.) -> None:
         """Init. of the device with name and baudrate of the device
@@ -75,7 +74,7 @@ class DeviceAPI:
         self.__threads = ThreadLSL()
         self.__timeout_default = timeout
         self.__device = InterfaceSerial(
-            com_name=com_name if com_name != "AUTOCOM" else get_comport_name(usb_vid=self.__usb_vid, usb_pid=self.__usb_pid),
+            com_name=com_name if com_name != "AUTOCOM" else get_comport_name(usb_vid=self.__usb_vid),
             baud=230400,
             num_bytes_head=1,
             num_bytes_data=2,
@@ -138,25 +137,27 @@ class DeviceAPI:
             ret = self.__write_with_feedback(0, chunk)
             val += ret[1:]
             if ret[0] != 0x00:
-                raise ValueError
+                raise ValueError(f"Get: {ret}")
         return self.__device.deserialize_string(val, do_padding)
 
     def _get_system_clock_khz(self) -> int:
         """Returning the system clock of the device in kHz"""
         ret = self.__write_with_feedback(2, 0)
         if ret[0] != 0x02:
-            raise ValueError
+            raise ValueError(f"Get: {ret}")
         return 10 * int.from_bytes(ret[1:], byteorder='little', signed=False)
 
     def _get_system_state(self) -> str:
         """Retuning the System State"""
-        ret = self.__write_with_feedback(3, 0)[-1]
-        return _convert_system_state(ret)
+        ret = self.__write_with_feedback(3, 0)
+        if ret[0] != 0x03:
+            raise ValueError(f"Get: {ret}")
+        return _convert_system_state(ret[-1])
 
     def _get_pin_state(self) -> str:
         """Retuning the Pin States"""
-        ret = self.__write_with_feedback(4, 0)[-1]
-        return _convert_pin_state(ret)
+        ret = self.__write_with_feedback(4, 0)
+        return _convert_pin_state(ret[-1])
 
     def _get_runtime_sec(self) -> float:
         """Returning the execution runtime of the device after last reset
@@ -164,7 +165,7 @@ class DeviceAPI:
         """
         ret = self.__write_with_feedback(5, 0, size=9)
         if ret[0] != 0x05:
-            raise ValueError
+            raise ValueError(f"Get: {ret}")
         return 1e-6 * int.from_bytes(ret[1:], byteorder='little', signed=False)
 
     def _get_firmware_version(self) -> str:
@@ -173,7 +174,7 @@ class DeviceAPI:
         """
         ret = self.__write_with_feedback(6, 0)
         if ret[0] != 0x06:
-            raise ValueError
+            raise ValueError(f"Get: {ret}")
         return f"{ret[1]}.{ret[2]}"
 
     def get_state(self) -> SystemState:

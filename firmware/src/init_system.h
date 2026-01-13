@@ -8,7 +8,7 @@
 /*! \brief Enum struct for defining suitable system states
 */
 typedef enum{
-    STATE_ERROR,
+    STATE_ERROR = 0,
     STATE_RESET,
     STATE_INIT,
     STATE_IDLE,

@@ -53,7 +53,7 @@ bool init_system(void){
     } else {
         set_system_state(STATE_ERROR);
         while(true){
-            sleep_ms(50);
+            sleep_ms(100);
             toggle_state_default_led();
         }
         return false;
