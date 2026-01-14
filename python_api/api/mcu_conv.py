@@ -9,8 +9,8 @@ def _convert_pin_state(state: int) -> str:
     else:
         ret_text = ''
         for idx, led in enumerate(led_name):
-            if state and (1 << idx):
-                ret_text += f'{led}' if not len(ret_text) else f'+{led}'
+            if state & (1 << idx):
+                ret_text += f'{led}' if len(ret_text) == 0 else f'+{led}'
         return ret_text
 
 
