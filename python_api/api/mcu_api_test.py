@@ -83,13 +83,6 @@ def test_check_system_state_class(dut: DeviceAPI):
     assert 80. < rslt.temp < 95.
 
 
-def test_toggle_led(dut: DeviceAPI):
-    dut.disable_led()
-    assert dut._get_pin_state() == 'NONE'
-    dut.toggle_led()
-    assert 'LED' in dut._get_pin_state()
-
-
 def test_enable_led(dut: DeviceAPI):
     dut.disable_led()
     assert dut._get_pin_state() == 'NONE'
@@ -102,6 +95,17 @@ def test_diable_led(dut: DeviceAPI):
     assert 'LED' in dut._get_pin_state()
     dut.disable_led()
     assert dut._get_pin_state() == 'NONE'
+    
+
+def test_toggle_led(dut: SignalPlayerAPI):
+    dut.disable_led()
+
+    dut.toggle_led()
+    assert 'LED' in dut._get_pin_state()
+    dut.toggle_led()
+    assert dut._get_pin_state() == 'NONE'
+    
+    dut.disable_led()
 
 
 def test_control_daq(dut: DeviceAPI):

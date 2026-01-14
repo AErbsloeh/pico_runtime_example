@@ -147,7 +147,7 @@ bool apply_rpc_callback(char* buffer, size_t length, bool ready){
             case START_DAQ:     start_daq();                            break;
             case STOP_DAQ:      stop_daq();                             break;
             case UPDATE_DAQ:    update_daq(buffer);                     break;
-            default:            sleep_us(10);                           break;        
+            default:            set_system_state(STATE_ERROR);          break;        
         }  
     }
     return true;

@@ -7,7 +7,7 @@
 
 // =============================== DEFINITIONS ===============================
 typedef enum{
-    TB_NONE,
+    TB_NONE = 0,
     TB_MUX
 } testbench_mode_t;
 
