@@ -1,11 +1,23 @@
 import pytest
+from shutil import rmtree
 from time import sleep
-from api.mcu_api import DeviceAPI
+from api.mcu_api import (
+    get_path_to_project,
+    DeviceAPI
+)
 
 
 @pytest.fixture(scope="session", autouse=True)
 def before_all_tests():
     DeviceAPI().do_reset()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def after_all_tests():
+    yield
+    DeviceAPI().do_reset()
+    rmtree(get_path_to_project("temp_data"), ignore_errors=True)
+    print("All pytests are done!")
 
 
 @pytest.fixture
@@ -56,6 +68,11 @@ def test_firmware_version(dut: DeviceAPI):
     assert rslt == "0.1"
 
 
+def test_temperature(dut: DeviceAPI):
+    rslt = dut._get_temp_mcu()
+    assert 80. < rslt < 95.
+
+
 def test_check_system_state_class(dut: DeviceAPI):
     rslt = dut.get_state()
     assert rslt.system == "IDLE"
@@ -63,6 +80,7 @@ def test_check_system_state_class(dut: DeviceAPI):
     assert rslt.runtime > 0
     assert rslt.clock in [125000, 150000]
     assert rslt.firmware == "0.1"
+    assert 80. < rslt.temp < 95.
 
 
 def test_toggle_led(dut: DeviceAPI):
@@ -87,18 +105,22 @@ def test_diable_led(dut: DeviceAPI):
 
 
 def test_control_daq(dut: DeviceAPI):
-    dut.update_daq_sampling_rate(2.)
+    dut.update_daq_sampling_rate(1.)
     assert dut._get_system_state() == 'IDLE'
+
     dut.start_daq(folder_name="temp_data")
-    sleep(0.5)
+    sleep(1.)
     while dut._get_pin_state() == 'LED_USER':
-        sleep(0.05)
-    sleep(0.5)
+        sleep(0.1)
+        print("A")
+    sleep(1.)
     while dut._get_pin_state() == 'NONE':
-        sleep(0.05)
-    sleep(0.5)
+        sleep(0.1)
+        print("B")
+    sleep(1.)
+
     dut.stop_daq()
-    sleep(0.5)
+    sleep(1.)
 
 
 if __name__ == "__main__":

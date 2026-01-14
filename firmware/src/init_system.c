@@ -1,6 +1,6 @@
 #include "src/init_system.h"
-#include "hardware_io.h"
 #include "hardware/watchdog.h"
+#include "hardware_io.h"
 
 
 void reset_pico_mcu(bool wait_until_done){
@@ -39,15 +39,18 @@ bool init_gpio_pico(bool block_usb){
 
 bool init_system(void){
     uint8_t num_init_done = 0;
+	
+	// --- Internal ADC
+	if(rp2_adc_init(&adc_temp))
+		num_init_done++;
 
     // --- Init of Timer
-    if(init_daq_sampling(&tmr_daq0_hndl)){
+    if(init_daq_sampling(&tmr_daq0_hndl))
         num_init_done++;
-    };
 
     // --- Blocking Routine if init is not completed
     sleep_ms(10);
-    if(num_init_done == 1){
+    if(num_init_done == 2){
         set_system_state(STATE_IDLE);
         return true;
     } else {

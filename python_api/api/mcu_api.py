@@ -10,7 +10,8 @@ from api.interface import (
 from api.lsl import ThreadLSL
 from api.mcu_conv import (
     _convert_pin_state,
-    _convert_system_state
+    _convert_system_state,
+    _convert_rp2_temp_value
 )
 
 
@@ -46,12 +47,14 @@ class SystemState:
         runtime:    Float with actual execution runtime after last reset [sec.]
         clock:      Integer with System Clock [kHz]
         firmware:   String with firmware version on board
+        temp:       Float with temperature [°C] of the board
     """
     pins: str
     system: str
     runtime: float
     clock: int
     firmware: str
+    temp: float
 
 
 class DeviceAPI:
@@ -177,6 +180,15 @@ class DeviceAPI:
             raise ValueError(f"Get: {ret}")
         return f"{ret[1]}.{ret[2]}"
 
+    def _get_temp_mcu(self) -> float:
+        """Returning the temperature of the device in Celsius
+        :return:    Float value with temperature in Celsius
+        """
+        ret = self.__write_with_feedback(7, 0)
+        if ret[0] != 0x07:
+            raise ValueError(f"Get: {ret}")
+        return _convert_rp2_temp_value(int.from_bytes(ret[1:], signed=False, byteorder='little'))
+
     def get_state(self) -> SystemState:
         """Returning the state of the system
         :return:    Class SystemState with information about pin state, system state and actual runtime of the system
@@ -187,25 +199,26 @@ class DeviceAPI:
             runtime=self._get_runtime_sec(),
             clock=self._get_system_clock_khz(),
             firmware=self._get_firmware_version(),
+            temp=self._get_temp_mcu()
         )
 
     def enable_led(self) -> None:
         """Changing the state of the LED with enabling it
         :return:        None
         """
-        self.__write_without_feedback(7, 0)
+        self.__write_without_feedback(8, 0)
 
     def disable_led(self) -> None:
         """Changing the state of the LED with disabling it
         :return:        None
         """
-        self.__write_without_feedback(8, 0)
+        self.__write_without_feedback(9, 0)
 
     def toggle_led(self) -> None:
         """Changing the state of the LED with toggling it
         :return:        None
         """
-        self.__write_without_feedback(9, 0)
+        self.__write_without_feedback(10, 0)
 
     @property
     def _thread_frame_datatype(self) -> np.dtype:
@@ -276,14 +289,14 @@ class DeviceAPI:
 
         self.__device.timeout = 2 / self.__sampling_rate
         self.__threads.start()
-        self.__write_without_feedback(10, 0)
+        self.__write_without_feedback(11, 0)
 
     def stop_daq(self) -> None:
         """Changing the state of the DAQ with stopping it
         :return:            None
         """
         self.__threads.stop()
-        self.__write_without_feedback(11, 0)
+        self.__write_without_feedback(12, 0)
         self.__device.timeout = self.__timeout_default
 
     def wait_daq(self, time_sec: float) -> None:
@@ -305,4 +318,4 @@ class DeviceAPI:
             raise ValueError(f"Sampling rate cannot be greater than {sampling_limits[1]}")
 
         self.__sampling_rate = sampling_rate
-        self.__write_without_feedback(12, int(sampling_rate))
+        self.__write_without_feedback(13, int(sampling_rate))

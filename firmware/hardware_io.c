@@ -10,7 +10,13 @@ system_state_t system_state = STATE_ERROR;
 //i2c_rp2_t i2c_mod = {};
 
 
-// ==================== PICO/SYSTEM DEFINITION =====================
+// =============== PICO/SYSTEM DEFINITION ==================
+// --- Internal Temp Sensor
+rp2_adc_t adc_temp = {
+    .adc_channel = RP2_ADC_TEMP,
+    .init_done = false
+};
+
 // --- USB PROTOCOL
 char data_usb[USB_FIFO_SIZE] = {0};
 usb_rp2_t usb_buffer = {

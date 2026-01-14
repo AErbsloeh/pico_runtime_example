@@ -12,6 +12,7 @@ typedef enum {
     STATE_PIN,
     RUNTIME,
     FIRMWARE,
+	TEMP_MCU,
     ENABLE_LED,
     DISABLE_LED,
     TOGGLE_LED,
@@ -83,6 +84,17 @@ void get_firmware_version(void){
 }
 
 
+void get_temp_mcu(void){
+    uint16_t temp_raw = rp2_adc_read_raw(&adc_temp);
+
+    char buffer_send[3] = {0};
+    buffer_send[0] = TEMP_MCU;
+    buffer_send[1] = (uint8_t)(temp_raw >> 0);
+    buffer_send[2] = (uint8_t)(temp_raw >> 8);
+    usb_send_bytes(buffer_send, sizeof(buffer_send));
+}
+
+
 void enable_led(void){
     set_state_default_led(true);
 }
@@ -127,6 +139,7 @@ bool apply_rpc_callback(char* buffer, size_t length, bool ready){
             case STATE_SYS:     get_state_system();                     break;
             case STATE_PIN:     get_state_pin();                        break; 
             case RUNTIME:       get_runtime();                          break;
+			case TEMP_MCU:		get_temp_mcu();							break;
             case FIRMWARE:      get_firmware_version();                 break;
             case ENABLE_LED:    enable_led();                           break;
             case DISABLE_LED:   disable_led();                          break;

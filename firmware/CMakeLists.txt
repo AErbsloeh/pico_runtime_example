@@ -71,6 +71,7 @@ target_link_libraries(main
     hardware_clocks
     hardware_gpio
     # ---- Include Hardware Abstraction Layer (HAL) libraries
+	hal_adc
     #hal_btspp
     hal_clk
     hal_i2c

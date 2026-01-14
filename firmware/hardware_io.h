@@ -7,6 +7,7 @@
 #include "hal/led/led.h"
 #include "hal/tmr/tmr.h"
 #include "hal/usb/usb.h"
+#include "hal/adc/adc.h"
 
 #include "src/init_system.h"
 #include "src/testbench.h"
@@ -27,6 +28,9 @@ extern system_state_t system_state;
 
 
 // ================ PICO/SYSTEM DEFINITION =================
+// --- Internal Temp Sensor
+extern rp2_adc_t adc_temp;
+
 // --- USB Communication
 #define USB_FIFO_SIZE 3
 extern char data[USB_FIFO_SIZE];
