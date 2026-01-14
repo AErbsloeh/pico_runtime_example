@@ -23,3 +23,14 @@ def _convert_system_state(state: int) -> str:
     if not 0 <= state < len(state_name):
         raise ValueError(f'Invalid pin state: {state}')
     return state_name[state]
+    
+   
+def _convert_rp2_adc_value(raw: int) -> float:
+    """Function for converting the RP2 ADC value from integer to float"""
+    if raw >= 65535:
+        val0 = 65535
+    elif raw < 0:
+        val0 = 0
+    else:
+        val0 = raw
+    return val0 * 3.3 / 4095
