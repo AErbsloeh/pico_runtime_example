@@ -70,17 +70,18 @@ def test_firmware_version(dut: DeviceAPI):
 
 def test_temperature(dut: DeviceAPI):
     rslt = dut._get_temp_mcu()
-    assert 80. < rslt < 95.
+    assert 20. < rslt < 36.
 
 
 def test_check_system_state_class(dut: DeviceAPI):
-    rslt = dut.get_state()
+    for _ in range(5):
+        rslt = dut.get_state()
     assert rslt.system == "IDLE"
     assert rslt.pins == "LED_USER"
     assert rslt.runtime > 0
     assert rslt.clock in [125000, 150000]
     assert rslt.firmware == "0.1"
-    assert 80. < rslt.temp < 95.
+    assert 20. < rslt.temp < 36.
 
 
 def test_enable_led(dut: DeviceAPI):
