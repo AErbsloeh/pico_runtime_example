@@ -98,7 +98,7 @@ def test_diable_led(dut: DeviceAPI):
     assert dut._get_pin_state() == 'NONE'
     
 
-def test_toggle_led(dut: SignalPlayerAPI):
+def test_toggle_led(dut: DeviceAPI):
     dut.disable_led()
 
     dut.toggle_led()
