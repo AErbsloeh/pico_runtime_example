@@ -74,8 +74,7 @@ target_link_libraries(main
 	hal_adc
     #hal_btspp
     hal_clk
-    hal_i2c
-    #hal_irq
+    #hal_i2c
     hal_led
     #hal_osc
     #hal_pwm

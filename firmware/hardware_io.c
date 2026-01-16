@@ -41,7 +41,7 @@ bool irq_tmr_daq0(repeating_timer_t *rt){
     daq_sample_data.value_ch1 -= 4;
     send_daq_data_usb(&daq_sample_data);
 
-    gpio_put(LED_TEST_DEFAULT, !gpio_get(LED_TEST_DEFAULT));
+    toggle_state_default_led();
     return true;    
 };
 repeating_timer_t tmr_daq0;
